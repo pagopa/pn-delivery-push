@@ -646,7 +646,8 @@ class PaperChannelServiceImplTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void sendAnalogNotificationSchedulesTimeout() {
-        NotificationInt notification = newNotification("taxid");
+        NotificationInt notification = newNotification("taxid2");
+        String iun = notification.getIun();
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
         Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
@@ -655,9 +656,16 @@ class PaperChannelServiceImplTest {
         Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
         Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
 
-        TimelineElementInternal timelineElementInternal = Mockito.mock(TimelineElementInternal.class);
-        Mockito.when(timelineElementInternal.getTimestamp()).thenReturn(Instant.now());
-        Mockito.when(timelineService.getTimelineElement(Mockito.eq("IUN_01"), Mockito.isNull())).thenReturn(Optional.of(timelineElementInternal));
+        String sendAnalogElementId = "sendAnalogElementId";
+        Mockito.when(paperChannelUtils.addSendAnalogNotificationToTimeline(any(), any(), any(), any(), any(), any()))
+                .thenReturn(sendAnalogElementId);
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(sendAnalogElementId)
+                .timestamp(Instant.now())
+                .build();
+        Mockito.when(timelineService.getTimelineElement(iun, sendAnalogElementId)).thenReturn(Optional.of(timelineElementInternal));
 
         TimeParams timeParams = Mockito.mock(TimeParams.class);
         Mockito.when(timeParams.getScheduleAnalogWorkflowTimeoutOffset()).thenReturn(Duration.ofHours(1));
@@ -672,12 +680,14 @@ class PaperChannelServiceImplTest {
         paperChannelService.sendAnalogNotification(notification, 0, 0, "req123", receiverAddress, "RIR", Collections.emptyList(), categorizedAttachmentsResult);
 
         Mockito.verify(schedulerService).scheduleEvent(
-                eq("IUN_01"),
+                eq(iun),
+                eq(0),
                 any(Instant.class),
                 eq(ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT),
+                anyString(),
                 any()
         );
-        Assertions.assertEquals("IUN_01", notification.getIun());
+        Assertions.assertEquals(iun, notification.getIun());
     }
 
     private NotificationInt newNotification(String TAX_ID) {

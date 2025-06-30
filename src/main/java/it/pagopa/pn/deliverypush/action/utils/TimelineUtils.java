@@ -1537,6 +1537,7 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSendAnalogTimeoutCreationRequest(NotificationInt notification,
                                                                          SendAnalogDetailsInt sendAnalogDetailsInt,
+                                                                         String relatedRequestId,
                                                                          Instant timeoutDate) {
         Integer recIndex = sendAnalogDetailsInt.getRecIndex();
         log.debug("buildSendAnalogTimeoutCreationRequest - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, sendAnalogDetailsInt.getRelatedRequestId());
@@ -1551,7 +1552,7 @@ public class TimelineUtils {
                 .recIndex(recIndex)
                 .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
                 .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())
-                .relatedRequestId(sendAnalogDetailsInt.getRelatedRequestId())
+                .relatedRequestId(relatedRequestId)
                 .serviceLevel(sendAnalogDetailsInt.getServiceLevel())
                 .build();
 

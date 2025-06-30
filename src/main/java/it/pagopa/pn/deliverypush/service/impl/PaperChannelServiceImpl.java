@@ -349,7 +349,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
-                scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(notification, productType, sentAttemptMade, timelineId);
+                scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(notification, recIndex, productType, sentAttemptMade, timelineId);
 
             } catch (Exception exc) {
                 auditLogEvent.generateFailure("failed send", exc).log();
@@ -363,7 +363,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         return timelineId;
     }
 
-    private void scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(NotificationInt notification, String productType, int sentAttemptMade, String timelineId) {
+    private void scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(NotificationInt notification, Integer recIndex, String productType, int sentAttemptMade, String timelineId) {
         log.info("scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct - iun{} productType={} sentAttemptMade={} timelineId={}", notification.getIun(), productType, sentAttemptMade, timelineId);
         if (!ProductTypeEnum.RIR.getValue().equals(productType)) {
             log.info("Skipping scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT for iun={} as productType={} is not RIR", notification.getIun(), productType);
@@ -376,20 +376,27 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         if (timelineElementInternalOpt.isPresent()) {
             TimelineElementInternal sendAnalogDomicileElement = timelineElementInternalOpt.get();
             Instant timestamp = sendAnalogDomicileElement.getTimestamp();
-            scheduleEventForRIRProduct(notification, sentAttemptMade, timestamp, iun);
+            scheduleEventForRIRProduct(notification, recIndex, sentAttemptMade, timestamp, iun, timelineId);
         } else {
             throw new PnInternalException("Timeline element not found for iun=" + iun + " and timelineId=" + timelineId, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
         }
     }
 
-    private void scheduleEventForRIRProduct(NotificationInt notification, int sentAttemptMade, Instant timestamp, String iun) {
+    private void scheduleEventForRIRProduct(
+            NotificationInt notification,
+            Integer recIndex,
+            int sentAttemptMade,
+            Instant timestamp,
+            String iun,
+            String timelineId
+    ) {
         AnalogWorkflowTimeoutDetails actionDetails = AnalogWorkflowTimeoutDetails.builder()
                 .sentAttemptMade(sentAttemptMade)
                 .build();
         Instant dateToSchedule = timestamp.plus(pnDeliveryPushConfigs.getTimeParams().getScheduleAnalogWorkflowTimeoutOffset());
         try {
             log.info("Scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT action for iun={}, sentAttemptMade={}, date={}", iun, sentAttemptMade, dateToSchedule);
-            schedulerService.scheduleEvent(notification.getIun(), dateToSchedule, ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT, actionDetails);
+            schedulerService.scheduleEvent(notification.getIun(), recIndex, dateToSchedule, ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT, timelineId, actionDetails);
         } catch (Exception e) {
             log.fatal("Failed to schedule ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT action with iun={}, sentAttemptMade={}, date={}", iun, sentAttemptMade, timestamp, e);
         }
