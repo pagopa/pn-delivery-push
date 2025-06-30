@@ -45,6 +45,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.VALIDATED_F24;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
@@ -775,6 +776,18 @@ class TimeLineServiceImplTest {
 
         //Viene verificato che il numero di elementi restituiti sia 2, dunque che sia stato eliminato l'elemento con category "IN VALIDATION"
         Assertions.assertEquals(2 , notificationHistoryResponse.getNotificationStatusHistory().size());
+        ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
+        Mockito.verify(statusUtils).getStatusHistory(
+                captor.capture(),
+                Mockito.anyInt(),
+                Mockito.any(Instant.class)
+        );
+
+        Set<TimelineElementInternal> timelineSet = captor.getValue();
+        boolean containsValidatedF24 = timelineSet.stream()
+                .anyMatch(e -> e.getCategory() == TimelineElementCategoryInt.VALIDATED_F24);
+
+        Assertions.assertFalse(containsValidatedF24, "Il set non deve contenere elementi con categoria VALIDATED_F24");
 
         NotificationStatusHistoryElementV26 firstElement = notificationHistoryResponse.getNotificationStatusHistory().get(0);
         Assertions.assertEquals(acceptedElementElement.getStatus(), NotificationStatusInt.valueOf(firstElement.getStatus().getValue()) );
