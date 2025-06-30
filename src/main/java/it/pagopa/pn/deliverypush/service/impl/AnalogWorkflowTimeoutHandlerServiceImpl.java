@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimeoutHandlerService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @Component
 @AllArgsConstructor
 @Slf4j
-public class AnalogWorkflowTimeoutHandlerService implements it.pagopa.pn.deliverypush.service.AnalogWorkflowTimoutHandlerService {
+public class AnalogWorkflowTimeoutHandlerServiceImpl implements AnalogWorkflowTimeoutHandlerService {
     private final NotificationService notificationService;
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;

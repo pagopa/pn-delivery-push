@@ -24,14 +24,14 @@ public class AnalogWorkflowTimeoutHandlerServiceImplTest {
     private TimelineUtils timelineUtils;
     private NotificationService notificationService;
     private TimelineService timelineService;
-    private AnalogWorkflowTimeoutHandlerService service;
+    private AnalogWorkflowTimeoutHandlerServiceImpl service;
 
     @BeforeEach
     void setUp() {
         timelineUtils = mock(TimelineUtils.class);
         notificationService = mock(NotificationService.class);
         timelineService = mock(TimelineService.class);
-        service = new AnalogWorkflowTimeoutHandlerService(notificationService, timelineService, timelineUtils);
+        service = new AnalogWorkflowTimeoutHandlerServiceImpl(notificationService, timelineService, timelineUtils);
     }
 
     @Test

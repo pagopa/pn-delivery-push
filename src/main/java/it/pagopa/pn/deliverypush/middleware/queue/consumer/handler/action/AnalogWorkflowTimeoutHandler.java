@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleE
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.SupportedEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.impl.AnalogWorkflowTimeoutHandlerService;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimeoutHandlerService;
 import lombok.CustomLog;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;

@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.SupportedEventType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.Action;
-import it.pagopa.pn.deliverypush.service.impl.AnalogWorkflowTimeoutHandlerService;
+import it.pagopa.pn.deliverypush.service.AnalogWorkflowTimeoutHandlerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import java.time.Instant;
 
 import static org.mockito.Mockito.*;
 
-public class AnalogWorkflowTimoutHandlerTest {
+public class AnalogWorkflowTimeoutHandlerTest {
 
     @Mock
     private TimelineUtils timelineUtils;
