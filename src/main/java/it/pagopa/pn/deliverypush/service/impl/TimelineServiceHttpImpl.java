@@ -6,10 +6,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflow
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NewTimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineCategory;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElement;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
@@ -151,7 +148,30 @@ public class TimelineServiceHttpImpl implements TimelineService {
                             .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue()))
                             .collect(Collectors.toList())
             );
+            if (notificationHistoryResponse.getNotificationStatusHistory() != null) {
+                // Ottieni gli id degli elementi rimasti nella timeline
+                Set<String> timelineIds = getTimelineIds(notificationHistoryResponse);
+                notificationHistoryResponse.setNotificationStatusHistory(
+                        notificationHistoryResponse.getNotificationStatusHistory().stream()
+                            .peek(statusHistoryElement -> filterRelatedTimelineElements(statusHistoryElement, timelineIds))
+                                .collect(Collectors.toList())
+                );
+            }
         }
+    }
+
+    private Set<String> getTimelineIds(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse) {
+        return Objects.requireNonNull(notificationHistoryResponse.getTimeline())
+                .stream()
+                .map(TimelineElement::getElementId)
+                .collect(Collectors.toSet());
+    }
+
+    private void filterRelatedTimelineElements(NotificationStatusHistoryElement statusHistoryElement, Set<String> timelineIds) {
+        List<String> filteredRelated = statusHistoryElement.getRelatedTimelineElements().stream()
+                .filter(timelineIds::contains)
+                .collect(Collectors.toList());
+        statusHistoryElement.setRelatedTimelineElements(filteredRelated);
     }
 
     private boolean isPublicElement(String elementCategory) {
