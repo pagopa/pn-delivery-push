@@ -45,7 +45,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.VALIDATED_F24;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
