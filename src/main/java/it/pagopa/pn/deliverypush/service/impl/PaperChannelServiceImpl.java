@@ -1,14 +1,17 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
+import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24ResolutionMode;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
@@ -19,20 +22,28 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ProductTypeEnum;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelPrepareRequest;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND;
 
 @CustomLog
 @AllArgsConstructor
@@ -46,6 +57,9 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final AnalogWorkflowUtils analogWorkflowUtils;
     private final AuditLogService auditLogService;
     private final AttachmentUtils attachmentUtils;
+    private final SchedulerService schedulerService;
+    private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    private final TimelineService timelineService;
 
     /**
      * Send registered letter to external channel
@@ -335,6 +349,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
 
                 log.info("Analog notification sent to paperChannel - iun={} id={}", notification.getIun(), recIndex);
                 auditLogEvent.generateSuccess("send success cost={} send timelineId={}", sendResponse.getAmount(), timelineId).log();
+                scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(notification, productType, sentAttemptMade, timelineId);
 
             } catch (Exception exc) {
                 auditLogEvent.generateFailure("failed send", exc).log();
@@ -346,6 +361,38 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         }
 
         return timelineId;
+    }
+
+    private void scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(NotificationInt notification, String productType, int sentAttemptMade, String timelineId) {
+        log.info("scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct - iun{} productType={} sentAttemptMade={} timelineId={}", notification.getIun(), productType, sentAttemptMade, timelineId);
+        if (!ProductTypeEnum.RIR.getValue().equals(productType)) {
+            log.info("Skipping scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT for iun={} as productType={} is not RIR", notification.getIun(), productType);
+            return;
+        }
+
+        String iun = notification.getIun();
+        Optional<TimelineElementInternal> timelineElementInternalOpt = timelineService.getTimelineElement(iun, timelineId);
+
+        if (timelineElementInternalOpt.isPresent()) {
+            TimelineElementInternal sendAnalogDomicileElement = timelineElementInternalOpt.get();
+            Instant timestamp = sendAnalogDomicileElement.getTimestamp();
+            scheduleEventForRIRProduct(notification, sentAttemptMade, timestamp, iun);
+        } else {
+            throw new PnInternalException("Timeline element not found for iun=" + iun + " and timelineId=" + timelineId, ERROR_CODE_DELIVERYPUSH_TIMELINENOTFOUND);
+        }
+    }
+
+    private void scheduleEventForRIRProduct(NotificationInt notification, int sentAttemptMade, Instant timestamp, String iun) {
+        AnalogWorkflowTimeoutDetails actionDetails = AnalogWorkflowTimeoutDetails.builder()
+                .sentAttemptMade(sentAttemptMade)
+                .build();
+        Instant dateToSchedule = timestamp.plus(pnDeliveryPushConfigs.getTimeParams().getScheduleAnalogWorkflowTimeoutOffset());
+        try {
+            log.info("Scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT action for iun={}, sentAttemptMade={}, date={}", iun, sentAttemptMade, dateToSchedule);
+            schedulerService.scheduleEvent(notification.getIun(), dateToSchedule, ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT, actionDetails);
+        } catch (Exception e) {
+            log.fatal("Failed to schedule ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT action with iun={}, sentAttemptMade={}, date={}", iun, sentAttemptMade, timestamp, e);
+        }
     }
 
     private List<String> legacyRetrieveAcceptedAttachments(NotificationInt notification, Integer recIndex, List<String> replacedF24AttachmentUrls, NotificationChannelType notificationChannelType){
