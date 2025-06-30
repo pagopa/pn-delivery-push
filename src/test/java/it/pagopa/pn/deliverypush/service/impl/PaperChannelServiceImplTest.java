@@ -63,7 +63,7 @@ class PaperChannelServiceImplTest {
     @Mock
     private SchedulerService schedulerService;
     @Mock
-    private PnDeliveryPushConfigs pnDeliveryPushConfigs;;
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
     @Mock
     private TimelineService timelineService;
 
