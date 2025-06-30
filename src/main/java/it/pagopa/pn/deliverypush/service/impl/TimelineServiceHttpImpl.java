@@ -153,8 +153,10 @@ public class TimelineServiceHttpImpl implements TimelineService {
                 Set<String> timelineIds = getTimelineIds(notificationHistoryResponse);
                 notificationHistoryResponse.setNotificationStatusHistory(
                         notificationHistoryResponse.getNotificationStatusHistory().stream()
-                            .peek(statusHistoryElement -> filterRelatedTimelineElements(statusHistoryElement, timelineIds))
-                                .collect(Collectors.toList())
+                            .map(statusHistoryElement -> {
+                                filterRelatedTimelineElements(statusHistoryElement, timelineIds);
+                                return statusHistoryElement;
+                            }).toList()
                 );
             }
         }
@@ -170,7 +172,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
     private void filterRelatedTimelineElements(NotificationStatusHistoryElement statusHistoryElement, Set<String> timelineIds) {
         List<String> filteredRelated = statusHistoryElement.getRelatedTimelineElements().stream()
                 .filter(timelineIds::contains)
-                .collect(Collectors.toList());
+                .toList();
         statusHistoryElement.setRelatedTimelineElements(filteredRelated);
     }
 
