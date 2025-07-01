@@ -124,14 +124,18 @@ public class TimelineServiceMapper {
     }
 
     private static List<LegalFactsId> toLegalFactsIdList(List<LegalFactsIdInt> legalFactsIdIntList) {
-        if (!CollectionUtils.isEmpty(legalFactsIdIntList)) {
-            return legalFactsIdIntList.stream()
-                    .map(legalFactsIdInt -> new LegalFactsId()
-                            .key(legalFactsIdInt.getKey())
-                            .category(LegalFactsId.CategoryEnum.valueOf(legalFactsIdInt.getCategory().getValue())))
-                    .toList();
+        if (legalFactsIdIntList == null) {
+            return null;
         }
-        return Collections.emptyList();
+        if (legalFactsIdIntList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return legalFactsIdIntList.stream()
+                .map(legalFactsIdInt -> new LegalFactsId()
+                        .key(legalFactsIdInt.getKey())
+                        .category(LegalFactsId.CategoryEnum.valueOf(legalFactsIdInt.getCategory().getValue())))
+                .toList();
     }
 
     private static List<LegalFactsIdInt> toLegalFactsIdIntList(List<LegalFactsId> legalFactsIdList) {
