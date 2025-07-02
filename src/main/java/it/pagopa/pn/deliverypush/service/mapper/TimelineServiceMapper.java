@@ -10,7 +10,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +37,7 @@ public class TimelineServiceMapper {
                 .elementId(timelineElement.getElementId())
                 .timestamp(timelineElement.getTimestamp())
                 .paId(timelineElement.getPaId())
-                .legalFactsIds(toLegalFactsIdIntList(timelineElement.getLegalFactsIds()))
+                .legalFactsIds(timelineElement.getLegalFactsIds() != null ? toLegalFactsIdIntList(timelineElement.getLegalFactsIds()) : null)
                 .category(category)
                 .details(toTimelineElementDetailsInt(timelineElement.getDetails(), category))
                 .statusInfo(toStatusInfoInternal(timelineElement.getStatusInfo()))
@@ -69,7 +68,7 @@ public class TimelineServiceMapper {
                     .map(item -> TimelineElementV27.builder()
                             .elementId(item.getElementId())
                             .timestamp(item.getTimestamp())
-                            .legalFactsIds(toLegalFactsIdV20List(item.getLegalFactsIds()))
+                            .legalFactsIds(item.getLegalFactsIds() != null ? toLegalFactsIdV20List(item.getLegalFactsIds()) : null)
                             .category(TimelineElementCategoryV27.valueOf(item.getCategory().getValue()))
                             .details(toTimelineElementDetailsV27(item.getDetails()))
                             .notificationSentAt(item.getNotificationSentAt())
@@ -136,33 +135,34 @@ public class TimelineServiceMapper {
     }
 
     private static List<LegalFactsIdInt> toLegalFactsIdIntList(List<LegalFactsId> legalFactsIdList) {
-        if (!CollectionUtils.isEmpty(legalFactsIdList)) {
-            return legalFactsIdList.stream()
-                    .map(legalFactsId -> {
-                        assert legalFactsId.getCategory() != null;
-                        return LegalFactsIdInt.builder()
-                                .key(legalFactsId.getKey())
-                                .category(LegalFactCategoryInt.valueOf(legalFactsId.getCategory().getValue()))
-                                .build();
-                    })
-                    .toList();
+        if (legalFactsIdList.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+        return legalFactsIdList.stream()
+                .map(legalFactsId -> {
+                    assert legalFactsId.getCategory() != null;
+                    return LegalFactsIdInt.builder()
+                            .key(legalFactsId.getKey())
+                            .category(LegalFactCategoryInt.valueOf(legalFactsId.getCategory().getValue()))
+                            .build();
+                })
+                .toList();
     }
 
     private static List<LegalFactsIdV20> toLegalFactsIdV20List(List<LegalFactsId> legalFactsIdList) {
-        if (!CollectionUtils.isEmpty(legalFactsIdList)) {
-            return legalFactsIdList.stream()
-                    .map(legalFactsId -> {
-                        assert legalFactsId.getCategory() != null;
-                        return LegalFactsIdV20.builder()
-                                .key(legalFactsId.getKey())
-                                .category(LegalFactCategoryV20.valueOf(legalFactsId.getCategory().getValue()))
-                                .build();
-                    })
-                    .toList();
+        if (legalFactsIdList.isEmpty()) {
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+
+        return legalFactsIdList.stream()
+                .map(legalFactsId -> {
+                    assert legalFactsId.getCategory() != null;
+                    return LegalFactsIdV20.builder()
+                            .key(legalFactsId.getKey())
+                            .category(LegalFactCategoryV20.valueOf(legalFactsId.getCategory().getValue()))
+                            .build();
+                })
+                .toList();
     }
 
     private static TimelineElementDetails toTimelineElementDetails(TimelineElementDetailsInt detailsInt, String category) {
