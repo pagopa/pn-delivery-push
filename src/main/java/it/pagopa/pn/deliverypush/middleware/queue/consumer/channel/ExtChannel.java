@@ -24,7 +24,7 @@ public class ExtChannel {
     
     @Bean
     public Consumer<Message<String>> pnExtChannelEventInboundConsumer() {
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
                 log.debug("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);
                 String eventType = extractEventType(message);
@@ -39,7 +39,7 @@ public class ExtChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
     private String extractEventType(Message<?> message) {

@@ -20,7 +20,7 @@ public class F24Channel {
 
     @Bean
     public Consumer<Message<DetailedTypePayload>> pnF24EventInboundConsumer() {
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
                 log.debug("Handle message from {} with content {}", PnF24Client.CLIENT_NAME, message);
                 DetailedTypePayload event = message.getPayload();
@@ -30,7 +30,7 @@ public class F24Channel {
                 throw ex;
             }
 
-        };
+        });
     }
 
 

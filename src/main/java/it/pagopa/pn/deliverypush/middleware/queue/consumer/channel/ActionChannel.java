@@ -26,7 +26,7 @@ public class ActionChannel {
     public Consumer<Message<Action>> pnDeliveryPushValidationActionsInboundConsumer() {
         final String processName = "VALIDATION_ACTIONS_INBOUND";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
                 log.debug("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
@@ -41,7 +41,7 @@ public class ActionChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
     @Bean

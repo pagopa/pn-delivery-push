@@ -24,7 +24,7 @@ public class NewNotificationChannel {
     public Consumer<Message<PnDeliveryNewNotificationEvent.Payload>> pnDeliveryNewNotificationEventConsumer() {
         final String processName = "NEW NOTIFICATION";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try{
                 log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
 
@@ -44,6 +44,6 @@ public class NewNotificationChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 }

@@ -24,7 +24,7 @@ public class NationalRegistriesChannel {
 
     @Bean
     public Consumer<Message<AddressSQSMessage>> pnNationalRegistriesEventInboundConsumer() {
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
                 log.debug("Handle message from {} with content {}", NationalRegistriesClient.CLIENT_NAME, message);
 
@@ -37,7 +37,7 @@ public class NationalRegistriesChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
 }
