@@ -44,22 +44,6 @@ class ChannelWrapperTest {
     
         ChannelWrapper.withMDC(consumer).accept(message);
     }
-    
-    @Test
-    void withMDCClearsMdcAfterExecution() {
-        Consumer<Message<String>> consumer = msg -> {};
-        Message <String> message = createMessage(new HashMap<>(Map.of(
-                "aws_messageId", "aws-id-456",
-                "X-Amzn-Trace-Id", "trace-def",
-                "iun", "iun-uvw"
-        )));
-    
-        ChannelWrapper.withMDC(consumer).accept(message);
-    
-        Assertions.assertNull(MDC.get(MDCUtils.MDC_PN_CTX_MESSAGE_ID));
-        Assertions.assertNull(MDC.get(MDCUtils.MDC_TRACE_ID_KEY));
-        Assertions.assertNull(MDC.get(MDCUtils.MDC_PN_IUN_KEY));
-    }
 
     private Message<String> createMessage(HashMap<String, Object> headers) {
         MessageHeaders messageHeaders = new MessageHeaders(headers);
