@@ -671,9 +671,9 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_PROGRESS, elementId, details, timelineBuilder);
     }
 
-    public TimelineElementInternal buildAnalogSuccessAttemptTimelineElement(NotificationInt notification, List<AttachmentDetailsInt> attachments,
-                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt,
-                                                                            String sendRequestId) {
+    public TimelineElementInternal buildSuccessAnalogFeedbackTimelineElement(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                                             BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt,
+                                                                             String sendRequestId) {
         log.debug("buildAnalogSuccessAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
@@ -722,8 +722,8 @@ public class TimelineUtils {
         return legalFactsListEntryIds;
     }
 
-    public TimelineElementInternal buildAnalogFailureAttemptTimelineElement(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
-                                                                            BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+    public TimelineElementInternal buildFailureAnalogFeedbackTimelineElement(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
+                                                                             BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
         log.debug("buildAnalogFailureAttemptTimelineElement - iun={} and id={}", notification.getIun(), sendPaperDetails.getRecIndex());
 
         String elementId = TimelineEventId.SEND_ANALOG_FEEDBACK.buildEventId(
