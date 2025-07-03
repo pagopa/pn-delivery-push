@@ -20,9 +20,9 @@ public class AddressManagerChannel {
     
     @Bean
     public Consumer<Message<NormalizeItemsResult>> pnAddressManagerEventInboundConsumer() {
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", AddressManagerClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", AddressManagerClient.CLIENT_NAME, message);
                 NormalizeItemsResult response = message.getPayload();
 
                 handler.handleResponseReceived(response);
@@ -31,7 +31,7 @@ public class AddressManagerChannel {
                 throw ex;
             }
             
-        };
+        });
     }
    
 }

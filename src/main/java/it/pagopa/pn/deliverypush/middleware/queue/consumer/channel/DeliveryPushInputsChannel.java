@@ -21,9 +21,9 @@ public class DeliveryPushInputsChannel {
 
         final String processName = "DELIVERY_PUSH_INPUTS_INBOUND_CONSUMER";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushInputsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushInputsInboundConsumer, with content {}", message);
 
 
                 EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()
@@ -36,6 +36,6 @@ public class DeliveryPushInputsChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 }

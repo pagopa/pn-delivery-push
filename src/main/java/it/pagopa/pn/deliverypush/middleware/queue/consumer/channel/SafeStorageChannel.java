@@ -25,9 +25,9 @@ public class SafeStorageChannel {
     
     @Bean
     public Consumer<Message<FileDownloadResponse>> pnSafeStorageEventInboundConsumer() {
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", PnSafeStorageClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", PnSafeStorageClient.CLIENT_NAME, message);
                 FileDownloadResponse response = message.getPayload();
                 MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, response.getKey());
 
@@ -45,7 +45,7 @@ public class SafeStorageChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
    
 }
