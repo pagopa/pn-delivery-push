@@ -9,7 +9,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalProgressDetailsInt;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -65,7 +64,6 @@ class CompletelyUnreachableUtilsTest {
                 .build();
 
         Mockito.when(timelineUtils.checkIsNotificationViewed(notification.getIun(), 1)).thenReturn(Boolean.TRUE);
-        Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.TRUE);
         Instant legalFactGenerationDate = Instant.now();
         
         Mockito.when(timelineUtils.buildCompletelyUnreachableTimelineElement(notification, 1, "legal1", legalFactGenerationDate)).thenReturn(t1);
@@ -88,7 +86,6 @@ class CompletelyUnreachableUtilsTest {
                 .iun(notification.getIun())
                 .recipientId(recipient.getInternalId())
                 .build();
-        Mockito.when(timelineService.isPresentTimeLineElement(notification.getIun(), 1, TimelineEventId.NOTIFICATION_VIEWED)).thenReturn(Boolean.FALSE);
         Mockito.when(notificationUtils.getRecipientFromIndex(notification, 1)).thenReturn(recipient);
         Instant legalFactGenerationDate = Instant.now();
 
