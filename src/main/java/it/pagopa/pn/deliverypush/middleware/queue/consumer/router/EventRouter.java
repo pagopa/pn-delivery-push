@@ -1,21 +1,17 @@
 package it.pagopa.pn.deliverypush.middleware.queue.consumer.router;
 
-import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.exceptions.PnEventRouterException;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.EventHandler;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.router.deserializer.RouterDeserializer;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.UUID;
 import java.util.function.Function;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ROUTER_EVENT_TYPE_MISSING;
@@ -53,7 +49,6 @@ public class EventRouter {
      */
     @SuppressWarnings("unchecked")
     public <T> void route(Message<T> message, RoutingConfig config) {
-        setMdc(message);
         String eventType = extractEventType(message, config);
 
         if (!StringUtils.hasText(eventType)) {
@@ -77,28 +72,6 @@ public class EventRouter {
         }
 
         return config.getEventTypeExtractor().apply(message);
-    }
-
-    private void setMdc(Message<?> message) {
-        MessageHeaders messageHeaders = message.getHeaders();
-        MDCUtils.clearMDCKeys();
-
-        if (messageHeaders.containsKey("aws_messageId")){
-            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
-            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
-        }
-
-        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
-            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
-            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
-        } else {
-            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
-        }
-
-        String iun = (String) message.getHeaders().get("iun");
-        if(iun != null){
-            MDC.put(MDCUtils.MDC_PN_IUN_KEY, iun);
-        }
     }
 
     private <T> T extractPayload(Message<T> message, EventHandler<T> handler, RoutingConfig config) {

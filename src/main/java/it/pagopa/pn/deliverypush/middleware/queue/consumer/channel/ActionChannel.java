@@ -26,9 +26,9 @@ public class ActionChannel {
     public Consumer<Message<Action>> pnDeliveryPushValidationActionsInboundConsumer() {
         final String processName = "VALIDATION_ACTIONS_INBOUND";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
 
                 EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()
@@ -41,16 +41,16 @@ public class ActionChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
     @Bean
     public Consumer<Message<Action>> pnDeliveryPushActionsInboundConsumer() {
         final String processName = "WORKFLOW_ACTIONS_INBOUND";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
 
 
@@ -64,7 +64,7 @@ public class ActionChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
     private String extractActionType(Action action) {
