@@ -466,7 +466,6 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
     }
 
-    /*
     @ExtendWith(MockitoExtension.class)
     @Test
     void paperChannelSendResponseHandler_fail() {
@@ -502,7 +501,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(Mockito.any());
 
-    }*/
+    }
 
     @ExtendWith(MockitoExtension.class)
     @Test
