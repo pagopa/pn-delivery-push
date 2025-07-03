@@ -48,7 +48,7 @@ public class ActionChannel {
     public Consumer<Message<Action>> pnDeliveryPushActionsInboundConsumer() {
         final String processName = "WORKFLOW_ACTIONS_INBOUND";
 
-        return message -> {
+        return ChannelWrapper.withMDC(message -> {
             try {
                 log.debug("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
@@ -64,7 +64,7 @@ public class ActionChannel {
                 HandleEventUtils.handleException(message.getHeaders(), ex);
                 throw ex;
             }
-        };
+        });
     }
 
     private String extractActionType(Action action) {

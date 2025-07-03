@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class ChannelWrapper {
+    private ChannelWrapper() { }
     /**
      * Wraps a consumer to set MDC context based on the message headers.
      * @param consumer Consumer<Message<T>> to be executed with MDC context set
