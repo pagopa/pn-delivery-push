@@ -28,7 +28,7 @@ public class ActionChannel {
 
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushValidationActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
 
                 EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()
@@ -50,7 +50,7 @@ public class ActionChannel {
 
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushActionsInboundConsumer, with content {}", message);
                 String actionType = extractActionType(message.getPayload());
 
 

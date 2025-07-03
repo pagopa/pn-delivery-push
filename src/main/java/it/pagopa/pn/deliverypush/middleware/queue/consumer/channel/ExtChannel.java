@@ -26,7 +26,7 @@ public class ExtChannel {
     public Consumer<Message<String>> pnExtChannelEventInboundConsumer() {
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", ExternalChannelSendClient.CLIENT_NAME, message);
                 String eventType = extractEventType(message);
 
                 EventRouter.RoutingConfig routingConfig = EventRouter.RoutingConfig.builder()

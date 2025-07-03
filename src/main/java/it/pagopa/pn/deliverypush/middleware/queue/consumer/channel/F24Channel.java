@@ -22,7 +22,7 @@ public class F24Channel {
     public Consumer<Message<DetailedTypePayload>> pnF24EventInboundConsumer() {
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", PnF24Client.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", PnF24Client.CLIENT_NAME, message);
                 DetailedTypePayload event = message.getPayload();
                 handler.handleEventF24(event);
             } catch (Exception ex) {

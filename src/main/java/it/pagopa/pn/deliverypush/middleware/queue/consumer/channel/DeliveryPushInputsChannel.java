@@ -23,7 +23,7 @@ public class DeliveryPushInputsChannel {
 
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle action pnDeliveryPushInputsInboundConsumer, with content {}", message);
+                log.info("Handle action pnDeliveryPushInputsInboundConsumer, with content {}", message);
 
 
                 EventRouter.RoutingConfig routerConfig = EventRouter.RoutingConfig.builder()

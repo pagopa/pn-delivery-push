@@ -22,7 +22,7 @@ public class AddressManagerChannel {
     public Consumer<Message<NormalizeItemsResult>> pnAddressManagerEventInboundConsumer() {
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", AddressManagerClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", AddressManagerClient.CLIENT_NAME, message);
                 NormalizeItemsResult response = message.getPayload();
 
                 handler.handleResponseReceived(response);

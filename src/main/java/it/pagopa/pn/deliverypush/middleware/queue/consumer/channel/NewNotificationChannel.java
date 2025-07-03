@@ -26,7 +26,7 @@ public class NewNotificationChannel {
 
         return ChannelWrapper.withMDC(message -> {
             try{
-                log.debug("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", PnDeliveryClient.CLIENT_NAME, message);
 
                 PnDeliveryNewNotificationEvent pnDeliveryNewNotificationEvent = PnDeliveryNewNotificationEvent.builder()
                         .payload(message.getPayload())

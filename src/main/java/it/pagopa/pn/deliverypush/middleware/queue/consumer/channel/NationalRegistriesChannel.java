@@ -26,7 +26,7 @@ public class NationalRegistriesChannel {
     public Consumer<Message<AddressSQSMessage>> pnNationalRegistriesEventInboundConsumer() {
         return ChannelWrapper.withMDC(message -> {
             try {
-                log.debug("Handle message from {} with content {}", NationalRegistriesClient.CLIENT_NAME, message);
+                log.info("Handle message from {} with content {}", NationalRegistriesClient.CLIENT_NAME, message);
 
                 List<AddressSQSMessageDigitalAddress> digitalAddresses = message.getPayload().getDigitalAddress();
                 String correlationId = message.getPayload().getCorrelationId();
