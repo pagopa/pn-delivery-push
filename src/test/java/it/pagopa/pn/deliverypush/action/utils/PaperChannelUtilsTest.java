@@ -1,7 +1,5 @@
 package it.pagopa.pn.deliverypush.action.utils;
 
-import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -10,8 +8,10 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.AnalogDtoInt;
+import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,7 +114,6 @@ class PaperChannelUtilsTest {
     @Test
     void addPaperNotificationNotHandledToTimeline() {
         NotificationInt notification = buildNotification();
-        PhysicalAddressInt addressInt = buildPhysicalAddressInt();
         TimelineElementInternal timelineElementInternal = buildTimelineElementInternal();
 
         Mockito.when(timelineUtils.buildNotHandledTimelineElement(notification, 1, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_CODE, NotHandledDetailsInt.PAPER_MESSAGE_NOT_HANDLED_REASON)).thenReturn(timelineElementInternal);
@@ -207,10 +206,12 @@ class PaperChannelUtilsTest {
         timeline.add(sendSimpleRegisteredLetter);
         timeline.add(sendSimpleRegisteredLetterProgress);
         
-        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+        Mockito.when(timelineService.getTimeline(iun, true)).thenReturn(timeline);
 
-        String sendRequestIdSendAnalog = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestIdAnalog);
-        String sendRequestIdSendSimpleLetter = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestIdSimpleRegisteredLetter);
+        TimelineElementInternal sendAnalogDomicileElement = channelUtils.getSendRequestElementByPrepareRequestId(iun, prepareRequestIdAnalog);
+        String sendRequestIdSendAnalog = sendAnalogDomicileElement.getElementId();
+        TimelineElementInternal sendSimpleLetterElement = channelUtils.getSendRequestElementByPrepareRequestId(iun, prepareRequestIdSimpleRegisteredLetter);
+        String sendRequestIdSendSimpleLetter = sendSimpleLetterElement.getElementId();
 
         Assertions.assertEquals(sendRequestIdSendAnalog, sendAnalog.getElementId());
         Assertions.assertEquals(sendRequestIdSendSimpleLetter, sendSimpleRegisteredLetter.getElementId());
@@ -254,9 +255,9 @@ class PaperChannelUtilsTest {
 
         Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
 
-        String sendRequestId = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestId);
+        TimelineElementInternal sendRequestElement = channelUtils.getSendRequestElementByPrepareRequestId(iun, prepareRequestId);
 
-        Assertions.assertNull(sendRequestId);
+        Assertions.assertNull(sendRequestElement);
     }
 
     @Test
@@ -283,9 +284,9 @@ class PaperChannelUtilsTest {
 
         Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
 
-        String sendRequestId = channelUtils.getSendRequestIdByPrepareRequestId(iun, prepareRequestId);
+        TimelineElementInternal sendRequestElement = channelUtils.getSendRequestElementByPrepareRequestId(iun, prepareRequestId);
 
-        Assertions.assertNull(sendRequestId);
+        Assertions.assertNull(sendRequestElement);
     }
     
     private List<NotificationRecipientInt> buildRecipients() {
@@ -340,13 +341,6 @@ class PaperChannelUtilsTest {
                 .municipality("005")
                 .zip("006")
                 .municipalityDetails("007")
-                .build();
-    }
-
-    private LegalDigitalAddressInt buildLegalDigitalAddressInt() {
-        return LegalDigitalAddressInt.builder()
-                .address("test@dominioPec.it")
-                .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                 .build();
     }
 

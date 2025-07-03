@@ -164,11 +164,10 @@ public class PaperChannelUtils {
         }
     }
 
-    public String getSendRequestIdByPrepareRequestId(String iun, String prepareRequestId) {
-        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, false);
-        Optional<String> sendRequestIdOpt =  timeline.stream()
+    public TimelineElementInternal getSendRequestElementByPrepareRequestId(String iun, String prepareRequestId) {
+        Set<TimelineElementInternal> timeline = timelineService.getTimeline(iun, true);
+        Optional<TimelineElementInternal> sendRequestIdOpt =  timeline.stream()
                 .filter(timelineElement -> filterSendByPrepareRequestId(timelineElement, prepareRequestId))
-                .map(TimelineElementInternal::getElementId)
                 .findFirst();
         
         if(sendRequestIdOpt.isPresent()){
