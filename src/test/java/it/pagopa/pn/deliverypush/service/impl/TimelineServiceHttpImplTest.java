@@ -35,6 +35,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TimelineServiceHttpImplTest {
@@ -156,6 +157,56 @@ class TimelineServiceHttpImplTest {
         Set<TimelineElementInternal> result = timelineServiceHttp.getTimeline(iun, confidentialInfoRequired);
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getTimelineAndStatusHistory_filtersDiagnosticElements() {
+        String iun = "iun123";
+        int numberOfRecipients = 1;
+        Instant createdAt = Instant.now();
+
+        TimelineElement publicElement = new TimelineElement();
+        publicElement.setElementId("publicId");
+        publicElement.setCategory(TimelineCategory.SEND_ANALOG_FEEDBACK);
+
+        TimelineElement diagnosticElement = new TimelineElement();
+        diagnosticElement.setElementId("diagnosticId");
+        diagnosticElement.setCategory(TimelineCategory.VALIDATE_F24_REQUEST);
+
+        NotificationStatusHistoryElement statusHistory = new NotificationStatusHistoryElement();
+        statusHistory.setRelatedTimelineElements(Arrays.asList("publicId", "diagnosticId"));
+
+        NotificationHistoryResponse clientResponse = new NotificationHistoryResponse();
+        clientResponse.setTimeline(Arrays.asList(publicElement, diagnosticElement));
+        clientResponse.setNotificationStatusHistory(Collections.singletonList(statusHistory));
+
+        when(timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt)).thenReturn(clientResponse);
+
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse mappedResponse =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse();
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27 publicElementDto =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27();
+        publicElementDto.setElementId("publicId");
+        mappedResponse.setTimeline(Collections.singletonList(publicElementDto));
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26 statusHistoryDto =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26();
+        statusHistoryDto.setRelatedTimelineElements(Collections.singletonList("publicId"));
+        mappedResponse.setNotificationStatusHistory(Collections.singletonList(statusHistoryDto));
+
+        try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
+            mockedMapper.when(() -> TimelineServiceMapper.toNotificationHistoryResponseDto(clientResponse))
+                    .thenReturn(mappedResponse);
+
+            it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result =
+                    timelineServiceHttp.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+
+            // Verifica che solo l'elemento pubblico sia presente
+            assertEquals(1, result.getTimeline().size());
+            assertEquals("publicId", result.getTimeline().get(0).getElementId());
+            // Verifica che solo l'id pubblico sia rimasto nei related
+            assertEquals(1, result.getNotificationStatusHistory().get(0).getRelatedTimelineElements().size());
+            assertEquals("publicId", result.getNotificationStatusHistory().get(0).getRelatedTimelineElements().get(0));
+        }
     }
 
 
