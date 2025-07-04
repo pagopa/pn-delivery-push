@@ -781,7 +781,37 @@
 							</configOptions>
 						</configuration>
 					</execution>
-
+					<!-- OPEN API CLIENT PN-ACTION-MANAGER -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-action-manager</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/3b86cf92136ffeb03e473e6fe98bab765cf25012/docs/openapi/api-private.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.actionmanager.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.actionmanager.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
 					<!-- OPEN API CLIENT PN-EMD-INTEGRATION -->
 					<execution>
 						<phase>generate-resources</phase>
@@ -877,6 +907,39 @@
 								<reactive>true</reactive>
 								<skipDefaultInterface>false</skipDefaultInterface>
 								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT PN-TIMELINE-SERVICE -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-timeline-service</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/12d51061ce088a0bfdd0d7b7102d9978d43c0f4f/docs/openapi/pn-timeline-service-private.yaml
+							</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.basedir}/src/main/resources/templates/5.4.0/client</templateDirectory>
+							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api</apiPackage>
+								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
 							</configOptions>
 						</configuration>
 					</execution>

@@ -12,10 +12,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResu
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.PrepareEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
@@ -166,7 +163,8 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         HandleEventUtils.addRecIndexToMdc(recIndex);
 
         final String prepareRequestId = timelineElementInternal.getElementId();
-        String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
+        TimelineElementInternal sendRequestDomicileElement = paperChannelUtils.getSendRequestElementByPrepareRequestId(response.getIun(), prepareRequestId);
+        String sendRequestId = sendRequestDomicileElement.getElementId();
 
         handleStatusProgressSimpleRegisteredLetter(response, simpleRegisteredLetterDetails, notification, response.getAttachments(), sendRequestId);
     }
@@ -193,7 +191,15 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         ResponseStatusInt status = mapPaperStatusInResponseStatus(response.getStatusCode());
 
         final String prepareRequestId = timelineElementInternal.getElementId();
-        String sendRequestId = paperChannelUtils.getSendRequestIdByPrepareRequestId(response.getIun(), prepareRequestId);
+        TimelineElementInternal sendAnalogDomicileElement = paperChannelUtils.getSendRequestElementByPrepareRequestId(response.getIun(), prepareRequestId);
+        String sendRequestId = sendAnalogDomicileElement.getElementId();
+        SendAnalogDetailsInt sendAnalogDetailsInt = (SendAnalogDetailsInt) sendAnalogDomicileElement.getDetails();
+
+        /*
+         Setto come physicalAddress l'indirizzo fisico riportato nel dettaglio dell'elemento SEND_ANALOG_DOMICILE.
+         Poichè quello presente nel dettaglio dell'elemento PREPARE_ANALOG_DOMICILE (contenuto in sendPaperDetails) potrebbe essere null quando riguarda un secondo attempt.
+        */
+        sendPaperDetails.setPhysicalAddress(sendAnalogDetailsInt.getPhysicalAddress());
 
         if (status!= null) {
             switch (status) {
@@ -234,7 +240,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         // La notifica è stata consegnata correttamente da external channel il workflow può considerarsi concluso con successo
         try {
-            String timelineId = analogWorkflowUtils.addAnalogSuccessAttemptToTimeline(notification, attachments,  sendPaperDetails, response, sendRequestId);
+            String timelineId = analogWorkflowUtils.addSuccessAnalogFeedbackToTimeline(notification, attachments,  sendPaperDetails, response, sendRequestId);
             scheduleSendAnalogFinalStatusResponseHandling(notification.getIun(), recIndex, timelineId);
             logEvent.generateSuccess("generated success timelineid={}", timelineId).log();
         } catch (Exception e) {
@@ -253,7 +259,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
 
         try {
             // External channel non è riuscito a effettuare la notificazione, si passa al prossimo step del workflow
-            String timelineId = analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response, sendRequestId);
+            String timelineId = analogWorkflowUtils.addFailureAnalogFeedbackToTimeline(notification, sendPaperDetails.getSentAttemptMade(), attachments, sendPaperDetails, response, sendRequestId);
             scheduleSendAnalogFinalStatusResponseHandling(notification.getIun(), recIndex, timelineId);
             logEvent.generateWarning("Analog notification failed with failure cause {} generated failure timelineid={}", response.getDeliveryFailureCause(), timelineId).log();
 

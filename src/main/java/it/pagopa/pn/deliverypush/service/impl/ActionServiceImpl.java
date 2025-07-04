@@ -5,13 +5,9 @@ import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionsp
 import it.pagopa.pn.deliverypush.service.ActionService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
-@Service
 public class ActionServiceImpl implements ActionService {
     private final ActionDao actionDao;
 
@@ -21,12 +17,7 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public Optional<Action> getActionById(String actionId) {
-        return actionDao.getActionById(actionId);
-    }
-
-    @Override
-    public void unSchedule(Action action, String timeSlot) {
-        actionDao.unScheduleFutureAction(action, timeSlot);
+    public void unSchedule(String actionId) {
+        actionDao.unScheduleFutureAction(actionId);
     }
 }

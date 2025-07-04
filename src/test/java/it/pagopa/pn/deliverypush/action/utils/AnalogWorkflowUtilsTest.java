@@ -99,14 +99,11 @@ class AnalogWorkflowUtilsTest {
     }
 
     @Test
-    void addAnalogFailureAttemptToTimeline() {
+    void addFailureAnalogFeedbackToTimeline() {
         NotificationInt notificationInt = newNotification();
 
         List<AttachmentDetailsInt> attachments = new ArrayList<>();
         attachments.add(AttachmentDetailsInt.builder().url("key").build());
-
-        PhysicalAddressInt newAddress = PhysicalAddressInt.builder().address("test address").build();
-        List<String> errors = new ArrayList<>();
 
         SendAnalogDetailsInt sendPaperDetails = SendAnalogDetailsInt.builder()
                 .physicalAddress(
@@ -129,12 +126,12 @@ class AnalogWorkflowUtilsTest {
 
         final String sendRequestId = "send_request_id";
 
-        Mockito.when(timelineUtils.buildAnalogFailureAttemptTimelineElement(
+        Mockito.when(timelineUtils.buildFailureAnalogFeedbackTimelineElement(
                 Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mockito.mock(TimelineElementInternal.class));
 
-        analogWorkflowUtils.addAnalogFailureAttemptToTimeline(notificationInt, 1, attachments, sendPaperDetails,sendEventInt, sendRequestId);
+        analogWorkflowUtils.addFailureAnalogFeedbackToTimeline(notificationInt, 1, attachments, sendPaperDetails,sendEventInt, sendRequestId);
 
-        Mockito.verify(timelineUtils).buildAnalogFailureAttemptTimelineElement(notificationInt, 1, attachments, sendPaperDetails, sendEventInt, sendRequestId);
+        Mockito.verify(timelineUtils).buildFailureAnalogFeedbackTimelineElement(notificationInt, 1, attachments, sendPaperDetails, sendEventInt, sendRequestId);
     }
 
     @ExtendWith(MockitoExtension.class)
