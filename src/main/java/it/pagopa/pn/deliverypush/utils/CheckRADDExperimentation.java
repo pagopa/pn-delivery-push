@@ -42,21 +42,25 @@ public class CheckRADDExperimentation {
             if (storeNames == null) return false;
             for (String currentStore : storeNames) {
                 log.info("Current Store {}", currentStore);
-                if (isInStore(toCheck.getZip(), currentStore)) return true;
+                if (isInStore(toCheck.getZip(), currentStore)){
+                    return true;
+                }
             }
+        }else {
+            log.trace("Country {} not in admitted countries", toCheck.getForeignState());
         }
         return false;
     }
 
     private boolean isInStore(String zipCode, String storeName) {
-        log.debug("Looking for zip code={} in store {}", zipCode, storeName);
+        log.trace("Looking for zip code={} in store {}", zipCode, storeName);
         @SuppressWarnings("unchecked") Optional<Set<String>> zipLists = parameterConsumer.getParameterValue(storeName, (Class<Set<String>>) (Object) Set.class);
         if (zipLists.isPresent()) {
             Set<String> experimentalZipList = zipLists.get();
-            log.debug("ZipCode ({}) in experimental list? {}", zipCode, experimentalZipList.contains(zipCode));
+            log.trace("ZipCode ({}) in experimental list? {}", zipCode, experimentalZipList.contains(zipCode));
             return experimentalZipList.contains(zipCode);
         }
-        log.debug("ZipCode ({}) not found in experimental list", zipCode);
+        log.trace("ZipCode ({}) not found in experimental list", zipCode);
         return false;
     }
 }
