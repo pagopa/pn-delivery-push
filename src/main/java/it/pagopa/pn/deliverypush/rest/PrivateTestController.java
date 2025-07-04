@@ -43,7 +43,7 @@ public class PrivateTestController {
         log.info("getTimelineWithOldImpl called with iun: {} and confidentialInfoRequired: {}", iun, confidentialInfoRequired);
         Set<TimelineElementInternal> timeline = serviceDao.getTimeline(iun, confidentialInfoRequired);
         List<TimelineElementInternal> orderedTimeline = timeline.stream()
-                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
+                .sorted(Comparator.comparing(TimelineElementInternal::getElementId))
                 .toList();
         return Mono.just(ResponseEntity.ok().body(writeJson(orderedTimeline)));
     }
@@ -59,7 +59,7 @@ public class PrivateTestController {
         log.info("getTimelineWithNewImpl called with iun: {} and confidentialInfoRequired: {}", iun, confidentialInfoRequired);
         Set<TimelineElementInternal> timeline = serviceHttp.getTimeline(iun, confidentialInfoRequired);
         List<TimelineElementInternal> orderedTimeline = timeline.stream()
-                .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
+                .sorted(Comparator.comparing(TimelineElementInternal::getElementId))
                 .toList();
         return Mono.just(ResponseEntity.ok().body(writeJson(orderedTimeline)));
     }
