@@ -42,6 +42,6 @@
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z",
     "ActionLambdasEnabledStart": "1546300800",
-    "ActionLambdasEnabledEnd": "1752066300"
+    "ActionLambdasEnabledEnd": "1752068400"
     }
 }

@@ -1328,11 +1328,11 @@ Resources:
         Filters:
           - Pattern: !Join
               - ''
-              - - '{"data": {"eventName": ["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+              - - '{"data":{"eventName":["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
                 - !Ref ActionLambdasEnabledStart
                 - ', "<", '
                 - !Ref ActionLambdasEnabledEnd
-                - ' ] }]}}}'
+                - ']}]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1452,11 +1452,11 @@ Resources:
         Filters:
           - Pattern: !Join
               - ''
-              - - '{"data": {"eventName": ["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+              - - '{"data":{"eventName":["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
                 - !Ref ActionLambdasEnabledStart
                 - ', "<", '
                 - !Ref ActionLambdasEnabledEnd
-                - ' ] }]}}}'
+                - ']}]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
