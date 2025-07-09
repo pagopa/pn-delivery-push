@@ -1325,7 +1325,8 @@ Resources:
       FunctionResponseTypes:
         - ReportBatchItemFailures
       FilterCriteria:
-        { "Filters": [ { "Pattern": '{"data": {"eventName": ["INSERT"]}}' } ] }
+        Filters:
+          - Pattern: !Sub '{"data": {"eventName": ["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", ${ActionLambdasEnabledStart}, "<", ${ActionLambdasEnabledEnd} ] }]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1361,14 +1362,12 @@ Resources:
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
               FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     
@@ -1444,7 +1443,8 @@ Resources:
       FunctionResponseTypes:
         - ReportBatchItemFailures
       FilterCriteria:
-        { "Filters": [ { "Pattern": '{"data": {"eventName": ["REMOVE"]}}' } ] }
+        Filters:
+          - Pattern: !Sub '{"data": {"eventName": ["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", ${ActionLambdasEnabledStart}, "<", ${ActionLambdasEnabledEnd} ] }]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1479,13 +1479,11 @@ Resources:
         Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     

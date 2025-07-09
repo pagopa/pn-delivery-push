@@ -131,7 +131,7 @@ describe("dynamoFunctions tests", function () {
         ":tS": keyValue,
         ":tE": keyValue,
       },
-      FilterExpression: "(attribute_not_exists(createdAt) OR (createdAt >= :tS AND createdAt < :tE))",
+      FilterExpression: "notBefore >= :tS AND notBefore < :tE",
     };
 
     const resultItems = [];
@@ -162,7 +162,7 @@ describe("dynamoFunctions tests", function () {
         ":tS": keyValue,
         ":tE": keyValue,
       },
-      FilterExpression: "(attribute_not_exists(createdAt) OR (createdAt >= :tS AND createdAt < :tE))",
+      FilterExpression: "notBefore >= :tS AND notBefore < :tE",
     };
     const resultItems = [{ iun: "iunTest" }];
 
