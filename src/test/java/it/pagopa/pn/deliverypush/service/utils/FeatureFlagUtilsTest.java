@@ -80,6 +80,6 @@ class FeatureFlagUtilsTest {
     }
 
     private String getEpochString(Instant instant) {
-        return String.valueOf(instant.getEpochSecond());
+        return String.valueOf(instant.toEpochMilli());
     }
 }

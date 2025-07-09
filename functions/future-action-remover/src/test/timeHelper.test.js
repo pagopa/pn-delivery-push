@@ -159,14 +159,14 @@ describe("Test Time Functions 1", () => {
   });
 
   it("convertFromEpochToIsoDateTime: valid epoch number", () => {
-    const epoch = 1752066000; // Example epoch time
+    const epoch = 1752066000000; // Example epoch time
     const expectedDateTime = "2025-07-09T13:00:00.000Z"; // Expected ISO string
     const converted = convertFromEpochToIsoDateTime(epoch);
     expect(converted).to.equal(expectedDateTime);
   });
 
   it("convertFromEpochToIsoDateTime: valid epoch string", () => {
-    const epoch = "1707742800"; // Example epoch time
+    const epoch = "1707742800000"; // Example epoch time
     const expectedDateTime = "2024-02-12T13:00:00.000Z"; // Expected ISO string
     const converted = convertFromEpochToIsoDateTime(epoch);
     expect(converted).to.equal(expectedDateTime);

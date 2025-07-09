@@ -86,7 +86,7 @@ const toString = (d) =>
 
 const convertFromEpochToIsoDateTime = (epoch) => {
   let epochNumber = tryConvertEpochStringToNumber(epoch);
-  const dateTime = DateTime.fromSeconds(epochNumber, { zone: "UTC" });
+  const dateTime = DateTime.fromMillis(epochNumber, { zone: "UTC" });
   if (!dateTime.isValid) throw new InvalidDateException(epochNumber);
   return dateTime.toISO();
 };

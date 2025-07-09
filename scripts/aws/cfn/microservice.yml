@@ -652,11 +652,11 @@ Parameters:
 
   ActionLambdasEnabledStart:
     Type: String
-    Description: 'Start date for action lambdas enabled'
+    Description: 'Start date in EPOCH millis format (important!) for action lambdas enabled'
 
   ActionLambdasEnabledEnd:
     Type: String
-    Description: 'End date for action lambdas enabled'
+    Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
 
   # CDC
 

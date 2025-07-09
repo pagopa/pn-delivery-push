@@ -26,8 +26,8 @@ public class FeatureFlagUtils {
             throw new PnInternalException(message, MISSING_PARAMS_ERROR_CODE);
         }
 
-        Instant startDate = Instant.ofEpochSecond(Long.parseLong(startDateEpoch));
-        Instant endDate = Instant.ofEpochSecond(Long.parseLong(endDateEpoch));
+        Instant startDate = Instant.ofEpochMilli(Long.parseLong(startDateEpoch));
+        Instant endDate = Instant.ofEpochMilli(Long.parseLong(endDateEpoch));
 
         return startDate.compareTo(now) <= 0 && endDate.compareTo(now) > 0;
     }
