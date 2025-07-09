@@ -887,11 +887,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -1021,11 +1021,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1161,11 +1161,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
 
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
@@ -1326,7 +1326,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: !Sub '{"data": {"eventName": ["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", ${ActionLambdasEnabledStart}, "<", ${ActionLambdasEnabledEnd} ] }]}}}'
+          - Pattern: !Join
+              - ''
+              - - '{"data": {"eventName": ["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref ActionLambdasEnabledStart
+                - ', "<", '
+                - !Ref ActionLambdasEnabledEnd
+                - ' ] }]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1444,7 +1450,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: !Sub '{"data": {"eventName": ["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", ${ActionLambdasEnabledStart}, "<", ${ActionLambdasEnabledEnd} ] }]}}}'
+          - Pattern: !Join
+              - ''
+              - - '{"data": {"eventName": ["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref ActionLambdasEnabledStart
+                - ', "<", '
+                - !Ref ActionLambdasEnabledEnd
+                - ' ] }]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON

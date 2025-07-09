@@ -147,9 +147,9 @@ public class PnDeliveryPushConfigs {
 
     private String technicalRefusalCostMode;
 
-    private Instant startActionImplWithDaoTimestamp;
+    private String startActionImplWithDaoEpoch;
 
-    private Instant endActionImplWithDaoTimestamp;
+    private String endActionImplWithDaoEpoch;
 
     private String timelineClientBaseUrl;
 
