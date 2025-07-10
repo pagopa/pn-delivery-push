@@ -41,7 +41,7 @@
     "NumRetry": "3",
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z",
-    "ActionLambdasEnabledStart": "2019-01-01T00:00:00Z",
-    "ActionLambdasEnabledEnd": "2025-06-11T14:30:00Z"
+    "ActionLambdasEnabledStart": "1546300800000",
+    "ActionLambdasEnabledEnd": "1752075900000"
     }
 }

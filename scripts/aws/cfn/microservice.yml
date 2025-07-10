@@ -652,11 +652,11 @@ Parameters:
 
   ActionLambdasEnabledStart:
     Type: String
-    Description: 'Start date for action lambdas enabled'
+    Description: 'Start date in EPOCH millis format (important!) for action lambdas enabled'
 
   ActionLambdasEnabledEnd:
     Type: String
-    Description: 'End date for action lambdas enabled'
+    Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
 
   # CDC
 
@@ -887,11 +887,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -1021,11 +1021,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
@@ -1161,11 +1161,11 @@ Resources:
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
         #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledEnd}'
+        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOTIMESTAMP=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
 
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
@@ -1325,7 +1325,14 @@ Resources:
       FunctionResponseTypes:
         - ReportBatchItemFailures
       FilterCriteria:
-        { "Filters": [ { "Pattern": '{"data": {"eventName": ["INSERT"]}}' } ] }
+        Filters:
+          - Pattern: !Join
+              - ''
+              - - '{"data":{"eventName":["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref ActionLambdasEnabledStart
+                - ', "<", '
+                - !Ref ActionLambdasEnabledEnd
+                - ']}]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1361,14 +1368,12 @@ Resources:
         Layer1: !Ref ActionRouterLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
               FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     
@@ -1444,7 +1449,14 @@ Resources:
       FunctionResponseTypes:
         - ReportBatchItemFailures
       FilterCriteria:
-        { "Filters": [ { "Pattern": '{"data": {"eventName": ["REMOVE"]}}' } ] }
+        Filters:
+          - Pattern: !Join
+              - ''
+              - - '{"data":{"eventName":["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref ActionLambdasEnabledStart
+                - ', "<", '
+                - !Ref ActionLambdasEnabledEnd
+                - ']}]}}}'
       MaximumBatchingWindowInSeconds: 300
       MaximumRetryAttempts: 5
       StartingPosition: TRIM_HORIZON
@@ -1479,13 +1491,11 @@ Resources:
         Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
         EnvVariables:
           !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
+            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
             {
               actionQueueMap: !Ref ActionQueueMap,
               QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL,
-              actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-              actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
+              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
             },
           ]
     

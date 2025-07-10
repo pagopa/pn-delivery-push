@@ -23,59 +23,63 @@ class FeatureFlagUtilsTest {
 
     @Test
     void isActionImplDao_returnsTrueWhenNowWithinRange() {
-        Instant start = Instant.parse("2024-01-01T00:00:00Z");
-        Instant end = Instant.parse("2025-01-01T00:00:00Z");
+        String start = getEpochString(Instant.parse("2024-01-01T00:00:00Z"));
+        String end =  getEpochString(Instant.parse("2025-01-01T00:00:00Z"));
         Instant now = Instant.parse("2024-06-01T12:00:00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(start);
-        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(end);
+        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch()).thenReturn(start);
+        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch()).thenReturn(end);
 
         assertTrue(featureFlagUtils.isActionImplDao(now));
     }
 
     @Test
     void isActionImplDao_returnsFalseWhenNowBeforeStart() {
-        Instant start = Instant.parse("2024-07-01T00:00:00Z");
-        Instant end = Instant.parse("2025-01-01T00:00:00Z");
+        String start = getEpochString(Instant.parse("2024-07-01T00:00:00Z"));
+        String end = getEpochString(Instant.parse("2025-01-01T00:00:00Z"));
         Instant now = Instant.parse("2024-06-01T12:00:00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(start);
-        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(end);
+        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch()).thenReturn(start);
+        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch()).thenReturn(end);
 
         assertFalse(featureFlagUtils.isActionImplDao(now));
     }
 
     @Test
     void isActionImplDao_returnsFalseWhenNowAfterEnd() {
-        Instant start = Instant.parse("2024-01-01T00:00:00Z");
-        Instant end = Instant.parse("2024-06-01T00:00:00Z");
+        String start = getEpochString(Instant.parse("2024-01-01T00:00:00Z"));
+        String end = getEpochString(Instant.parse("2024-06-01T00:00:00Z"));
         Instant now = Instant.parse("2024-07-01T12:00:00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(start);
-        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(end);
+        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch()).thenReturn(start);
+        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch()).thenReturn(end);
 
         assertFalse(featureFlagUtils.isActionImplDao(now));
     }
 
     @Test
     void isActionImplDao_throwsExceptionWhenStartDateIsNull() {
-        Instant end = Instant.parse("2025-01-01T00:00:00Z");
+        String end = getEpochString(Instant.parse("2025-01-01T00:00:00Z"));
         Instant now = Instant.parse("2024-06-01T12:00:00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(null);
-        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(end);
+        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch()).thenReturn(null);
+        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch()).thenReturn(end);
 
         assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
     }
 
     @Test
     void isActionImplDao_throwsExceptionWhenEndDateIsNull() {
-        Instant start = Instant.parse("2024-01-01T00:00:00Z");
+        String start = getEpochString(Instant.parse("2024-01-01T00:00:00Z"));
         Instant now = Instant.parse("2024-06-01T12:00:00Z");
 
-        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp()).thenReturn(start);
-        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp()).thenReturn(null);
+        Mockito.when(pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch()).thenReturn(start);
+        Mockito.when(pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch()).thenReturn(null);
 
         assertThrows(PnInternalException.class, () -> featureFlagUtils.isActionImplDao(now));
+    }
+
+    private String getEpochString(Instant instant) {
+        return String.valueOf(instant.toEpochMilli());
     }
 }

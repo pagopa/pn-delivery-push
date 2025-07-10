@@ -18,12 +18,16 @@ public class FeatureFlagUtils {
     private static final String MISSING_PARAMS_ERROR_CODE = "PN_DELIVERY_PUSH_MISSING_ACTION_IMPL_FEATURE_FLAG";
 
     public boolean isActionImplDao(Instant now) {
-        Instant startDate = pnDeliveryPushConfigs.getStartActionImplWithDaoTimestamp();
-        Instant endDate = pnDeliveryPushConfigs.getEndActionImplWithDaoTimestamp();
-        if(Objects.isNull(startDate) || Objects.isNull(endDate)) {
-            String message = String.format(MISSING_PARAMS_ERROR_MESSAGE, startDate, endDate);
+        String startDateEpoch = pnDeliveryPushConfigs.getStartActionImplWithDaoEpoch();
+        String endDateEpoch = pnDeliveryPushConfigs.getEndActionImplWithDaoEpoch();
+
+        if(Objects.isNull(startDateEpoch) || Objects.isNull(endDateEpoch)) {
+            String message = String.format(MISSING_PARAMS_ERROR_MESSAGE, startDateEpoch, endDateEpoch);
             throw new PnInternalException(message, MISSING_PARAMS_ERROR_CODE);
         }
+
+        Instant startDate = Instant.ofEpochMilli(Long.parseLong(startDateEpoch));
+        Instant endDate = Instant.ofEpochMilli(Long.parseLong(endDateEpoch));
 
         return startDate.compareTo(now) <= 0 && endDate.compareTo(now) > 0;
     }

@@ -84,6 +84,27 @@ const toString = (d) =>
     includeOffset: false,
   });
 
+const convertFromEpochToIsoDateTime = (epoch) => {
+  let epochNumber = tryConvertEpochStringToNumber(epoch);
+  const dateTime = DateTime.fromMillis(epochNumber, { zone: "UTC" });
+  if (!dateTime.isValid) throw new InvalidDateException(epochNumber);
+  return dateTime.toISO();
+};
+
+const tryConvertEpochStringToNumber = (epoch) => {
+  if (typeof epoch === "string") {
+    const parsed = parseInt(epoch, 10);
+    if (isNaN(parsed)) {
+      throw new InvalidDateException(`Invalid epoch string: ${epoch}`);
+    }
+    return parsed;
+  }
+  if (typeof epoch === "number") {
+    return epoch;
+  }
+  throw new InvalidDateException(`Invalid epoch type: ${typeof epoch}`);
+}
+
 module.exports = {
   nextTimeSlot,
   isAfter,
@@ -93,5 +114,6 @@ module.exports = {
   parseISO,
   actTime,
   toString,
-  isAfterStr
+  isAfterStr,
+  convertFromEpochToIsoDateTime
 };
