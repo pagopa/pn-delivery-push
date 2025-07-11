@@ -1732,7 +1732,7 @@ Resources:
       Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
       VpcConfig:
         SecurityGroupIds:
-          - !GetAtt VersioningV1V23GetNotificationPriceSecGroup.GroupId
+          - !GetAtt NotificationCancellationActionInsertSecGroup.GroupId
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
