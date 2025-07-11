@@ -3,7 +3,7 @@ const proxyquire = require("proxyquire").noPreserveCache();
 
 // event handler tests
 describe("event handler tests", function () {
-  it("test Ok", async () => {
+  it("test Ok with persistence enabled", async () => {
     const event = {};
 
     const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
@@ -19,6 +19,50 @@ describe("event handler tests", function () {
       },
       "./lib/repository.js": {
         persistEvents: async () => {
+          return {
+            insertions: 1,
+            errors: [],
+          };
+        },
+      },
+      "./lib/utils.js": {
+        isPersistenceEnabled: () => true,
+      },
+    });
+
+    const res = await lambda.handleEvent(event);
+    expect(res).deep.equals({
+      batchItemFailures: [],
+    });
+  });
+
+  it("test Ok with action-manager", async () => {
+    const event = {};
+
+    const lambda = proxyquire.noCallThru().load("../app/eventHandler.js", {
+      "./lib/kinesis.js": {
+        extractKinesisData: () => {
+          return [{}];
+        },
+      },
+      "./lib/eventMapper.js": {
+        mapEvents: () => {
+          return [{ test: 1 }];
+        },
+      },
+      "./lib/repository.js": {
+        persistEvents: async () => {
+          return {
+            insertions: 1,
+            errors: [],
+          };
+        },
+      },
+      "./lib/utils.js": {
+        isPersistenceEnabled: () => false,
+      },
+      "./lib/client.js": {
+        insertAction: async () => {
           return {
             insertions: 1,
             errors: [],
@@ -93,6 +137,9 @@ describe("event handler tests", function () {
             errors: [{ kinesisSeqNumber: "4950" }],
           };
         },
+      },
+      "./lib/utils.js": {
+        isPersistenceEnabled: () => true,
       },
     });
 
