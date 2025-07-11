@@ -1713,6 +1713,11 @@ Resources:
   ##########################################################################
   ###              notificationCancellationActionInsertLambda            ###
   ##########################################################################
+  NotificationCancellationActionInsertSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${NotificationCancellationActionInsertLambdaName}-sec-group'
+      VpcId: !Ref VpcId
 
   # Lambda function
   NotificationCancellationActionInsertLambda:
@@ -1725,10 +1730,17 @@ Resources:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationCancellationActionInsert.zip"
       Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V23GetNotificationPriceSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
           ACTION_TTL_DAYS: !Ref ActionTtlDays
+          ACTION_LAMBDA_ENABLED_START: !Ref ActionLambdasEnabledStart
+          ACTION_LAMBDA_ENABLED_END: !Ref ActionLambdasEnabledEnd
+          ACTION_MANAGER_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
       TracingConfig:
         Mode: Active
       Layers:
@@ -1751,6 +1763,7 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
   # Lambda function IAM policy
   NotificationCancellationActionInsertLambdaPolicy:
