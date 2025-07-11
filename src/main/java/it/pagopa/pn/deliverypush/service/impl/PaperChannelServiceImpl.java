@@ -366,7 +366,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private void scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct(NotificationInt notification, Integer recIndex, String productType, int sentAttemptMade, String timelineId) {
         log.info("scheduleAnalogWorkflowNoFeedbackTimeoutForRIRProduct - iun{} productType={} sentAttemptMade={} timelineId={}", notification.getIun(), productType, sentAttemptMade, timelineId);
         if (!ProductTypeEnum.RIR.getValue().equals(productType)) {
-            log.info("Skipping scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT for iun={} as productType={} is not RIR", notification.getIun(), productType);
+            log.debug("Skipping scheduling ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT for iun={} as productType={} is not RIR", notification.getIun(), productType);
             return;
         }
 
