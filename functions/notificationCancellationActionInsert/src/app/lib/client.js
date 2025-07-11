@@ -21,12 +21,9 @@ const insertAction = async (events) => {
                     'Content-Type': 'application/json',
                 },
             });
-            
-            if (response.status === 201) {
-                summary.insertions++;
-                console.log(`Action inserted successfully: actionId=${event.actionId}`);
-            }
 
+            summary.insertions++;
+            console.log(`Action inserted successfully: actionId=${event.actionId}`);
         } catch (error) {
             console.error("Error putting action:", error);
             if( error.response.status === 409) {
