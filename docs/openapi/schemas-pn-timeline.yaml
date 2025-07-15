@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV27:
+    TimelineElementCategoryV28:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -53,11 +53,14 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `SEND_ANALOG_TIMEOUT` - Mancata ricezione di un esito per il tentativo di consegna analogico nell'intervallo temporale stabilito
+          * `ANALOG_FAILURE_WORKFLOW_TIMEOUT` - Completato con fallimento il workflow di invio cartaceo per l'assenza di esiti per ogni tentativo di spedizione nell'intervallo temporale stabilito
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
 #   * `GENERATE_F24_REQUEST` - Invio della richiesta di generazione degli F24 presenti nella richiesta di notifica con costo base # NO EXTERNAL
 #   * `GENERATED_F24` - F24 generati # NO EXTERNAL
+#   * `SEND_ANALOG_TIMEOUT_CREATION_REQUEST` - Richiesta di creazione atto opponibile per notifiche sprovviste di esito di consegna cartacea nell' intervallo temporale stabilito  # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -104,8 +107,10 @@ components:
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - SEND_ANALOG_TIMEOUT
+        - ANALOG_FAILURE_WORKFLOW_TIMEOUT
 
-    TimelineElementV27:
+    TimelineElementV28:
       type: object
       additionalProperties: false
       properties:
@@ -135,16 +140,16 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsIdV20"
+            $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactsIdV28"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV27'
+          $ref: '#/components/schemas/TimelineElementCategoryV28'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV27'
+          $ref: '#/components/schemas/TimelineElementDetailsV28'
 
-    TimelineElementDetailsV27:
+    TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -191,6 +196,8 @@ components:
         - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
         - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
+        - "$ref": "#/components/schemas/SendAnalogTimeoutDetails"
+        - "$ref": "#/components/schemas/AnalogFailureWorkflowTimeoutDetails"
 
     NotificationRequestAcceptedDetailsV27:
       type: object
@@ -1397,3 +1404,50 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
+
+    SendAnalogTimeoutDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+          maxLength: 512
+        timeoutDate:
+          type: string
+          description: Data in cui si è chiusa la finestra di ricezione esiti per il flusso analogico
+          format: date-time
+
+    AnalogFailureWorkflowTimeoutDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          maxLength: 128
+          description: Chiave per recupero da safe-storage del documento aar
+        notificationCost:
+          type: integer
+          description: Costo notifica digitale
+          format: int32

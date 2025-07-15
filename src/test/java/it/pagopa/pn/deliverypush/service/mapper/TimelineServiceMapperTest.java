@@ -203,12 +203,12 @@ class TimelineServiceMapperTest {
         assertEquals(NotificationStatusV26.DELIVERED, result.getNotificationStatus());
         assertNotNull(result.getTimeline());
         assertEquals(1, result.getTimeline().size());
-        TimelineElementV27 elem = result.getTimeline().get(0);
+        TimelineElementV28 elem = result.getTimeline().get(0);
         assertEquals("ELEM1", elem.getElementId());
     }
 
     @Test
-    void getTimelineElementV27List_mapsFieldsCorrectly() {
+    void getTimelineElementV28List_mapsFieldsCorrectly() {
         TimelineElementDetails details = new TimelineElementDetails().categoryType("TEST");
         LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
         TimelineElement timelineElement = new TimelineElement()
@@ -224,13 +224,13 @@ class TimelineServiceMapperTest {
         NotificationHistoryResponse source = new NotificationHistoryResponse()
                 .timeline(List.of(timelineElement));
 
-        List<TimelineElementV27> result = TimelineServiceMapper.toNotificationHistoryResponseDto(source).getTimeline();
+        List<TimelineElementV28> result = TimelineServiceMapper.toNotificationHistoryResponseDto(source).getTimeline();
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        TimelineElementV27 elem = result.get(0);
+        TimelineElementV28 elem = result.get(0);
         assertEquals("ELEM1", elem.getElementId());
-        assertEquals(TimelineElementCategoryV27.NOTIFICATION_VIEWED, elem.getCategory());
+        assertEquals(TimelineElementCategoryV28.NOTIFICATION_VIEWED, elem.getCategory());
         assertNotNull(elem.getDetails());
     }
 
