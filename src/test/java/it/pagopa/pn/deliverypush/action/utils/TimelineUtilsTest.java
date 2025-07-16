@@ -1533,4 +1533,24 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals(errors, ((RequestRefusedDetailsInt) result.getDetails()).getRefusalReasons())
         );
     }
+
+    @Test
+    void buildAnalogFailureWorkflowTimeoutDetailsInt() {
+        NotificationInt notification = buildNotification();
+        int recIndex = 1;
+        String generatedAarUrl = "https://example.com/aar";
+        Instant timeoutDate = Instant.now();
+        int notificationCost = 100;
+        String expectedIun = notification.getIun();
+        String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1";
+
+        TimelineElementInternal result = timelineUtils.buildAnalogFailureWorkflowTimeoutDetailsInt(notification,recIndex, generatedAarUrl, notificationCost, timeoutDate);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
+        );
+    }
 }

@@ -38,7 +38,8 @@ public class StatusUtils {
             TimelineElementCategoryInt.ANALOG_SUCCESS_WORKFLOW,
             //Fallimento
             TimelineElementCategoryInt.COMPLETELY_UNREACHABLE,
-            TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED
+            TimelineElementCategoryInt.ANALOG_WORKFLOW_RECIPIENT_DECEASED,
+            TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT
     ));
 
     
