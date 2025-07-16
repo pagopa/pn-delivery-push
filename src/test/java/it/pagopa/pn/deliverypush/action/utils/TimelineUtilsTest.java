@@ -1533,4 +1533,33 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals(errors, ((RequestRefusedDetailsInt) result.getDetails()).getRefusalReasons())
         );
     }
+
+    @Test
+    void buildSendAnalogTimeout() {
+        NotificationInt notification = buildNotification();
+        String relatedRequestId = "relatedRequestIdExample";
+        int sentAttemptMade = 0;
+        int recIndex = 1;
+
+        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder()
+                .sentAttemptMade(sentAttemptMade)
+                .recIndex(recIndex)
+                .relatedRequestId(relatedRequestId)
+                .physicalAddress(buildPhysicalAddressInt())
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
+                .build();
+
+        Instant timeoutDate = Instant.now();
+        String expectedIun = notification.getIun();
+        String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1.ATTEMPT_0";
+
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeout(notification, sendAnalogDetailsInt, timeoutDate);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
+        );
+    }
 }
