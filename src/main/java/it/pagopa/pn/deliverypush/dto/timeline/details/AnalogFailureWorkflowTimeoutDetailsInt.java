@@ -15,7 +15,7 @@ import java.time.Instant;
 public class AnalogFailureWorkflowTimeoutDetailsInt implements ElementTimestampTimelineElementDetails, RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private String generatedAarUrl;
-    private int notificationCost;
+    private Integer notificationCost;
     private Instant timeoutDate;
 
     public String toLog() {
