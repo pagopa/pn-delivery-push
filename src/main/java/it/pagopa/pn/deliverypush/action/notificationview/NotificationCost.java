@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowTimeoutDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogWorfklowRecipientDeceasedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -41,7 +42,13 @@ public class NotificationCost {
                         return Mono.just(Optional.empty());
                     } else {
                         log.debug("Refinement element not found for notification {} recIndex {}", notification.getIun(), recIndex);
-                        return handleDeceasedElement(notification.getIun(), recIndex);
+                        return handleDeceasedElement(notification.getIun(), recIndex)
+                                .flatMap(optionalCost -> {
+                                    if (optionalCost.isEmpty()) {
+                                        return Mono.just(optionalCost);
+                                    }
+                                    return handleAnalogFailureWorkflowTimeoutElement(notification.getIun(), recIndex);
+                                });
                     }
                 });
     }
@@ -89,6 +96,35 @@ public class NotificationCost {
                         .recIndex(recIndex)
                         .build()
         );
+    }
+
+    private Mono<Optional<Integer>> handleAnalogFailureWorkflowTimeoutElement(String iun, Integer recIndex) {
+        String timeoutId = getAnalogFailureWorkflowTimeoutId(iun, recIndex);
+        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, timeoutId))
+                .flatMap(timeoutElementOpt -> {
+                    if (timeoutElementOpt.isPresent() && analogFailureWorkflowTimeoutHasCost(timeoutElementOpt.get())) {
+                        log.debug("Analog failure workflow timeout element with cost found for notification with iun {} recIndex {}", iun, recIndex);
+                        return Mono.just(Optional.empty());
+                    } else {
+                        log.debug("Analog failure workflow timeout element with cost not found for notification with iun {} recIndex {}", iun, recIndex);
+                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
+                    }
+                });
+    }
+
+    private String getAnalogFailureWorkflowTimeoutId(String iun, Integer recIndex) {
+        // Costruisce l'ID dell'evento di ANALOG_FAILURE_WORKFLOW_TIMEOUT
+        return TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build()
+        );
+    }
+
+    private static boolean analogFailureWorkflowTimeoutHasCost(TimelineElementInternal timelineElement) {
+        return ((AnalogFailureWorkflowTimeoutDetailsInt) timelineElement.getDetails()).getNotificationCost() != null &&
+                ((AnalogFailureWorkflowTimeoutDetailsInt) timelineElement.getDetails()).getNotificationCost() != 0;
     }
 
 }

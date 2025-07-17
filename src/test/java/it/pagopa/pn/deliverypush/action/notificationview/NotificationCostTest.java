@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowTimeoutDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogWorfklowRecipientDeceasedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.RefinementDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
@@ -60,6 +61,7 @@ class NotificationCostTest {
         Mockito.verify(notificationProcessCostService, Mockito.never()).getSendFeeAsync();
         Assertions.assertNotNull(monoCostOpt);
         Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertNotNull(costOpt);
         Assertions.assertTrue(costOpt.isEmpty());
     }
 
@@ -104,6 +106,7 @@ class NotificationCostTest {
         Mockito.verify(notificationProcessCostService, Mockito.never()).getSendFeeAsync();
         Assertions.assertNotNull(monoCostOpt);
         Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertNotNull(costOpt);
         Assertions.assertTrue(costOpt.isEmpty());
     }
 
@@ -145,6 +148,7 @@ class NotificationCostTest {
         Mockito.verify(notificationProcessCostService, Mockito.never()).getSendFeeAsync();
         Assertions.assertNotNull(monoCostOpt);
         Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertNotNull(costOpt);
         Assertions.assertTrue(costOpt.isEmpty());
     }
 
@@ -190,12 +194,132 @@ class NotificationCostTest {
         Assertions.assertNotNull(costOpt.get());
         Assertions.assertEquals(expectedCost, costOpt.get());
 
-        Mockito.verify(notificationProcessCostService).getSendFeeAsync();
+        Mockito.verify(notificationProcessCostService, Mockito.times(2)).getSendFeeAsync();
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationCostWithoutRefinementAndWithoutDeceased() {
+    void getNotificationCostWithRefinementNoCostWithDeceasedNoCostWithFailureTimeoutAndCost() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipient(recipient)
+                .build();
+        int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        String refinementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        String deceasedId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        String failureTimeoutId = TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
+                .details(RefinementDetailsInt.builder().build()).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), refinementId)).thenReturn(Optional.of(refinementTimelineElementInternal));
+
+        TimelineElementInternal deceasedTimelineElementInternal = TimelineElementInternal.builder()
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().build()
+                ).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), deceasedId)).thenReturn(Optional.of(deceasedTimelineElementInternal));
+
+        TimelineElementInternal timeoutFailureTimelineElementInternal = TimelineElementInternal.builder()
+                .details(AnalogFailureWorkflowTimeoutDetailsInt.builder()
+                                .notificationCost(100)
+                                .build()
+                ).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), failureTimeoutId)).thenReturn(Optional.of(timeoutFailureTimelineElementInternal));
+
+        int expectedCost = 0;
+        Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(expectedCost));
+
+        //WHEN
+        Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCostForViewed(notification, recIndex);
+        //THEN
+        Assertions.assertNotNull(monoCostOpt);
+        Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertNotNull(costOpt);
+        Assertions.assertTrue(costOpt.isEmpty());
+
+        Mockito.verify(notificationProcessCostService, Mockito.times(1)).getSendFeeAsync();
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationCostWithoutRefinementWithDeceasedNoCostWithFailureTimeoutAndNoCost() {
+        //GIVEN
+        NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withNotificationRecipient(recipient)
+                .build();
+        int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
+
+        String refinementId = TimelineEventId.REFINEMENT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        String deceasedId = TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        String failureTimeoutId = TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build()
+        );
+
+        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
+                .details(RefinementDetailsInt.builder().build()).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), refinementId)).thenReturn(Optional.of(refinementTimelineElementInternal));
+
+        TimelineElementInternal deceasedTimelineElementInternal = TimelineElementInternal.builder()
+                .details(AnalogWorfklowRecipientDeceasedDetailsInt.builder().build()
+                ).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), deceasedId)).thenReturn(Optional.of(deceasedTimelineElementInternal));
+
+        TimelineElementInternal timeoutFailureTimelineElementInternal = TimelineElementInternal.builder()
+                .details(AnalogFailureWorkflowTimeoutDetailsInt.builder().build()
+                ).build();
+        Mockito.when(timelineService.getTimelineElementStrongly(notification.getIun(), failureTimeoutId)).thenReturn(Optional.of(timeoutFailureTimelineElementInternal));
+
+        int expectedCost = 0;
+        Mockito.when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(expectedCost));
+
+        //WHEN
+        Mono<Optional<Integer>> monoCostOpt = notificationCost.getNotificationCostForViewed(notification, recIndex);
+        //THEN
+        Assertions.assertNotNull(monoCostOpt);
+        Optional<Integer> costOpt = monoCostOpt.block();
+        Assertions.assertNotNull(costOpt);
+        Assertions.assertTrue(costOpt.isPresent());
+
+        Mockito.verify(notificationProcessCostService, Mockito.times(2)).getSendFeeAsync();
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationCostWithoutRefinementAndWithoutDeceasedWithoutFailureTimeout() {
         //GIVEN
         NotificationRecipientInt recipient = NotificationRecipientTestBuilder.builder().build();
         NotificationInt notification = NotificationTestBuilder.builder()
@@ -204,6 +328,7 @@ class NotificationCostTest {
         int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
 
         Mockito.when(timelineService.getTimelineElementStrongly(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.empty())
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.empty());
 
@@ -221,6 +346,6 @@ class NotificationCostTest {
         Assertions.assertNotNull(costOpt.get());
         Assertions.assertEquals(expectedCost, costOpt.get());
 
-        Mockito.verify(notificationProcessCostService).getSendFeeAsync();
+        Mockito.verify(notificationProcessCostService, Mockito.times(2)).getSendFeeAsync();
     }
 }
