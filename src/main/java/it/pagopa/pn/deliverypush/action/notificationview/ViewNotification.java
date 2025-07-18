@@ -46,11 +46,11 @@ public class ViewNotification {
 
     private Mono<Void> changeAttachmentRetentionIfNeeded(NotificationInt notification, Integer recIndex){
 
-        boolean isNotificationRefined = timelineUtils.checkIsNotificationRefined(notification.getIun(), recIndex);
-        boolean isRecipientDeceased = timelineUtils.checkIsRecipientDeceased(notification.getIun(), recIndex);
-        boolean isNotificationFailureTimeout = timelineUtils.checkIsNotificationFailureTimeout(notification.getIun(), recIndex);
-        if (isNotificationRefined || isRecipientDeceased || isNotificationFailureTimeout)
-        {
+        if (
+            timelineUtils.checkIsNotificationRefined(notification.getIun(), recIndex) ||
+            timelineUtils.checkIsRecipientDeceased(notification.getIun(), recIndex) ||
+            timelineUtils.checkIsNotificationFailureTimeout(notification.getIun(), recIndex)
+        ) {
             log.info("No need to change attachment retention, notification is already REFINED or delivery FAILED for TIMEOUT or recipient is DECEASED iun={} recIndex={}", notification.getIun(), recIndex);
             return Mono.empty();
         }

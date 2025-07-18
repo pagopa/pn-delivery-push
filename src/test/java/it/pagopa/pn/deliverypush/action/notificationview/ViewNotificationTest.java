@@ -309,7 +309,6 @@ class ViewNotificationTest {
                 .thenReturn(Mono.just(legalFactsId));
         when(timelineUtils.checkIsNotificationRefined(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         when(timelineUtils.checkIsRecipientDeceased(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
-        when(timelineUtils.checkIsNotificationFailureTimeout(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
 
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder().build();
         when(timelineUtils.buildNotificationViewedLegalFactCreationRequestTimelineElement(
@@ -356,7 +355,6 @@ class ViewNotificationTest {
         String legalFactsId = "legalFactsId";
         when(timelineUtils.checkIsNotificationRefined(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         when(timelineUtils.checkIsRecipientDeceased(Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
-        when(timelineUtils.checkIsNotificationFailureTimeout(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
         when(legalFactStore.sendCreationRequestForNotificationViewedLegalFact(Mockito.any(NotificationInt.class), Mockito.any(NotificationRecipientInt.class), Mockito.any(DelegateInfoInt.class), Mockito.any(Instant.class)))
                 .thenReturn(Mono.just(legalFactsId));
 

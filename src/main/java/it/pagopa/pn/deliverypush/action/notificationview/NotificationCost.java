@@ -14,7 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 @Component
@@ -30,27 +32,37 @@ public class NotificationCost {
 
     @Nullable
     public Mono<Optional<Integer>> getNotificationCostForViewed(NotificationInt notification, Integer recIndex) {
-        //Trasformato in MONO anche per sviluppi futuri, in modo da adeguare correttamente i client
+        record EventChecker(String elementId, Function<TimelineElementInternal, Boolean> costChecker) {}
 
-        // Ottiene l'elemento di refinement dalla timeline
-        String refinementId = getRefinementId(notification.getIun(), recIndex);
-        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(notification.getIun(), refinementId))
-                .flatMap(timelineElementOpt -> {
-                    if(timelineElementOpt.isPresent() && refinementHasCost(timelineElementOpt.get())) {
-                        log.debug("Refinement element found for notification {} recIndex {}", notification.getIun(), recIndex);
-                        // Se c'è il refinement restitutiamo un costo empty
-                        return Mono.just(Optional.empty());
-                    } else {
-                        log.debug("Refinement element not found for notification {} recIndex {}", notification.getIun(), recIndex);
-                        return handleDeceasedElement(notification.getIun(), recIndex)
-                                .flatMap(optionalCost -> {
-                                    if (optionalCost.isEmpty()) {
-                                        return Mono.just(optionalCost);
-                                    }
-                                    return handleAnalogFailureWorkflowTimeoutElement(notification.getIun(), recIndex);
-                                });
-                    }
-                });
+        List<EventChecker> checkers = List.of(
+                new EventChecker(
+                        getRefinementId(notification.getIun(), recIndex),
+                        NotificationCost::refinementHasCost
+                ),
+                new EventChecker(
+                        getDeceasedId(notification.getIun(), recIndex),
+                        NotificationCost::deceasedEventHasCost
+                ),
+                new EventChecker(
+                        getAnalogFailureWorkflowTimeoutId(notification.getIun(), recIndex),
+                        NotificationCost::analogFailureWorkflowTimeoutHasCost
+                )
+        );
+
+        return Mono.defer(() -> {
+            for (EventChecker checker : checkers) {
+                String eventId = checker.elementId;
+                Optional<TimelineElementInternal> elementOpt = timelineService.getTimelineElementStrongly(notification.getIun(), eventId);
+                if (elementOpt.isPresent() && checker.costChecker().apply(elementOpt.get())) {
+                    log.debug("Element {} with cost found for notification {} recIndex {}", eventId, notification.getIun(), recIndex);
+                    return Mono.just(Optional.empty());
+                }
+                log.debug("Element {} with cost not found for notification {} recIndex {}", eventId, notification.getIun(), recIndex);
+            }
+
+            log.debug("No elements with cost found for notification {} recIndex {}, returning send fee", notification.getIun(), recIndex);
+            return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
+        });
     }
 
     private String getRefinementId(String iun, Integer recIndex) {
@@ -68,21 +80,6 @@ public class NotificationCost {
                 && ((RefinementDetailsInt)timelineElement.getDetails()).getNotificationCost() != 0;
     }
 
-    private Mono<Optional<Integer>> handleDeceasedElement(String iun, Integer recIndex) {
-        String deceasedId = getDeceasedId(iun, recIndex);
-        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, deceasedId))
-                .flatMap(timelineElementOpt -> {
-                    if (timelineElementOpt.isPresent() && deceasedEventHasCost(timelineElementOpt.get())) {
-                        log.debug("Deceased element with cost found for notification {} recIndex {}", iun, recIndex);
-                        // Se c'è il deceased con un costo applicato restitutiamo un costo empty
-                        return Mono.just(Optional.empty());
-                    } else {
-                        log.debug("Deceased element with cost not found for notification {} recIndex {}", iun, recIndex);
-                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
-                    }
-                });
-    }
-
     private static boolean deceasedEventHasCost(TimelineElementInternal timelineElement) {
         return ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != null
                 && ((AnalogWorfklowRecipientDeceasedDetailsInt) timelineElement.getDetails()).getNotificationCost() != 0;
@@ -96,20 +93,6 @@ public class NotificationCost {
                         .recIndex(recIndex)
                         .build()
         );
-    }
-
-    private Mono<Optional<Integer>> handleAnalogFailureWorkflowTimeoutElement(String iun, Integer recIndex) {
-        String timeoutId = getAnalogFailureWorkflowTimeoutId(iun, recIndex);
-        return Mono.fromCallable(() -> timelineService.getTimelineElementStrongly(iun, timeoutId))
-                .flatMap(timeoutElementOpt -> {
-                    if (timeoutElementOpt.isPresent() && analogFailureWorkflowTimeoutHasCost(timeoutElementOpt.get())) {
-                        log.debug("Analog failure workflow timeout element with cost found for notification with iun {} recIndex {}", iun, recIndex);
-                        return Mono.just(Optional.empty());
-                    } else {
-                        log.debug("Analog failure workflow timeout element with cost not found for notification with iun {} recIndex {}", iun, recIndex);
-                        return notificationProcessCostService.getSendFeeAsync().map(Optional::of);
-                    }
-                });
     }
 
     private String getAnalogFailureWorkflowTimeoutId(String iun, Integer recIndex) {
