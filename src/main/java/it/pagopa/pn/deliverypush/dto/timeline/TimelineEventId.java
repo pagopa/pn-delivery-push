@@ -611,6 +611,17 @@ public enum TimelineEventId {
                     .withSentAttemptMade(eventId.getSentAttemptMade())
                     .build();
         }
+    },
+
+    ANALOG_FAILURE_WORKFLOW_TIMEOUT("ANALOG_FAILURE_WORKFLOW_TIMEOUT") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .build();
+        }
     };
 
     public String buildEventId(EventId eventId) {

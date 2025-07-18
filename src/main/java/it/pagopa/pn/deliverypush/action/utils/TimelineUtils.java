@@ -1560,6 +1560,28 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, elementId, details);
     }
 
+    public TimelineElementInternal buildAnalogFailureWorkflowTimeoutDetailsInt(NotificationInt notification,
+                                                                               int recIndex,
+                                                                               String generatedAarUrl,
+                                                                               int notificationCost,
+                                                                               Instant timeoutDate) {
+        log.debug("buildAnalogFailureWorkflowTimeoutDetailsInt - IUN={} and id={} timeoutDate={}", notification.getIun(), recIndex, timeoutDate);
+        String elementId = ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AnalogFailureWorkflowTimeoutDetailsInt details = AnalogFailureWorkflowTimeoutDetailsInt.builder()
+                .timeoutDate(timeoutDate)
+                .recIndex(recIndex)
+                .notificationCost(notificationCost)
+                .generatedAarUrl(generatedAarUrl)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, elementId, details);
+    }
+
     public String getIunFromTimelineId(String timelineId) {
         //<timelineId = CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");

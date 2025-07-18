@@ -55,7 +55,8 @@ public enum TimelineElementCategoryInt {
     ANALOG_WORKFLOW_RECIPIENT_DECEASED(AnalogWorfklowRecipientDeceasedDetailsInt.class, TimelineElementCategoryV28.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue(), TimelineElementCategoryInt.PRIORITY_ANALOG_WORKFLOW_RECIPIENT_DECEASED, TimelineElementCategoryInt.VERSION_26),
     PUBLIC_REGISTRY_VALIDATION_CALL(PublicRegistryValidationCallDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL.getValue(), TimelineElementCategoryInt.VERSION_27),
     PUBLIC_REGISTRY_VALIDATION_RESPONSE(PublicRegistryValidationResponseDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_RESPONSE.getValue(), TimelineElementCategoryInt.VERSION_27),
-    SEND_ANALOG_TIMEOUT_CREATION_REQUEST(SendAnalogTimeoutCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_28);
+    SEND_ANALOG_TIMEOUT_CREATION_REQUEST(SendAnalogTimeoutCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_28),
+    ANALOG_FAILURE_WORKFLOW_TIMEOUT(AnalogFailureWorkflowTimeoutDetailsInt.class, TimelineElementCategoryV28.ANALOG_FAILURE_WORKFLOW_TIMEOUT.getValue(),TimelineElementCategoryInt.PRIORITY_ANALOG_FAILURE_WORKFLOW_TIMEOUT, TimelineElementCategoryInt.VERSION_28);
 
 
     private final Class<? extends TimelineElementDetailsInt> detailsJavaClass;
@@ -70,6 +71,7 @@ public enum TimelineElementCategoryInt {
     public static final int PRIORITY_COMPLETELY_UNREACHABLE_CREATION_REQUEST = 50;
     public static final int PRIORITY_COMPLETELY_UNREACHABLET = 60;
     public static final int PRIORITY_SCHEDULE_REFINEMENT = 70;
+    public static final int PRIORITY_ANALOG_FAILURE_WORKFLOW_TIMEOUT = 40;
 
     public static final int PRIORITY_BEFORE = 10;
     public static final int PRIORITY_AFTER = 20;

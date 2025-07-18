@@ -1029,4 +1029,24 @@ class TimelineEventIdBuilderTest {
 
         assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
     }
+
+    @Test
+    void buildANALOG_FAILURE_WORKFLOW_TIMEOUT() {
+        Integer recIndex = 0;
+        String timeLineEventIdExpected = String.format("ANALOG_FAILURE_WORKFLOW_TIMEOUT.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_%s", recIndex);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.getValue())
+                .withIun(IUN)
+                .withRecIndex(recIndex)
+                .build();
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(recIndex)
+                .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
 }
