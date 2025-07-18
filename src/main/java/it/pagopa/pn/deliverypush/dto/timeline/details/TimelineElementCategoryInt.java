@@ -55,6 +55,7 @@ public enum TimelineElementCategoryInt {
     ANALOG_WORKFLOW_RECIPIENT_DECEASED(AnalogWorfklowRecipientDeceasedDetailsInt.class, TimelineElementCategoryV28.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue(), TimelineElementCategoryInt.PRIORITY_ANALOG_WORKFLOW_RECIPIENT_DECEASED, TimelineElementCategoryInt.VERSION_26),
     PUBLIC_REGISTRY_VALIDATION_CALL(PublicRegistryValidationCallDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL.getValue(), TimelineElementCategoryInt.VERSION_27),
     PUBLIC_REGISTRY_VALIDATION_RESPONSE(PublicRegistryValidationResponseDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_RESPONSE.getValue(), TimelineElementCategoryInt.VERSION_27),
+    SEND_ANALOG_TIMEOUT_CREATION_REQUEST(SendAnalogTimeoutCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_28),
     ANALOG_FAILURE_WORKFLOW_TIMEOUT(AnalogFailureWorkflowTimeoutDetailsInt.class, TimelineElementCategoryV28.ANALOG_FAILURE_WORKFLOW_TIMEOUT.getValue(),TimelineElementCategoryInt.PRIORITY_ANALOG_FAILURE_WORKFLOW_TIMEOUT, TimelineElementCategoryInt.VERSION_28);
 
 
@@ -107,7 +108,8 @@ public enum TimelineElementCategoryInt {
         VALIDATE_F24_REQUEST("VALIDATE_F24_REQUEST"),
         GENERATED_F24("GENERATED_F24"),
         GENERATE_F24_REQUEST("GENERATE_F24_REQUEST"),
-        NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST("NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST");
+        NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST("NOTIFICATION_CANCELLED_DOCUMENT_CREATION_REQUEST"),
+        SEND_ANALOG_TIMEOUT_CREATION_REQUEST("SEND_ANALOG_TIMEOUT_CREATION_REQUEST");
 
         private final String value;
         DiagnosticTimelineElementCategory(String value) {

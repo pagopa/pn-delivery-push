@@ -1535,6 +1535,27 @@ class TimelineUtilsTest {
     }
 
     @Test
+    void buildSendAnalogTimeoutCreationRequest() {
+        NotificationInt notification = buildNotification();
+        String relatedRequestId = "relatedRequestIdExample";
+        int sentAttemptMade = 0;
+        int recIndex = 1;
+        Instant timeoutDate = Instant.now();
+        String legalFactId = "legalFactIdExample";
+        String expectedIun = notification.getIun();
+        String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT_CREATION_REQUEST.IUN_Example_IUN_1234_Test.RECINDEX_1.ATTEMPT_0";
+
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeoutCreationRequest(notification,recIndex, timeoutDate, sentAttemptMade, relatedRequestId, legalFactId);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
+        );
+    }
+
+    @Test
     void buildAnalogFailureWorkflowTimeoutDetailsInt() {
         NotificationInt notification = buildNotification();
         int recIndex = 1;
