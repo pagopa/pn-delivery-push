@@ -56,6 +56,7 @@ public enum TimelineElementCategoryInt {
     PUBLIC_REGISTRY_VALIDATION_CALL(PublicRegistryValidationCallDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_CALL.getValue(), TimelineElementCategoryInt.VERSION_27),
     PUBLIC_REGISTRY_VALIDATION_RESPONSE(PublicRegistryValidationResponseDetailsInt.class, TimelineElementCategoryV28.PUBLIC_REGISTRY_VALIDATION_RESPONSE.getValue(), TimelineElementCategoryInt.VERSION_27),
     SEND_ANALOG_TIMEOUT_CREATION_REQUEST(SendAnalogTimeoutCreationRequestDetailsInt.class, DiagnosticTimelineElementCategory.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.value, TimelineElementCategoryInt.VERSION_28),
+    SEND_ANALOG_TIMEOUT(SendAnalogTimeoutDetailsInt.class, TimelineElementCategoryV28.SEND_ANALOG_TIMEOUT.getValue(), TimelineElementCategoryInt.VERSION_28),
     ANALOG_FAILURE_WORKFLOW_TIMEOUT(AnalogFailureWorkflowTimeoutDetailsInt.class, TimelineElementCategoryV28.ANALOG_FAILURE_WORKFLOW_TIMEOUT.getValue(),TimelineElementCategoryInt.PRIORITY_ANALOG_FAILURE_WORKFLOW_TIMEOUT, TimelineElementCategoryInt.VERSION_28);
 
 
