@@ -16,16 +16,15 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnPaperChannelChangedCostException;
 import it.pagopa.pn.deliverypush.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationService;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
@@ -42,6 +41,7 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final PaperChannelUtils paperChannelUtils;
     private final AuditLogService auditLogService;
     private final SchedulerService schedulerService;
+    private final TimelineService timelineService;
     
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
@@ -195,6 +195,10 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         String sendRequestId = sendAnalogDomicileElement.getElementId();
         SendAnalogDetailsInt sendAnalogDetailsInt = (SendAnalogDetailsInt) sendAnalogDomicileElement.getDetails();
 
+        if (skipResponseEventForDeliveryTimeout(iun, sendAnalogDetailsInt, sendRequestId, status, response)) {
+            return;
+        }
+
         /*
          Setto come physicalAddress l'indirizzo fisico riportato nel dettaglio dell'elemento SEND_ANALOG_DOMICILE.
          Poichè quello presente nel dettaglio dell'elemento PREPARE_ANALOG_DOMICILE (contenuto in sendPaperDetails) potrebbe essere null quando riguarda un secondo attempt.
@@ -216,7 +220,43 @@ public class AnalogWorkflowPaperChannelResponseHandler {
             handleStatusIgnored(response, iun, recIndex);
         }
     }
-    
+
+    private boolean skipResponseEventForDeliveryTimeout(String iun, SendAnalogDetailsInt sendAnalogDetailsInt, String sendRequestId, ResponseStatusInt status, SendEventInt response) {
+        log.info("Checking if analog event should be ignored due to existing timeout for iun={} sendRequestId={}", iun, sendRequestId);
+        int sendAnalogDetailsRecIndex = sendAnalogDetailsInt.getRecIndex();
+        Integer sendAnalogDetailsSentAttemptMade = sendAnalogDetailsInt.getSentAttemptMade();
+        Set<TimelineElementInternal> timelineElement = timelineService.getTimeline(iun, false);
+
+        if (findAnalogTimeoutElementRelatedToThisDeliveryEvent(timelineElement, sendAnalogDetailsRecIndex, sendAnalogDetailsSentAttemptMade)) {
+            auditLogService.buildAuditLogEvent(
+                    iun,
+                    sendAnalogDetailsRecIndex,
+                    PnAuditLogEventType.AUD_NT_DISCARD_ANALOG_EVENTS,
+                    "Discarded analog event due to existing timeout status={} sentAttemptMade={} deliveryFailureCause={} statusDetail={} statusDateTime={} registeredLetterCode={}",
+                    status,
+                    sendAnalogDetailsSentAttemptMade,
+                    response.getDeliveryFailureCause(),
+                    response.getStatusDetail(),
+                    response.getStatusDateTime(),
+                    response.getRegisteredLetterCode()
+            ).generateWarning("Analog event ignored due to timeout").log();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean findAnalogTimeoutElementRelatedToThisDeliveryEvent(Set<TimelineElementInternal> timelineElement, int sendAnalogDetailsRecIndex, Integer sendAnalogDetailsSentAttemptMade) {
+        return timelineElement.stream()
+                .filter(element -> element.getCategory() == TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST)
+                .anyMatch(element -> {
+                    if (element.getDetails() instanceof SendAnalogTimeoutCreationRequestDetailsInt details) {
+                        return Objects.equals(details.getRecIndex(), sendAnalogDetailsRecIndex)
+                                && Objects.equals(details.getSentAttemptMade(), sendAnalogDetailsSentAttemptMade);
+                    }
+                    return false;
+                });
+    }
+
     private void handleStatusProgress(SendEventInt response,
                                       BaseAnalogDetailsInt sendPaperDetails,
                                       NotificationInt notification,
