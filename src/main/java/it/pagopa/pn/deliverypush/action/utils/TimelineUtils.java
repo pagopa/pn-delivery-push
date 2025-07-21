@@ -1535,6 +1535,31 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
     }
 
+    public TimelineElementInternal buildSendAnalogTimeoutCreationRequest(NotificationInt notification,
+                                                                         int recIndex,
+                                                                         Instant timeoutDate,
+                                                                         int sentAttemptMade,
+                                                                         String relatedRequestId,
+                                                                         String legalFactId) {
+        log.debug("buildSendAnalogTimeoutCreationRequest - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, relatedRequestId);
+        String elementId = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build());
+
+        SendAnalogTimeoutCreationRequestDetailsInt details = SendAnalogTimeoutCreationRequestDetailsInt.builder()
+                .timeoutDate(timeoutDate)
+                .recIndex(recIndex)
+                .sentAttemptMade(sentAttemptMade)
+                .relatedRequestId(relatedRequestId)
+                .legalFactId(legalFactId)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, elementId, details);
+    }
+
     public TimelineElementInternal buildSendAnalogTimeout(NotificationInt notification,
                                                           SendAnalogDetailsInt sendAnalogDetailsInt,
                                                           Instant timeoutDate) {
@@ -1559,6 +1584,28 @@ public class TimelineUtils {
                 .build();
 
         return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, elementId, details);
+    }
+
+    public TimelineElementInternal buildAnalogFailureWorkflowTimeoutDetailsInt(NotificationInt notification,
+                                                                               int recIndex,
+                                                                               String generatedAarUrl,
+                                                                               int notificationCost,
+                                                                               Instant timeoutDate) {
+        log.debug("buildAnalogFailureWorkflowTimeoutDetailsInt - IUN={} and id={} timeoutDate={}", notification.getIun(), recIndex, timeoutDate);
+        String elementId = ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        AnalogFailureWorkflowTimeoutDetailsInt details = AnalogFailureWorkflowTimeoutDetailsInt.builder()
+                .timeoutDate(timeoutDate)
+                .recIndex(recIndex)
+                .notificationCost(notificationCost)
+                .generatedAarUrl(generatedAarUrl)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, elementId, details);
     }
 
     public String getIunFromTimelineId(String timelineId) {
