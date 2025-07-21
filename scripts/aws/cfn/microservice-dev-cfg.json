@@ -41,8 +41,8 @@
     "NumRetry": "3",
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z",
-    "ActionLambdasEnabledStart": "1546300800000",
+    "ActionLambdasEnabledStart": "1784639388000",
     "ActionLambdasEnabledEnd": "1752075900000",
-    "EnableVpcForNotificationCancellationActionInsertLambda": "true"
+    "EnableVpcForNotificationCancellationActionInsertLambda": "false"
     }
 }
