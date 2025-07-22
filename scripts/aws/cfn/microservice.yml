@@ -777,8 +777,17 @@ Parameters:
     Default: ''
     Description: 'Applicative environment variable file checksum'
 
+  EnableVpcForNotificationCancellationActionInsertLambda:
+    Type: String
+    Default: 'false'
+    Description: 'Enable or disable VPC association for NotificationCancellationActionInsertLambda'
+    AllowedValues:
+      - 'true'
+      - 'false'
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
+  AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
 
 Resources:
 
@@ -1738,10 +1747,12 @@ Resources:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationCancellationActionInsert.zip"
       Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
-      VpcConfig:
-        SecurityGroupIds:
-          - !GetAtt NotificationCancellationActionInsertSecGroup.GroupId
-        SubnetIds: !Ref SubnetsIds
+      VpcConfig: !If 
+        - AttachNotificationCancellationActionInsertLambdaToVpc
+        - SecurityGroupIds:
+            - !GetAtt NotificationCancellationActionInsertSecGroup.GroupId
+          SubnetIds: !Ref SubnetsIds
+        - !Ref "AWS::NoValue"
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
