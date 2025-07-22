@@ -44,6 +44,6 @@
     "ActionLambdasEnabledStart": "1546300800000",
     "ActionLambdasEnabledEnd": "4088322588000",
     "EnableVpcForNotificationCancellationActionInsertLambda": "false",
-    "WorkflowChannels": "pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer"
+    "EnableWorkflowChannels": "true"
     }
 }
