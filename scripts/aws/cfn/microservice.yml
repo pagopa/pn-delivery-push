@@ -1117,7 +1117,7 @@ Resources:
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37: 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer'
+        ContainerEnvEntry37: 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer;WorkflowChannels'
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
