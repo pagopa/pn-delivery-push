@@ -763,6 +763,14 @@ Parameters:
     Type: CommaDelimitedList
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
+  
+  WorkflowLambdasEnabledStart:
+    Type: String
+    Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
+  
+  WorkflowLambdasEnabledEnd:
+    Type: String
+    Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
 
   ApplicativeEnvFileChecksum:
     Type: String
@@ -1823,7 +1831,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
+          - Pattern: !Join
+              - ''
+              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref WorkflowLambdasEnabledStart
+                - ', "<", '
+                - !Ref WorkflowLambdasEnabledEnd
+                - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
@@ -1932,7 +1946,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
+          - Pattern: !Join
+              - ''
+              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref WorkflowLambdasEnabledStart
+                - ', "<", '
+                - !Ref WorkflowLambdasEnabledEnd
+                - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
