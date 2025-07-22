@@ -44,7 +44,7 @@
     "ActionLambdasEnabledStart": "1546300800000",
     "ActionLambdasEnabledEnd": "4088322588000",
     "EnableVpcForNotificationCancellationActionInsertLambda": "false",
-    "WorkflowLambdasEnabledStart": "1970-01-01T00:00:00Z",
-    "WorkflowLambdasEnabledEnd": "2025-30-08T00:00:00Z"
+    "WorkflowLambdasEnabledStart": "1753142400000",
+    "WorkflowLambdasEnabledEnd": "1756512000000"
     }
 }
