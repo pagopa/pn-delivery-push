@@ -219,4 +219,34 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
             handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
         });
     }
+
+    @Test
+    void testBuildSendAnalogTimeoutElement_sendAnalogDetailsNotFound() {
+        String iun = "iun";
+        int recIndex = 0;
+        String timelineId = "timelineId";
+        String key = "key";
+        DocumentCreationResponseActionDetails actionDetails = mock(DocumentCreationResponseActionDetails.class);
+        when(actionDetails.getKey()).thenReturn(key);
+        when(actionDetails.getTimelineId()).thenReturn(timelineId);
+
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notification.getIun()).thenReturn(iun);
+
+        when(timelineService.getTimelineElementDetails(eq(iun), eq(timelineId), eq(SendAnalogDetailsInt.class)))
+                .thenReturn(Optional.empty());
+
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        SendAnalogTimeoutCreationRequestDetailsInt details = mock(SendAnalogTimeoutCreationRequestDetailsInt.class);
+        when(details.getSentAttemptMade()).thenReturn(0);
+        when(details.getTimeoutDate()).thenReturn(Instant.now());
+        when(timelineService.getTimelineElementDetails(eq(iun), eq(timelineId), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
+                .thenReturn(Optional.of(details));
+        when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(true);
+
+        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
+
+        verify(timelineService, never()).addTimelineElement(any(), any());
+    }
+
 }
