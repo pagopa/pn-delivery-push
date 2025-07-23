@@ -14,7 +14,9 @@ public enum DocumentCreationTypeInt {
 
     RECIPIENT_ACCESS(LegalFactCategoryInt.RECIPIENT_ACCESS.getValue()),
 
-    NOTIFICATION_CANCELLED(LegalFactCategoryInt.NOTIFICATION_CANCELLED.getValue());
+    NOTIFICATION_CANCELLED(LegalFactCategoryInt.NOTIFICATION_CANCELLED.getValue()),
+
+    ANALOG_DELIVERY_TIMEOUT(LegalFactCategoryInt.ANALOG_DELIVERY_TIMEOUT.getValue());
 
     private final String value;
 
