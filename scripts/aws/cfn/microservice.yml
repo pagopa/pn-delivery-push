@@ -764,11 +764,11 @@ Parameters:
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
   
-  WorkflowLambdasEnabledStart:
+  OldWorkflowLambdasEnabledStart:
     Type: String
     Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
   
-  WorkflowLambdasEnabledEnd:
+  OldWorkflowLambdasEnabledEnd:
     Type: String
     Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
 
@@ -1845,9 +1845,9 @@ Resources:
           - Pattern: !Join
               - ''
               - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref WorkflowLambdasEnabledStart
+                - !Ref OldWorkflowLambdasEnabledStart
                 - ', "<", '
-                - !Ref WorkflowLambdasEnabledEnd
+                - !Ref OldWorkflowLambdasEnabledEnd
                 - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
@@ -1960,9 +1960,9 @@ Resources:
           - Pattern: !Join
               - ''
               - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref WorkflowLambdasEnabledStart
+                - !Ref OldWorkflowLambdasEnabledStart
                 - ', "<", '
-                - !Ref WorkflowLambdasEnabledEnd
+                - !Ref OldWorkflowLambdasEnabledEnd
                 - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
