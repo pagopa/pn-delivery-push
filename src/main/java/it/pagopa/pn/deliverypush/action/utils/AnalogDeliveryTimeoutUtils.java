@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -30,9 +31,14 @@ public class AnalogDeliveryTimeoutUtils {
     private final AttachmentUtils attachmentUtils;
     private final NotificationProcessCostService notificationProcessCostService;
 
-
     public boolean isSendAnalogTimeoutCreationRequestPresent(String iun, int recIndex, Integer sentAttemptMade) {
         log.info("isSendAnalogTimeoutCreationRequestPresent with iun={} - recipient index={} - sentAttemptMade={}", iun, recIndex, sentAttemptMade);
+        Optional<SendAnalogTimeoutCreationRequestDetailsInt> timelineElementInternalOpt = getSendAnalogTimeoutCreationRequestDetails(iun, recIndex, sentAttemptMade);
+        return timelineElementInternalOpt.isPresent();
+    }
+
+    public Optional<SendAnalogTimeoutCreationRequestDetailsInt> getSendAnalogTimeoutCreationRequestDetails(String iun, int recIndex, Integer sentAttemptMade) {
+        log.info("getSendAnalogTimeoutCreationRequestDetails with iun={} - recipient index={} - sentAttemptMade={}", iun, recIndex, sentAttemptMade);
         String timelineId = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)
@@ -40,10 +46,8 @@ public class AnalogDeliveryTimeoutUtils {
                         .sentAttemptMade(sentAttemptMade)
                         .build()
         );
-        Optional<TimelineElementInternal> timelineElementInternalOpt = timelineService.getTimelineElement(iun, timelineId);
-        return timelineElementInternalOpt.isPresent();
+        return timelineService.getTimelineElementDetails(iun, timelineId, SendAnalogTimeoutCreationRequestDetailsInt.class);
     }
-
 
     public void buildAnalogFailureWorkflowTimeoutElement(NotificationInt notification,
                                                          int recIndex,

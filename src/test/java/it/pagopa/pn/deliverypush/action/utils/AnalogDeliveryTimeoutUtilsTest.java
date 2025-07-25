@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,16 +42,16 @@ class AnalogDeliveryTimeoutUtilsTest {
     void testIsSendAnalogTimeoutCreationRequestPresent_Found() {
         String iun = "iun";
         int recIndex = 1;
-        Integer sentAttemptMade = 2;
-        TimelineElementInternal element = mock(TimelineElementInternal.class);
+        Integer sentAttemptMade = 0;
+        SendAnalogTimeoutCreationRequestDetailsInt SendAnalogTimeoutCreationRequestDetailsInt = mock(SendAnalogTimeoutCreationRequestDetailsInt.class);
 
-        when(timelineService.getTimelineElement(eq(iun), anyString()))
-                .thenReturn(Optional.of(element));
+        when(timelineService.getTimelineElementDetails(eq(iun), anyString(), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
+                .thenReturn(Optional.of(SendAnalogTimeoutCreationRequestDetailsInt));
 
         boolean result = analogDeliveryTimeoutUtils.isSendAnalogTimeoutCreationRequestPresent(iun, recIndex, sentAttemptMade);
 
         assertTrue(result);
-        verify(timelineService).getTimelineElement(eq(iun), anyString());
+        verify(timelineService).getTimelineElementDetails(eq(iun), anyString(), eq(SendAnalogTimeoutCreationRequestDetailsInt.class));
     }
 
     @Test
