@@ -1585,16 +1585,17 @@ class TimelineUtilsTest {
     }
 
     @Test
-    void buildAnalogFailureWorkflowTimeoutDetailsInt() {
+    void buildAnalogFailureWorkflowTimeout() {
         NotificationInt notification = buildNotification();
         int recIndex = 1;
         String generatedAarUrl = "https://example.com/aar";
         Instant timeoutDate = Instant.now();
         int notificationCost = 100;
         String expectedIun = notification.getIun();
+        Boolean addNotificationCost = false;
         String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1";
 
-        TimelineElementInternal result = timelineUtils.buildAnalogFailureWorkflowTimeoutDetailsInt(notification,recIndex, generatedAarUrl, notificationCost, timeoutDate);
+        TimelineElementInternal result = timelineUtils.buildAnalogFailureWorkflowTimeout(notification,recIndex, generatedAarUrl, notificationCost, timeoutDate, addNotificationCost);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(expectedIun, result.getIun()),
