@@ -67,9 +67,9 @@ components:
           - RECIPIENT_ACCESS <br/>
           - PEC_RECEIPT  <br/>
           - ANALOG_FAILURE_DELIVERY  <br/>
-          - NOTIFICATION_CANCELLED  <br/
+          - NOTIFICATION_CANCELLED  <br/>
       type: string
-      enum: # NO EXTERNAL
+      enum:                       # NO EXTERNAL
         - SENDER_ACK              # NO EXTERNAL
         - DIGITAL_DELIVERY        # NO EXTERNAL
         - ANALOG_DELIVERY         # NO EXTERNAL

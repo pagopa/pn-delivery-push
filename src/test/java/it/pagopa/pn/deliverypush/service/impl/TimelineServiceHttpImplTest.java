@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -455,7 +455,7 @@ class TimelineServiceHttpImplTest {
         assertEquals(2, result.getTimeline().size()); // Dovrebbe escludere l'elemento di diagnostica e dunque da 3 elementi di partenza a 2 elementi finali
         assertEquals("elementId1FEEDBACK", result.getTimeline().get(0).getElementId());
         assertEquals("elementId1PROGRESS", result.getTimeline().get(1).getElementId());
-        assertEquals(NotificationStatusV26.DELIVERING, result.getNotificationStatus());
+        assertEquals(NotificationStatusV28.DELIVERING, result.getNotificationStatus());
 
     }
 
