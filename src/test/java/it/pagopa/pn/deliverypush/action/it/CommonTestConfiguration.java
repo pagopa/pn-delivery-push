@@ -190,7 +190,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SendDigitalFinalStatusResponseEventHandler.class,
         PostAcceptedProcessingCompletedHandler.class,
         SendAnalogFinalStatusResponseHandler.class,
-        AnalogWorkflowDeliveryTimeoutHandler.class
+        AnalogWorkflowDeliveryTimeoutHandler.class,
+        AnalogDeliveryTimeoutUtils.class
 })
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(value = "classpath:/application-testIT.properties")
