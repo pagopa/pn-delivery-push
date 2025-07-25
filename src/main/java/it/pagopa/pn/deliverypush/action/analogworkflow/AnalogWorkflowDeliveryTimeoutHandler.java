@@ -5,18 +5,14 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -28,8 +24,6 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Optional;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
-
 @Component
 @AllArgsConstructor
 @Slf4j
@@ -38,11 +32,8 @@ public class AnalogWorkflowDeliveryTimeoutHandler {
     private final TimelineService timelineService;
     private final TimelineUtils timelineUtils;
     private final NotificationService notificationService;
-    private final AarUtils aarUtils;
-    private final PnDeliveryPushConfigs pnDeliveryPushConfig;
-    private final AttachmentUtils attachmentUtils;
-    private final NotificationProcessCostService notificationProcessCostService;
     private final AnalogWorkflowHandler analogWorkflowHandler;
+    private final AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     public void handleDeliveryTimeout(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
         log.info("Start handleDeliveryTimeout process - iun={} recIndex={} legalFactId={}", iun, recIndex, actionDetails.getKey());
@@ -76,8 +67,9 @@ public class AnalogWorkflowDeliveryTimeoutHandler {
         String iun = notification.getIun();
         log.info("First sent attempt - iun={} id={}", iun, recIndex);
         buildSendAnalogTimeoutElement(actionDetails, notification, recIndex, timeoutDate, auditLogEvent);
+        boolean isNotificationViewed = timelineUtils.checkIsNotificationViewed(iun, recIndex);
 
-        if (isNotificationViewed(iun, recIndex)) {
+        if (isNotificationViewed) {
             log.info("Notification with iun={} viewed by recipient with index={}, second attempt will not be scheduled", iun, recIndex);
         } else {
             log.info("Notification with iun={} not viewed by recipient with index={}, second attempt will be scheduled", iun, recIndex);
@@ -104,10 +96,6 @@ public class AnalogWorkflowDeliveryTimeoutHandler {
         }
     }
 
-    private boolean isNotificationViewed(String iun, int recIndex) {
-        return timelineUtils.checkIsNotificationViewed(iun, recIndex);
-    }
-
     private void handleSecondAttempt(DocumentCreationResponseActionDetails actionDetails,
                                      NotificationInt notification,
                                      int recIndex,
@@ -116,41 +104,11 @@ public class AnalogWorkflowDeliveryTimeoutHandler {
         log.info("Second sent attempt - iun={} id={}", notification.getIun(), recIndex);
         try {
             buildSendAnalogTimeoutElement(actionDetails, notification, recIndex, timeoutDate, auditLogEvent);
-            AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
-            buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, aarGenerationDetails.getGeneratedAarUrl(), timeoutDate);
+            analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
             auditLogEvent.generateSuccess("ANALOG_FAILURE_WORKFLOW_TIMEOUT successfully added for recIndex={}", recIndex).log();
         } catch (Exception exc) {
             auditLogEvent.generateFailure("Unexpected error", exc).log();
             throw exc;
-        }
-
-    }
-
-    private void buildAnalogFailureWorkflowTimeoutElement(NotificationInt notification,
-                                                          int recIndex,
-                                                          String generatedAarUrl,
-                                                          Instant timeoutDate){
-
-        Integer retentionAttachmentDaysAfterRefinement = pnDeliveryPushConfig.getRetentionAttachmentDaysAfterDeliveryTimeout();
-        boolean addNotificationCost = true;
-        // Se la notifica è stata precedentemente visualizzata, non si aggiunge il costo della notifica e non si aggiorna la retention dei documenti
-        if(isNotificationViewed(notification.getIun(), recIndex)){
-            retentionAttachmentDaysAfterRefinement = null;
-            addNotificationCost = false;
-        }
-        try {
-            if (retentionAttachmentDaysAfterRefinement != null) {
-                attachmentUtils.changeAttachmentsRetention(notification, retentionAttachmentDaysAfterRefinement).blockLast();
-            }
-
-            int notificationCost = notificationProcessCostService.getSendFeeAsync().block();
-
-            TimelineElementInternal analogFailureWorkflowTimeoutElementInternal =
-                    timelineUtils.buildAnalogFailureWorkflowTimeout(notification, recIndex, generatedAarUrl, notificationCost, timeoutDate, addNotificationCost);
-
-            timelineService.addTimelineElement(analogFailureWorkflowTimeoutElementInternal, notification);
-        } catch (Exception ex) {
-            throw new PnInternalException("Exception adding analog failure timeout timeline element for notification with iun=" + notification.getIun() + " and recIndex=" + recIndex, ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED);
         }
     }
 
