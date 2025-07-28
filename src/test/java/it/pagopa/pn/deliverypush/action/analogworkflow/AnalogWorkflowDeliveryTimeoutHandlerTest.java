@@ -2,16 +2,12 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
-import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
-import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,21 +28,18 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
     @Mock
     NotificationService notificationService;
     @Mock
-    AarUtils aarUtils;
-    @Mock
-    PnDeliveryPushConfigs pnDeliveryPushConfig;
-    @Mock
-    AttachmentUtils attachmentUtils;
-    @Mock
-    NotificationProcessCostService notificationProcessCostService;
-    @Mock
     AnalogWorkflowHandler analogWorkflowHandler;
+    @Mock
+    AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     @InjectMocks AnalogWorkflowDeliveryTimeoutHandler handler;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
+        handler = new AnalogWorkflowDeliveryTimeoutHandler(
+                timelineService, timelineUtils, notificationService, analogWorkflowHandler, analogDeliveryTimeoutUtils
+        );
     }
 
     @Test
@@ -117,6 +110,33 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
     }
 
     @Test
+    void testHandleDeliveryTimeout_SecondAttempt() {
+        String iun = "iun";
+        int recIndex = 0;
+        String timelineId = "timelineId";
+        String key = "key";
+        DocumentCreationResponseActionDetails actionDetails = mock(DocumentCreationResponseActionDetails.class);
+        NotificationInt notification = mock(NotificationInt.class);
+        SendAnalogTimeoutCreationRequestDetailsInt timeoutDetails = mock(SendAnalogTimeoutCreationRequestDetailsInt.class);
+        SendAnalogDetailsInt sendAnalogDetails = mock(SendAnalogDetailsInt.class);
+
+        when(actionDetails.getKey()).thenReturn(key);
+        when(actionDetails.getTimelineId()).thenReturn(timelineId);
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        when(notification.getIun()).thenReturn(iun);
+        when(timelineService.getTimelineElementDetails(eq(iun), eq(timelineId), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
+                .thenReturn(Optional.of(timeoutDetails));
+        when(timeoutDetails.getSentAttemptMade()).thenReturn(1);
+        when(timeoutDetails.getTimeoutDate()).thenReturn(Instant.now());
+        when(timelineService.getTimelineElementDetails(eq(iun), eq(timelineId), eq(SendAnalogDetailsInt.class)))
+                .thenReturn(Optional.of(sendAnalogDetails));
+
+        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
+
+        verify(analogDeliveryTimeoutUtils).buildAnalogFailureWorkflowTimeoutElement(eq(notification), eq(recIndex), any());
+    }
+
+    @Test
     void testHandleTimeout_SecondAttempt_notificationNotViewed() {
         String iun = "testIun";
         int recIndex = 1;
@@ -126,9 +146,7 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
         DocumentCreationResponseActionDetails actionDetails = mock(DocumentCreationResponseActionDetails.class);
         NotificationInt notification = mock(NotificationInt.class);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-
-        AarGenerationDetailsInt aarGenerationDetails = mock(AarGenerationDetailsInt.class);
-        when(aarGenerationDetails.getGeneratedAarUrl()).thenReturn("http://aar-url");
+        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
 
         TimelineElementInternal timelineElement = mock(TimelineElementInternal.class);
 
@@ -141,22 +159,11 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
         when(timelineService.getTimelineElementDetails(eq(iun), any(), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
                 .thenReturn(Optional.of(timeoutDetails));
 
-
-        when(aarUtils.getAarGenerationDetails(notification, recIndex)).thenReturn(aarGenerationDetails);
         when(timelineUtils.buildSendAnalogTimeout(any(), any(), any(), any())).thenReturn(timelineElement);
-        when(timelineUtils.buildAnalogFailureWorkflowTimeout(any(), anyInt(), anyString(), anyInt(), any(), anyBoolean())).thenReturn(timelineElement);
-        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(reactor.core.publisher.Mono.just(100));
-        when(pnDeliveryPushConfig.getRetentionAttachmentDaysAfterRefinement()).thenReturn(10);
-        when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(reactor.core.publisher.Flux.empty());
-
+        analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(false);
 
-        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
-
-        verify(timelineUtils).buildAnalogFailureWorkflowTimeout(any(), anyInt(), anyString(), anyInt(), any(), anyBoolean());
-        verify(timelineService, times(1)).addTimelineElement(any(), eq(notification));
-        verify(aarUtils).getAarGenerationDetails(notification, recIndex);
-        verify(timelineUtils).buildAnalogFailureWorkflowTimeout(eq(notification), eq(recIndex), eq("http://aar-url"), eq(100), eq(timeoutDate), eq(true));
+        verify(analogDeliveryTimeoutUtils).buildAnalogFailureWorkflowTimeoutElement(eq(notification), anyInt(), any());
     }
 
     @Test
@@ -169,9 +176,7 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
         DocumentCreationResponseActionDetails actionDetails = mock(DocumentCreationResponseActionDetails.class);
         NotificationInt notification = mock(NotificationInt.class);
         when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
-
-        AarGenerationDetailsInt aarGenerationDetails = mock(AarGenerationDetailsInt.class);
-        when(aarGenerationDetails.getGeneratedAarUrl()).thenReturn("http://aar-url");
+        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
 
         TimelineElementInternal timelineElement = mock(TimelineElementInternal.class);
 
@@ -184,20 +189,12 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
         when(timelineService.getTimelineElementDetails(eq(iun), any(), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
                 .thenReturn(Optional.of(timeoutDetails));
 
-        when(aarUtils.getAarGenerationDetails(notification, recIndex)).thenReturn(aarGenerationDetails);
         when(timelineUtils.buildSendAnalogTimeout(any(), any(), any(), any())).thenReturn(timelineElement);
-        when(timelineUtils.buildAnalogFailureWorkflowTimeout(any(), anyInt(), anyString(), anyInt(), any(), anyBoolean())).thenReturn(timelineElement);
-        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(reactor.core.publisher.Mono.just(100));
-        when(pnDeliveryPushConfig.getRetentionAttachmentDaysAfterRefinement()).thenReturn(10);
-        when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(reactor.core.publisher.Flux.empty());
+        analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
 
         when(timelineUtils.checkIsNotificationViewed(iun, recIndex)).thenReturn(true);
 
-        handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
-
-        verify(timelineUtils).buildAnalogFailureWorkflowTimeout(any(), anyInt(), anyString(), anyInt(), any(), anyBoolean());
-        verify(timelineService).addTimelineElement(any(), eq(notification));
-        verify(aarUtils).getAarGenerationDetails(notification, recIndex);
+        verify(analogDeliveryTimeoutUtils).buildAnalogFailureWorkflowTimeoutElement(eq(notification), anyInt(), any());
     }
 
     @Test
