@@ -190,6 +190,7 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         SendDigitalFinalStatusResponseEventHandler.class,
         PostAcceptedProcessingCompletedHandler.class,
         SendAnalogFinalStatusResponseHandler.class,
+        AnalogDeliveryTimeoutUtils.class,
         AnalogWorkflowDeliveryTimeoutHandler.class
 })
 @ExtendWith(SpringExtension.class)
