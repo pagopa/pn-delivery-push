@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
 import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -10,6 +11,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -18,6 +20,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
 
 class AnalogWorkflowDeliveryTimeoutHandlerTest {
 
@@ -137,6 +140,44 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
     }
 
     @Test
+    void testHandleSecondAttemptThrowsException() {
+        String iun = "iun";
+        int recIndex = 0;
+        TimelineService timelineService = mock(TimelineService.class);
+        TimelineUtils timelineUtils = mock(TimelineUtils.class);
+        NotificationService notificationService = mock(NotificationService.class);
+        AnalogWorkflowHandler analogWorkflowHandler = mock(AnalogWorkflowHandler.class);
+        AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils = mock(AnalogDeliveryTimeoutUtils.class);
+
+        AnalogWorkflowDeliveryTimeoutHandler handler = new AnalogWorkflowDeliveryTimeoutHandler(
+                timelineService, timelineUtils, notificationService, analogWorkflowHandler, analogDeliveryTimeoutUtils
+        );
+
+        DocumentCreationResponseActionDetails actionDetails = mock(DocumentCreationResponseActionDetails.class);
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notification.getIun()).thenReturn("testIun");
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+
+        SendAnalogTimeoutCreationRequestDetailsInt details = mock(SendAnalogTimeoutCreationRequestDetailsInt.class);
+        when(details.getSentAttemptMade()).thenReturn(1);
+        Instant timeoutDate = Instant.now();
+        when(details.getTimeoutDate()).thenReturn(timeoutDate);
+        when(timelineService.getTimelineElementDetails(eq(iun), any(), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
+                .thenReturn(Optional.of(details));
+
+        PnAuditLogEvent auditLogEvent = mock(PnAuditLogEvent.class);
+
+        PnInternalException ex = new PnInternalException("Simulated exception");
+        doThrow(ex)
+                .when(analogDeliveryTimeoutUtils).buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
+        when(auditLogEvent.generateFailure(anyString(), any())).thenReturn(auditLogEvent);
+
+        Assertions.assertThrows(PnInternalException.class, () ->
+                handler.handleDeliveryTimeout(iun, recIndex, actionDetails)
+        );
+    }
+
+    @Test
     void testHandleTimeout_SecondAttempt_notificationNotViewed() {
         String iun = "testIun";
         int recIndex = 1;
@@ -212,7 +253,7 @@ class AnalogWorkflowDeliveryTimeoutHandlerTest {
         when(timelineService.getTimelineElementDetails(eq(iun), eq(timelineId), eq(SendAnalogTimeoutCreationRequestDetailsInt.class)))
                 .thenThrow(new RuntimeException("Timeline not found"));
 
-        org.junit.jupiter.api.Assertions.assertThrows(PnInternalException.class, () -> {
+        Assertions.assertThrows(PnInternalException.class, () -> {
             handler.handleDeliveryTimeout(iun, recIndex, actionDetails);
         });
     }
