@@ -29,13 +29,13 @@ public class CheckAttachmentRetentionHandler {
         log.debug("Start handleCheckAttachmentRetentionBeforeExpiration - iun={}", iun);
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
-        boolean isNotificationViewedRefinedOrCancelled = notification.getRecipients().stream()
+        boolean notificationHasTriggeredAttachmentRetentionUpdate = notification.getRecipients().stream()
                 .allMatch(recipient -> {
                     int recIndex = NotificationUtils.getRecipientIndexFromTaxId(notification, recipient.getTaxId());
-                    return timelineUtils.checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(iun, recIndex);
+                    return timelineUtils.hasTimelineTriggeredAttachmentRetentionUpdate(iun, recIndex);
                 });
         
-        if(! isNotificationViewedRefinedOrCancelled ){
+        if(! notificationHasTriggeredAttachmentRetentionUpdate ){
             log.info("Notification isn't refined, need to update retention - iun={} ", iun);
             
             //Viene aggiornata la retention degli attachment e inserita una nuova action che, nuovamente, agisca in caso di retention in scadenza
