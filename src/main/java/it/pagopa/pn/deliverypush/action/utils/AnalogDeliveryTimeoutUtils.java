@@ -53,17 +53,20 @@ public class AnalogDeliveryTimeoutUtils {
                                                          int recIndex,
                                                          Instant timeoutDate){
 
-        Integer retentionAttachmentDaysAfterRefinement = pnDeliveryPushConfig.getRetentionAttachmentDaysAfterDeliveryTimeout();
+        Integer retentionAttachmentDaysAfterDeliveryTimeout = pnDeliveryPushConfig.getRetentionAttachmentDaysAfterDeliveryTimeout();
         boolean addNotificationCost = true;
         AarGenerationDetailsInt aarGenerationDetails = aarUtils.getAarGenerationDetails(notification, recIndex);
         // Se la notifica è stata precedentemente visualizzata, non si aggiunge il costo della notifica e non si aggiorna la retention dei documenti
         if(isNotificationViewed(notification.getIun(), recIndex)){
-            retentionAttachmentDaysAfterRefinement = null;
+            retentionAttachmentDaysAfterDeliveryTimeout = null;
             addNotificationCost = false;
         }
         try {
-            if (retentionAttachmentDaysAfterRefinement != null && retentionAttachmentDaysAfterRefinement != 0) {
-                attachmentUtils.changeAttachmentsRetention(notification, retentionAttachmentDaysAfterRefinement).blockLast();
+            if (retentionAttachmentDaysAfterDeliveryTimeout != null && retentionAttachmentDaysAfterDeliveryTimeout != 0) {
+                log.info("Updating retention for attachments of notification with iun={} and recIndex={} - retentionAttachmentDaysAfterDeliveryTimeout={}", notification.getIun(), recIndex, retentionAttachmentDaysAfterDeliveryTimeout);
+                attachmentUtils.changeAttachmentsRetention(notification, retentionAttachmentDaysAfterDeliveryTimeout).blockLast();
+            } else {
+                log.info("No retention update for attachments of notification with iun={} and recIndex={} - retentionAttachmentDaysAfterDeliveryTimeout={}", notification.getIun(), recIndex, retentionAttachmentDaysAfterDeliveryTimeout);
             }
 
             int notificationCost = notificationProcessCostService.getSendFeeAsync().block();
