@@ -62,7 +62,7 @@ public class AnalogDeliveryTimeoutUtils {
             addNotificationCost = false;
         }
         try {
-            if (retentionAttachmentDaysAfterRefinement != null) {
+            if (retentionAttachmentDaysAfterRefinement != null && retentionAttachmentDaysAfterRefinement != 0) {
                 attachmentUtils.changeAttachmentsRetention(notification, retentionAttachmentDaysAfterRefinement).blockLast();
             }
 

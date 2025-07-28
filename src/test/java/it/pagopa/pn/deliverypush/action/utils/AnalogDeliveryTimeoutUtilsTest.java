@@ -116,6 +116,29 @@ class AnalogDeliveryTimeoutUtilsTest {
     }
 
     @Test
+    void testBuildAnalogFailureWorkflowTimeoutElement_NotViewed_NoRetentionUpdating() {
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notification.getIun()).thenReturn("iun");
+        int recIndex = 1;
+        Instant timeoutDate = Instant.now();
+
+        when(pnDeliveryPushConfig.getRetentionAttachmentDaysAfterDeliveryTimeout()).thenReturn(0);
+        AarGenerationDetailsInt aarDetails = mock(AarGenerationDetailsInt.class);
+        when(aarUtils.getAarGenerationDetails(notification, recIndex)).thenReturn(aarDetails);
+        when(aarDetails.getGeneratedAarUrl()).thenReturn("url");
+        when(timelineUtils.checkIsNotificationViewed(anyString(), anyInt())).thenReturn(false);
+        when(notificationProcessCostService.getSendFeeAsync()).thenReturn(Mono.just(100));
+        TimelineElementInternal timelineElement = mock(TimelineElementInternal.class);
+        when(timelineUtils.buildAnalogFailureWorkflowTimeout(any(), anyInt(), anyString(), anyInt(), any(), anyBoolean()))
+                .thenReturn(timelineElement);
+
+        analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
+
+        verify(attachmentUtils, never()).changeAttachmentsRetention(any(), anyInt());
+        verify(timelineService).addTimelineElement(timelineElement, notification);
+    }
+
+    @Test
     void testBuildAnalogFailureWorkflowTimeoutElement_Exception() {
         NotificationInt notification = mock(NotificationInt.class);
         when(notification.getIun()).thenReturn("iun");
