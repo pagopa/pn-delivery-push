@@ -7,10 +7,15 @@ import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.AnalogFailureWorkflowTimeoutDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
 import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +31,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 class CheckAttachmentRetentionHandlerTest {
@@ -41,6 +48,8 @@ class CheckAttachmentRetentionHandlerTest {
     private SchedulerService schedulerService;
     @Mock
     private TimelineUtils timelineUtils;
+    @Mock
+    private TimelineService timelineService;
 
     @InjectMocks
     private CheckAttachmentRetentionHandler checkAttachmentRetentionHandler;
@@ -145,6 +154,119 @@ class CheckAttachmentRetentionHandlerTest {
         verifySchedulingNextCheckAttachment(notification, retentionAfterExpiration, checkAttachmentDaysBeforeExpiration);
 
         Mockito.verify(attachmentUtils).changeAttachmentsRetention(notification, (int) configs.getTimeParams().getAttachmentTimeToAddAfterExpiration().toDays());
+    }
+
+    @Test
+    void testHandleAnalogDeliveryTimeoutIfPresent_NoTimeoutDetails() {
+        String iun = "iun1";
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+        Set<TimelineElementInternal> timeline = Set.of(new TimelineElementInternal());
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(5));
+        timeParams.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(2));
+        Mockito.when(configs.getTimeParams()).thenReturn(timeParams);
+
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(Flux.empty());
+        Mockito.when(timelineUtils.hasTimelineTriggeredAttachmentRetentionUpdate(iun, 0)).thenReturn(true);
+        Mockito.when(timelineService.getTimeline(iun, false)).thenReturn(timeline);
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
+
+        // No further interactions expected
+        Mockito.verify(attachmentUtils, Mockito.never()).changeAttachmentsRetention(any(), anyInt());
+        Mockito.verify(schedulerService, Mockito.never()).scheduleEvent(any(), any(), eq(ActionType.CHECK_ATTACHMENT_RETENTION));
+    }
+
+    @Test
+    void testHandleAnalogDeliveryTimeoutIfPresent_RetentionDaysIsZero() {
+        String iun = "iun2";
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+
+        TimelineElementInternal timelineElement = getAnalogFailureWorkflowTimeoutDetailsOpt();
+
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean())).thenReturn(Set.of(timelineElement));
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(0));
+        timeParams.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(5));
+        Mockito.when(configs.getTimeParams()).thenReturn(timeParams);
+
+
+
+        Mockito.when(configs.getRetentionAttachmentDaysAfterDeliveryTimeout()).thenReturn(0);
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(Flux.empty());
+        Mockito.when(timelineUtils.hasTimelineTriggeredAttachmentRetentionUpdate(iun, 0)).thenReturn(true);
+
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
+
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(any(), anyInt());
+        Mockito.verify(schedulerService).scheduleEvent(eq(iun), any(Instant.class), eq(ActionType.CHECK_ATTACHMENT_RETENTION));
+    }
+
+    @Test
+    void testHandleAnalogDeliveryTimeoutIfPresent_RetentionDaysGreaterThanZero_DaysToAddPositive() {
+        String iun = "iun3";
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(5));
+        timeParams.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(0));
+        Mockito.when(configs.getTimeParams()).thenReturn(timeParams);
+
+        TimelineElementInternal timelineElement = getAnalogFailureWorkflowTimeoutDetailsOpt();
+
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean())).thenReturn(Set.of(timelineElement));
+        Mockito.when(configs.getRetentionAttachmentDaysAfterDeliveryTimeout()).thenReturn(5);
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(Flux.empty());
+        Mockito.when(timelineUtils.hasTimelineTriggeredAttachmentRetentionUpdate(iun, 0)).thenReturn(true);
+
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
+
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(any(), anyInt());
+        Mockito.verify(schedulerService).scheduleEvent(eq(iun), any(Instant.class), eq(ActionType.CHECK_ATTACHMENT_RETENTION));
+    }
+
+    @Test
+    void testHandleAnalogDeliveryTimeoutIfPresent_RetentionDaysGreaterThanZero_DaysToAddZeroOrNegative() {
+        String iun = "iun4";
+        NotificationInt notification = NotificationTestBuilder.builder()
+                .withIun(iun)
+                .build();
+        Mockito.when(notificationService.getNotificationByIun(notification.getIun())).thenReturn(notification);
+
+        TimeParams timeParams = new TimeParams();
+        timeParams.setAttachmentTimeToAddAfterExpiration(Duration.ofDays(5));
+        timeParams.setCheckAttachmentTimeBeforeExpiration(Duration.ofDays(0));
+        Mockito.when(configs.getTimeParams()).thenReturn(timeParams);
+        TimelineElementInternal timelineElement = getAnalogFailureWorkflowTimeoutDetailsOpt();
+
+        Mockito.when(timelineService.getTimeline(anyString(), anyBoolean())).thenReturn(Set.of(timelineElement));
+        Mockito.when(configs.getRetentionAttachmentDaysAfterDeliveryTimeout()).thenReturn(5);
+        Mockito.when(attachmentUtils.changeAttachmentsRetention(any(), anyInt())).thenReturn(Flux.empty());
+        Mockito.when(timelineUtils.hasTimelineTriggeredAttachmentRetentionUpdate(iun, 0)).thenReturn(true);
+
+        checkAttachmentRetentionHandler.handleCheckAttachmentRetentionBeforeExpiration(iun, Instant.now());
+
+        Mockito.verify(attachmentUtils).changeAttachmentsRetention(any(), anyInt());
+        Mockito.verify(schedulerService).scheduleEvent(eq(iun), any(Instant.class), eq(ActionType.CHECK_ATTACHMENT_RETENTION));
+    }
+
+    private static @NotNull TimelineElementInternal getAnalogFailureWorkflowTimeoutDetailsOpt() {
+        AnalogFailureWorkflowTimeoutDetailsInt details = mock(AnalogFailureWorkflowTimeoutDetailsInt.class);
+        Mockito.when(details.getTimeoutDate()).thenReturn(Instant.now());
+        TimelineElementInternal timelineElement = mock(TimelineElementInternal.class);
+        Mockito.when(timelineElement.getCategory()).thenReturn(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT);
+        Mockito.when(timelineElement.getDetails()).thenReturn(details);
+        return timelineElement;
     }
 
     private void verifySchedulingNextCheckAttachment(NotificationInt notification, Duration retentionDaysAfterValidation, Duration checkAttachmentDaysBeforeExpiration) {

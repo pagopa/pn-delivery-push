@@ -155,6 +155,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant timelineClientEnabledStartDate;
 
+    private int retentionAttachmentDaysAfterDeliveryTimeout;
+
     @Data
     public static class Topics {
 
