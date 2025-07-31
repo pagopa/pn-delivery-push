@@ -16,7 +16,7 @@ public class PaperTrackerApiConfigurator extends CommonBaseClient {
 
     @Bean
     @Primary
-    public PaperStatusApi actionApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
+    public PaperStatusApi paperStatusApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryPushConfigs cfg) {
         return new PaperStatusApi(getNewApiClient(restTemplate, cfg));
     }
 
