@@ -944,6 +944,39 @@
 						</configuration>
 					</execution>
 
+					<!-- OPEN API CLIENT PN-PAPER-TRACKER -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-paper-tracker</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-paper-tracker/0e27b0e44e0a6986ec7348adea17bd0e22eb61e2/docs/openapi/api-internal-v1.yaml
+							</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/6.0.0/client</templateDirectory>
+							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api</apiPackage>
+								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

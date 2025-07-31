@@ -881,6 +881,7 @@ Resources:
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
@@ -1015,6 +1016,7 @@ Resources:
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
@@ -1155,6 +1157,7 @@ Resources:
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
