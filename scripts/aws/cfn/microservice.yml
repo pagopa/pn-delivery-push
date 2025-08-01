@@ -763,6 +763,14 @@ Parameters:
     Type: CommaDelimitedList
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
+  
+  OldWorkflowLambdasEnabledStart:
+    Type: String
+    Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
+  
+  OldWorkflowLambdasEnabledEnd:
+    Type: String
+    Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
 
   ApplicativeEnvFileChecksum:
     Type: String
@@ -776,11 +784,18 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
+  
+  EnableWorkflowChannels:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Enable or disable WorkflowChannels Consumer"
 
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
-
+  EnableWorkflowChannels: !Equals [ !Ref EnableWorkflowChannels, "true" ]
 Resources:
 
   # PN-Delivery-push microservice
@@ -1117,7 +1132,11 @@ Resources:
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37: 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer'
+        ContainerEnvEntry37:
+          Fn::If:
+            - EnableWorkflowChannels
+            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer'
+            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST='
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
@@ -1834,7 +1853,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
+          - Pattern: !Join
+              - ''
+              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref OldWorkflowLambdasEnabledStart
+                - ', "<", '
+                - !Ref OldWorkflowLambdasEnabledEnd
+                - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
@@ -1943,7 +1968,13 @@ Resources:
         - ReportBatchItemFailures
       FilterCriteria:
         Filters:
-          - Pattern: '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ] } }'
+          - Pattern: !Join
+              - ''
+              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
+                - !Ref OldWorkflowLambdasEnabledStart
+                - ', "<", '
+                - !Ref OldWorkflowLambdasEnabledEnd
+                - ']}] } } }'
       MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
       StartingPosition: TRIM_HORIZON
       DestinationConfig:
