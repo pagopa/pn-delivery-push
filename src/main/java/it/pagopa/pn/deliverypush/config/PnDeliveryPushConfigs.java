@@ -155,6 +155,10 @@ public class PnDeliveryPushConfigs {
 
     private Instant timelineClientEnabledStartDate;
 
+    private Integer retentionAttachmentDaysAfterDeliveryTimeout;
+
+    private String paperTrackerBaseUrl;
+
     @Data
     public static class Topics {
 

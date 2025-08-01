@@ -853,7 +853,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/894d12726ce299b9d3d325738602df2ccfddf287/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<skipValidateSpec>true</skipValidateSpec>
 							<generatorName>java</generatorName>
@@ -887,7 +887,7 @@
 						</goals>
 						<configuration>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-templates-engine/2745edd5b7bb2678e4f53008c38e1b3e83333425/docs/openapi/pn-internal-templates-v1.yaml
+								https://raw.githubusercontent.com/pagopa/pn-templates-engine/894d12726ce299b9d3d325738602df2ccfddf287/docs/openapi/pn-internal-templates-v1.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>webclient</library>
@@ -923,7 +923,7 @@
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-timeline-service/12d51061ce088a0bfdd0d7b7102d9978d43c0f4f/docs/openapi/pn-timeline-service-private.yaml
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/45e15064732595bfe99d5a7c8ae528b93c8a3c83/docs/openapi/pn-timeline-service-private.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
@@ -934,6 +934,39 @@
 							<configOptions>
 								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api</apiPackage>
 								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<useAbstractionForFiles>true</useAbstractionForFiles>
+								<useBeanValidation>false</useBeanValidation>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<!-- OPEN API CLIENT PN-PAPER-TRACKER -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-paper-tracker</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<inputSpec>
+								https://raw.githubusercontent.com/pagopa/pn-paper-tracker/0e27b0e44e0a6986ec7348adea17bd0e22eb61e2/docs/openapi/api-internal-v1.yaml
+							</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/6.0.0/client</templateDirectory>
+							<additionalProperties>removeEnumValuePrefix=false</additionalProperties>
+							<configOptions>
+								<apiPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api</apiPackage>
+								<modelPackage>it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model</modelPackage>
 								<dateLibrary>java8</dateLibrary>
 								<annotationLibrary>none</annotationLibrary>
 								<documentationProvider>source</documentationProvider>

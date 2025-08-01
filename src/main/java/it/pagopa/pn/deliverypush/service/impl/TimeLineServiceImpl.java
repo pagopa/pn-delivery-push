@@ -20,9 +20,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineDao;
 import it.pagopa.pn.deliverypush.service.ConfidentialInformationService;
@@ -392,7 +392,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                 NotificationStatusHistoryElementMapper::internalToExternal
                         ).toList()
                 )
-                .notificationStatus(currentStatus != null ? NotificationStatusV26.valueOf(currentStatus.getValue()) : null)
+                .notificationStatus(currentStatus != null ? NotificationStatusV28.valueOf(currentStatus.getValue()) : null)
                 .build();
     }
 
@@ -401,8 +401,8 @@ public class TimeLineServiceImpl implements TimelineService {
             return true;
         }
         String internalCategory = timelineElementInternal.getCategory().getValue();
-        return Arrays.stream(TimelineElementCategoryV27.values())
-                .anyMatch(TimelineElementCategoryV26 -> TimelineElementCategoryV26.getValue().equalsIgnoreCase(internalCategory));
+        return Arrays.stream(TimelineElementCategoryV28.values())
+                .anyMatch(publicTimelineElementCategory -> publicTimelineElementCategory.getValue().equalsIgnoreCase(internalCategory));
 
     }
 

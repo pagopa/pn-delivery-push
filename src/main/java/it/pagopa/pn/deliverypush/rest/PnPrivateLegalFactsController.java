@@ -5,7 +5,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotificationCancelledException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsPrivateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactDownloadMetadataWithContentTypeResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV20;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListElementV28;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
     }
 
     @Override
-    public Mono<ResponseEntity<Flux<LegalFactListElementV20>>> getNotificationLegalFactsPrivate(
+    public Mono<ResponseEntity<Flux<LegalFactListElementV28>>> getNotificationLegalFactsPrivate(
             String recipientInternalId,
             String iun,
             String mandateId,
@@ -66,8 +66,8 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
         }else {
             return Mono.fromSupplier(() -> {
                 log.debug("Start getNotificationLegalFactsPrivate - iun={} recipientInternalId={}", iun, recipientInternalId);
-                List<LegalFactListElementV20> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
-                Flux<LegalFactListElementV20> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
+                List<LegalFactListElementV28> legalFacts = getLegalFactService.getLegalFacts(iun, recipientInternalId, mandateId, cxType, cxGroups);
+                Flux<LegalFactListElementV28> fluxFacts = Flux.fromStream(legalFacts.stream().map(LegalFactUtils::convert));
                 return ResponseEntity.ok(fluxFacts);
             });
         }
