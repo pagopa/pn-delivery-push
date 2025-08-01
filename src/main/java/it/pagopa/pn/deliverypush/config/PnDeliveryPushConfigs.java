@@ -159,6 +159,8 @@ public class PnDeliveryPushConfigs {
 
     private String paperTrackerBaseUrl;
 
+    private Instant startAnalogWorkflowTimeoutFeatureDate;
+
     @Data
     public static class Topics {
 
