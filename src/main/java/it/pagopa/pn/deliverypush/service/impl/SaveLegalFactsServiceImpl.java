@@ -201,25 +201,29 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                 }).doOnError( err -> log.error("Error in sendCreationRequestForNotificationViewedLegalFact - iun={} error=", notification.getIun(), err));
     }
 
-    public Mono<String> sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
+    public String sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
             PhysicalAddressInt physicalAddress,
             String sentAttemptMade,
             Instant timeoutDate
     ) {
-        log.info("sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={}", notification.getIun());
+        try {
+            log.debug("Start sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={}", notification.getIun());
 
-        return Mono.fromCallable(() -> legalFactBuilder.generateAnalogDeliveryWorkflowTimeoutLegalFact(notification, recipient, physicalAddress, sentAttemptMade, timeoutDate
-                ))
-                .flatMap( res -> {
-                    log.info("sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
-                    return this.saveLegalFact(res)
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryWorkflowTimeoutLegalFact(notification, recipient, physicalAddress, sentAttemptMade, timeoutDate
+                            ))
                             .map( responseUrl -> {
                                 log.debug("End sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={} key={}", notification.getIun(), responseUrl);
                                 return responseUrl;
-                            });
-                }).doOnError( err -> log.error("Error in sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={} error=", notification.getIun(), err));
+                            })
+            ).block();
+        } catch (Exception exc) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "ANALOG_DELIVERY_TIMEOUT", notification.getIun(), recipient.getTaxId());
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
+        }
     }
 
 }

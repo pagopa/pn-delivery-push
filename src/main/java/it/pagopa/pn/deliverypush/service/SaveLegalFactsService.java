@@ -41,7 +41,7 @@ public interface SaveLegalFactsService {
 
     String sendCreationRequestForNotificationCancelledLegalFact(NotificationInt notification, Instant notificationCancellationRequestDate);
 
-    Mono<String> sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
+    String sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
             NotificationInt notification,
             NotificationRecipientInt recipient,
             PhysicalAddressInt physicalAddress,
