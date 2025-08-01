@@ -286,11 +286,11 @@ class SaveLegalFactsServiceImplTest {
         )).thenReturn(legalFact.getBytes());
         Mockito.when(safeStorageService.createAndUploadContent(Mockito.any())).thenReturn(Mono.just(file));
 
-        Mono<String> actualMono = saveLegalFactsService.sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
+        String result = saveLegalFactsService.sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
                 notification, recipient, physicalAddress,  "1", Instant.now()
         );
 
-        Assertions.assertEquals("safestorage://001", actualMono.block());
+        Assertions.assertEquals("safestorage://001", result);
     }
 
     private SendDigitalFeedbackDetailsInt buildSendDigitalFeedbackDetailsInt() {
