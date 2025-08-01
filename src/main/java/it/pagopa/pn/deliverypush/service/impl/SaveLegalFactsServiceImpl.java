@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
@@ -198,6 +199,27 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                             return responseUrl;
                         });
                 }).doOnError( err -> log.error("Error in sendCreationRequestForNotificationViewedLegalFact - iun={} error=", notification.getIun(), err));
+    }
+
+    public Mono<String> sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
+            NotificationInt notification,
+            NotificationRecipientInt recipient,
+            PhysicalAddressInt physicalAddress,
+            String sentAttemptMade,
+            Instant timeoutDate
+    ) {
+        log.info("sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={}", notification.getIun());
+
+        return Mono.fromCallable(() -> legalFactBuilder.generateAnalogDeliveryWorkflowTimeoutLegalFact(notification, recipient, physicalAddress, sentAttemptMade, timeoutDate
+                ))
+                .flatMap( res -> {
+                    log.info("sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact completed - iun={} are not nulls={}", notification.getIun(), res != null);
+                    return this.saveLegalFact(res)
+                            .map( responseUrl -> {
+                                log.debug("End sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={} key={}", notification.getIun(), responseUrl);
+                                return responseUrl;
+                            });
+                }).doOnError( err -> log.error("Error in sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={} error=", notification.getIun(), err));
     }
 
 }
