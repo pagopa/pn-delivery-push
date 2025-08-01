@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool;
 
+import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,23 @@ class ActionTypeTest {
                 () -> Assertions.assertEquals("1_digital_workflow_execute_e_1_timelineid_tim123", ActionType.DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION.buildActionId(action)),
                 () -> Assertions.assertEquals("notification_cancellation_iun_1", ActionType.NOTIFICATION_CANCELLATION.buildActionId(action))
         );
+    }
+
+    @Test
+    void buildAnalogWorkflowTimeoutDetailsAction() {
+        AnalogWorkflowTimeoutDetails details = new AnalogWorkflowTimeoutDetails();
+        details.setSentAttemptMade(0);
+
+        Action action = Action.builder()
+                .iun("1")
+                .actionId("1")
+                .recipientIndex(1)
+                .timelineId("tim123")
+                .details(details)
+                .build();
+
+        Assertions.assertEquals("1_analog_workflow_timeout_recIndex_1_attempt_0", ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT.buildActionId(action));
+
     }
 
 }

@@ -9,18 +9,25 @@ import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResultInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.ResultFilterInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilterEnum;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendRequest;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionType;
+import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.impl.TimeParams;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.PaperChannelService;
+import it.pagopa.pn.deliverypush.service.SchedulerService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,9 +35,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -50,6 +60,12 @@ class PaperChannelServiceImplTest {
     private AnalogWorkflowUtils analogWorkflowUtils;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private SchedulerService schedulerService;
+    @Mock
+    private PnDeliveryPushConfigs pnDeliveryPushConfigs;
+    @Mock
+    private TimelineService timelineService;
 
     private PaperChannelService paperChannelService;
 
@@ -67,7 +83,10 @@ class PaperChannelServiceImplTest {
                 mvpParameterConsumer,
                 analogWorkflowUtils,
                 auditLogService,
-                attachmentUtils);
+                attachmentUtils,
+                schedulerService,
+                pnDeliveryPushConfigs,
+                timelineService);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -622,6 +641,53 @@ class PaperChannelServiceImplTest {
 
         // THEN
         Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(),any(),any(SendAttachmentMode.class), eq(F24ResolutionMode.RESOLVE_WITH_REPLACED_LIST),any(),any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendAnalogNotificationSchedulesTimeout() {
+        NotificationInt notification = newNotification("taxid2");
+        String iun = notification.getIun();
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(Mockito.anyString())).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationViewed(Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+        Mockito.when(paperChannelSendClient.send(any(PaperChannelSendRequest.class))).thenReturn(new SendResponse());
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when(auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE), Mockito.anyString(), any(), any(), any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateSuccess(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+        String sendAnalogElementId = "sendAnalogElementId";
+        Mockito.when(paperChannelUtils.addSendAnalogNotificationToTimeline(any(), any(), any(), any(), any(), any()))
+                .thenReturn(sendAnalogElementId);
+
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .iun(iun)
+                .elementId(sendAnalogElementId)
+                .timestamp(Instant.now())
+                .build();
+        Mockito.when(timelineService.getTimelineElement(iun, sendAnalogElementId)).thenReturn(Optional.of(timelineElementInternal));
+
+        TimeParams timeParams = Mockito.mock(TimeParams.class);
+        Mockito.when(timeParams.getScheduleAnalogWorkflowTimeoutOffset()).thenReturn(Duration.ofHours(1));
+        Mockito.when(pnDeliveryPushConfigs.getTimeParams()).thenReturn(timeParams);
+
+        PhysicalAddressInt receiverAddress = PhysicalAddressInt.builder().address("address").fullname("fullname").build();
+        CategorizedAttachmentsResultInt categorizedAttachmentsResult = CategorizedAttachmentsResultInt.builder()
+                .acceptedAttachments(Collections.emptyList())
+                .discardedAttachments(Collections.emptyList())
+                .build();
+
+        paperChannelService.sendAnalogNotification(notification, 0, 0, "req123", receiverAddress, "RIR", Collections.emptyList(), categorizedAttachmentsResult);
+
+        Mockito.verify(schedulerService).scheduleEvent(
+                eq(iun),
+                eq(0),
+                any(Instant.class),
+                eq(ActionType.ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT),
+                anyString(),
+                any()
+        );
+        Assertions.assertEquals(iun, notification.getIun());
     }
 
     private NotificationInt newNotification(String TAX_ID) {
