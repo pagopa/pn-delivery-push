@@ -20,7 +20,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV28;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.TimelineCounterEntityDao;
@@ -392,7 +392,7 @@ public class TimeLineServiceImpl implements TimelineService {
                                 NotificationStatusHistoryElementMapper::internalToExternal
                         ).toList()
                 )
-                .notificationStatus(currentStatus != null ? NotificationStatusV26.valueOf(currentStatus.getValue()) : null)
+                .notificationStatus(currentStatus != null ? NotificationStatusV28.valueOf(currentStatus.getValue()) : null)
                 .build();
     }
 

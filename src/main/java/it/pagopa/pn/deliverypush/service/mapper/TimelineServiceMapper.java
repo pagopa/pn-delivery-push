@@ -55,8 +55,8 @@ public class TimelineServiceMapper {
         }
 
         return it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.builder()
-                .notificationStatus(getNotificationStatusV26(source))
-                .notificationStatusHistory(getNotificationStatusHistoryElementV26List(source))
+                .notificationStatus(getNotificationStatus(source))
+                .notificationStatusHistory(getNotificationStatusHistoryElementList(source))
                 .timeline(getTimelineElementV28List(source))
                 .build();
     }
@@ -80,12 +80,12 @@ public class TimelineServiceMapper {
         return timeline;
     }
 
-    private static List<NotificationStatusHistoryElementV26> getNotificationStatusHistoryElementV26List(NotificationHistoryResponse source) {
-        List<NotificationStatusHistoryElementV26> notificationStatusHistory = null;
+    private static List<NotificationStatusHistoryElementV28> getNotificationStatusHistoryElementList(NotificationHistoryResponse source) {
+        List<NotificationStatusHistoryElementV28> notificationStatusHistory = null;
         if (source.getNotificationStatusHistory() != null) {
             notificationStatusHistory = source.getNotificationStatusHistory().stream()
-                    .map(item -> NotificationStatusHistoryElementV26.builder()
-                            .status(NotificationStatusV26.valueOf(item.getStatus().getValue()))
+                    .map(item -> NotificationStatusHistoryElementV28.builder()
+                            .status(NotificationStatusV28.valueOf(item.getStatus().getValue()))
                             .activeFrom(item.getActiveFrom())
                             .relatedTimelineElements(item.getRelatedTimelineElements())
                             .build())
@@ -94,10 +94,10 @@ public class TimelineServiceMapper {
         return notificationStatusHistory;
     }
 
-    private static NotificationStatusV26 getNotificationStatusV26(NotificationHistoryResponse source) {
-        NotificationStatusV26 notificationStatus = null;
+    private static NotificationStatusV28 getNotificationStatus(NotificationHistoryResponse source) {
+        NotificationStatusV28 notificationStatus = null;
         if (source.getNotificationStatus() != null) {
-            notificationStatus = NotificationStatusV26.valueOf(source.getNotificationStatus().getValue());
+            notificationStatus = NotificationStatusV28.valueOf(source.getNotificationStatus().getValue());
         }
         return notificationStatus;
     }
