@@ -1561,6 +1561,7 @@ class TimelineUtilsTest {
         String relatedRequestId = "relatedRequestIdExample";
         int sentAttemptMade = 0;
         int recIndex = 1;
+        String legalFactId = "legalFactIdExample";
 
         SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder()
                 .sentAttemptMade(sentAttemptMade)
@@ -1574,7 +1575,7 @@ class TimelineUtilsTest {
         String expectedIun = notification.getIun();
         String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1.ATTEMPT_0";
 
-        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeout(notification, sendAnalogDetailsInt, timeoutDate);
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeout(notification, sendAnalogDetailsInt, timeoutDate,legalFactId);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(expectedIun, result.getIun()),

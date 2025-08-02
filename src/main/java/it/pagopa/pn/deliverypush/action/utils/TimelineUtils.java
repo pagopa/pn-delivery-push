@@ -1562,7 +1562,8 @@ public class TimelineUtils {
 
     public TimelineElementInternal buildSendAnalogTimeout(NotificationInt notification,
                                                           SendAnalogDetailsInt sendAnalogDetailsInt,
-                                                          Instant timeoutDate) {
+                                                          Instant timeoutDate,
+                                                          String legalFactId) {
         Integer recIndex = sendAnalogDetailsInt.getRecIndex();
         String relatedRequestId = sendAnalogDetailsInt.getRelatedRequestId();
         log.debug("buildSendAnalogTimeout - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, relatedRequestId);
@@ -1583,7 +1584,10 @@ public class TimelineUtils {
                 .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())
                 .build();
 
-        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, elementId, details);
+        TimelineElementInternal.TimelineElementInternalBuilder timelineBuilder = TimelineElementInternal.builder()
+                .legalFactsIds(singleLegalFactId(legalFactId, LegalFactCategoryInt.ANALOG_DELIVERY_TIMEOUT));
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, elementId, details, timelineBuilder);
     }
 
     public TimelineElementInternal buildAnalogFailureWorkflowTimeout(NotificationInt notification,

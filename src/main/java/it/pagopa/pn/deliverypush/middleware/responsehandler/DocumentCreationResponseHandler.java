@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.responsehandler;
 
+import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowDeliveryTimeoutHandler;
 import it.pagopa.pn.deliverypush.action.cancellation.NotificationCancellationActionHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.AnalogFailureDeliveryCreationResponseHandler;
 import it.pagopa.pn.deliverypush.action.completionworkflow.DigitalDeliveryCreationResponseHandler;
@@ -24,6 +25,7 @@ public class DocumentCreationResponseHandler {
     private final AnalogFailureDeliveryCreationResponseHandler analogFailureDeliveryCreationResponseHandler;
     private final TimelineUtils timelineUtils;
     private final NotificationCancellationActionHandler notificationCancellationActionHandler;
+    private final AnalogWorkflowDeliveryTimeoutHandler analogWorkflowDeliveryTimeoutHandler;
 
     public void handleResponseReceived( String iun, Integer recIndex, DocumentCreationResponseActionDetails details) {
         if (timelineUtils.checkIsNotificationCancellationRequested(iun) && ! DocumentCreationTypeInt.NOTIFICATION_CANCELLED.equals(details.getDocumentCreationType())){
@@ -46,6 +48,8 @@ public class DocumentCreationResponseHandler {
                     notificationViewLegalFactCreationResponseHandler.handleLegalFactCreationResponse(iun, recIndex, details);
             case NOTIFICATION_CANCELLED ->
                     notificationCancellationActionHandler.completeCancellationProcess(iun, fileKey);
+            case ANALOG_DELIVERY_TIMEOUT ->
+                    analogWorkflowDeliveryTimeoutHandler.handleDeliveryTimeout(iun, recIndex, details);
         }
     }
 }
