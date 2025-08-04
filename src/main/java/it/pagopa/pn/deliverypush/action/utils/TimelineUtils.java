@@ -1543,12 +1543,64 @@ public class TimelineUtils {
         return buildTimeline(notification, TimelineElementCategoryInt.PUBLIC_REGISTRY_VALIDATION_RESPONSE, eventId, details);
     }
 
-    public TimelineElementInternal buildAnalogFailureWorkflowTimeoutDetailsInt(NotificationInt notification,
-                                                                               int recIndex,
-                                                                               String generatedAarUrl,
-                                                                               int notificationCost,
-                                                                               Instant timeoutDate) {
-        log.debug("buildAnalogFailureWorkflowTimeoutDetailsInt - IUN={} and id={} timeoutDate={}", notification.getIun(), recIndex, timeoutDate);
+    public TimelineElementInternal buildSendAnalogTimeoutCreationRequest(NotificationInt notification,
+                                                                         int recIndex,
+                                                                         Instant timeoutDate,
+                                                                         int sentAttemptMade,
+                                                                         String relatedRequestId,
+                                                                         String legalFactId) {
+        log.debug("buildSendAnalogTimeoutCreationRequest - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, relatedRequestId);
+        String elementId = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sentAttemptMade)
+                        .build());
+
+        SendAnalogTimeoutCreationRequestDetailsInt details = SendAnalogTimeoutCreationRequestDetailsInt.builder()
+                .timeoutDate(timeoutDate)
+                .recIndex(recIndex)
+                .sentAttemptMade(sentAttemptMade)
+                .relatedRequestId(relatedRequestId)
+                .legalFactId(legalFactId)
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, elementId, details);
+    }
+
+    public TimelineElementInternal buildSendAnalogTimeout(NotificationInt notification,
+                                                          SendAnalogDetailsInt sendAnalogDetailsInt,
+                                                          Instant timeoutDate) {
+        Integer recIndex = sendAnalogDetailsInt.getRecIndex();
+        String relatedRequestId = sendAnalogDetailsInt.getRelatedRequestId();
+        log.debug("buildSendAnalogTimeout - IUN={} and id={} relatedRequestId={}", notification.getIun(), recIndex, relatedRequestId);
+
+        String elementId = TimelineEventId.SEND_ANALOG_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
+                        .build());
+
+        SendAnalogTimeoutDetailsInt details = SendAnalogTimeoutDetailsInt.builder()
+                .timeoutDate(timeoutDate)
+                .recIndex(recIndex)
+                .sentAttemptMade(sendAnalogDetailsInt.getSentAttemptMade())
+                .relatedRequestId(relatedRequestId)
+                .serviceLevel(sendAnalogDetailsInt.getServiceLevel())
+                .physicalAddress(sendAnalogDetailsInt.getPhysicalAddress())
+                .build();
+
+        return buildTimeline(notification, TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, elementId, details);
+    }
+
+    public TimelineElementInternal buildAnalogFailureWorkflowTimeout(NotificationInt notification,
+                                                                     int recIndex,
+                                                                     String generatedAarUrl,
+                                                                     int notificationCost,
+                                                                     Instant timeoutDate,
+                                                                     Boolean addNotificationCost) {
+        log.debug("buildAnalogFailureWorkflowTimeout - IUN={} and id={} timeoutDate={}", notification.getIun(), recIndex, timeoutDate);
         String elementId = ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
                 EventId.builder()
                         .iun(notification.getIun())
@@ -1561,6 +1613,10 @@ public class TimelineUtils {
                 .notificationCost(notificationCost)
                 .generatedAarUrl(generatedAarUrl)
                 .build();
+
+        if (Boolean.TRUE.equals(addNotificationCost)) {
+            details.setNotificationCost(notificationCost);
+        }
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, elementId, details);
     }

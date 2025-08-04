@@ -158,6 +158,18 @@ public enum ActionType {
       return String.format("send_analog_final_status_response_feedback-timeline-id_%s",
               action.getTimelineId());
     }
+  },
+
+  ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT(AnalogWorkflowTimeoutDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+      AnalogWorkflowTimeoutDetails details = (AnalogWorkflowTimeoutDetails) action.getDetails();
+      return String.format("%s_analog_workflow_timeout_recIndex_%d_attempt_%d",
+              action.getIun(),
+              action.getRecipientIndex(),
+              details.getSentAttemptMade()
+      );
+    }
   };
 
   private final Class<? extends ActionDetails> detailsJavaClass;

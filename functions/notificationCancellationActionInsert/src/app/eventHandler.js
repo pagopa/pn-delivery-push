@@ -1,6 +1,8 @@
 const { extractKinesisData } = require("./lib/kinesis.js");
 const { mapEvents } = require("./lib/eventMapper.js");
 const { persistEvents } = require("./lib/repository.js");
+const { isPersistenceEnabled } = require("./lib/utils.js");
+const { insertAction } = require("./lib/client.js");
 
 exports.handleEvent = async (event) => {
   const defaultPayload = {
@@ -23,7 +25,13 @@ exports.handleEvent = async (event) => {
 
   console.log(`Items to persist`, processedItems);
 
-  const persistSummary = await persistEvents(processedItems); // actually produce changes to DB
+  let persistSummary;
+  if(isPersistenceEnabled()) {
+    persistSummary = await persistEvents(processedItems); // actually produce changes to DB
+  } else {
+    console.log("Persistence is disabled, proceeding with action-manager API");
+    persistSummary = await insertAction(processedItems); // just call action-manager API
+  }
 
   console.log("Persist summary", persistSummary);
   console.log(`Inserted ${persistSummary.insertions} records`);

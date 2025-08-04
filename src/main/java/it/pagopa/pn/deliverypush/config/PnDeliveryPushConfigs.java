@@ -157,6 +157,8 @@ public class PnDeliveryPushConfigs {
 
     private int retentionAttachmentDaysAfterDeliveryTimeout;
 
+    private String paperTrackerBaseUrl;
+
     @Data
     public static class Topics {
 
