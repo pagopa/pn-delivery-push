@@ -65,6 +65,11 @@ public class TemplatesClientMock implements TemplatesClient {
         return RESULT_STRING;
     }
 
+    @Override
+    public byte[] analogDeliveryWorkflowTimeoutLegalFact(LanguageEnum xLanguage, AnalogDeliveryWorkflowTimeoutLegalFact analogDeliveryWorkflowTimeoutLegalFact) {
+        return resultPdf();
+    }
+
     private byte[] resultPdf() {
         try (var result = this.getClass().getResourceAsStream("/pdf/response.pdf")) {
             if (result == null) {

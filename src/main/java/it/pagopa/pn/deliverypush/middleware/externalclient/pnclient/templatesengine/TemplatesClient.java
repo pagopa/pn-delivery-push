@@ -121,4 +121,13 @@ public interface TemplatesClient {
      * @return A string representing the generated legal fact.
      */
     String notificationAarForPec(LanguageEnum xLanguage, NotificationAarForPec notificationAarForPec);
+
+    /**
+     * Generates a PDF based on AnalogDeliveryWorkflowTimeoutLegalFact template.
+     *
+     * @param xLanguage The language for the legal fact.
+     * @param analogDeliveryWorkflowTimeoutLegalFact The analog delivery workflow timeout legal fact to generate.
+     * @return A byte array representing the generated legal fact.
+     */
+    byte[] analogDeliveryWorkflowTimeoutLegalFact(LanguageEnum xLanguage, AnalogDeliveryWorkflowTimeoutLegalFact analogDeliveryWorkflowTimeoutLegalFact);
 }
