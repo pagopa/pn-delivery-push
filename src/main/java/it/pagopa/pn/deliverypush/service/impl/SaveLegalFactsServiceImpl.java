@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileCreationWithContentRequest;
@@ -198,6 +199,31 @@ public class SaveLegalFactsServiceImpl implements SaveLegalFactsService {
                             return responseUrl;
                         });
                 }).doOnError( err -> log.error("Error in sendCreationRequestForNotificationViewedLegalFact - iun={} error=", notification.getIun(), err));
+    }
+
+    public String sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(
+            NotificationInt notification,
+            NotificationRecipientInt recipient,
+            PhysicalAddressInt physicalAddress,
+            String sentAttemptMade,
+            Instant timeoutDate
+    ) {
+        try {
+            log.debug("Start sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={}", notification.getIun());
+
+
+            return MDCUtils.addMDCToContextAndExecute(
+                    this.saveLegalFact(legalFactBuilder.generateAnalogDeliveryWorkflowTimeoutLegalFact(notification, recipient, physicalAddress, sentAttemptMade, timeoutDate
+                            ))
+                            .map( responseUrl -> {
+                                log.debug("End sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact - iun={} key={}", notification.getIun(), responseUrl);
+                                return responseUrl;
+                            })
+            ).block();
+        } catch (Exception exc) {
+            String msg = String.format(SAVE_LEGAL_FACT_EXCEPTION_MESSAGE, "ANALOG_DELIVERY_TIMEOUT", notification.getIun(), recipient.getTaxId());
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERYPUSH_SAVELEGALFACTSFAILED, exc);
+        }
     }
 
 }

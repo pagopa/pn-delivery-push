@@ -1450,4 +1450,4 @@ components:
         notificationCost:
           type: integer
           description: Costo notifica digitale
-          format: int32
+          format: int64

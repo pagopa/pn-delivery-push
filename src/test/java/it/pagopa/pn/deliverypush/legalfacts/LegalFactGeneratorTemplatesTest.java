@@ -162,6 +162,30 @@ class LegalFactGeneratorTemplatesTest extends CommonTestConfiguration {
         Assertions.assertEquals(expectedUrl, actualUrl);
     }
 
+    @Test
+    void testGenerateAnalogDeliveryWorkflowTimeoutLegalFact() {
+        AnalogDeliveryWorkflowTimeoutLegalFact analogDeliveryWorkflowTimeoutLegalFact = new AnalogDeliveryWorkflowTimeoutLegalFact();
+        analogDeliveryWorkflowTimeoutLegalFact.setEndWorkflowTime("2023-10-01");
+
+        PhysicalAddressInt physicalAddress = PhysicalAddressInt.builder()
+                .address("address")
+                .zip("00000")
+                .build();
+
+        NotificationRecipientInt recipient = new NotificationRecipientInt()
+                .toBuilder()
+                .taxId("taxId")
+                .denomination("denomination")
+                .physicalAddress(physicalAddress)
+                .build();
+
+        Mockito.when(templatesClient.analogDeliveryWorkflowTimeoutLegalFact(Mockito.any(LanguageEnum.class), Mockito.any(AnalogDeliveryWorkflowTimeoutLegalFact.class)))
+                .thenReturn(templatesClientMock.analogDeliveryWorkflowTimeoutLegalFact(LanguageEnum.IT, new AnalogDeliveryWorkflowTimeoutLegalFact()));
+        var result = Assertions.assertDoesNotThrow(() -> legalFactGeneratorTemplatesTest.generateAnalogDeliveryWorkflowTimeoutLegalFact(
+                notificationInt(), recipient, physicalAddress, "1", Instant.now()));
+        Assertions.assertNotNull(result);
+    }
+
     private static SendDigitalFeedbackDetailsInt sendDigitalFeedbackDetailsInt() {
         return SendDigitalFeedbackDetailsInt.builder()
                 .recIndex(10)

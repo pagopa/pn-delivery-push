@@ -24,13 +24,16 @@ public enum NotificationStatusInt {
 
     CANCELLED("CANCELLED", NotificationStatusInt.VERSION_10),
 
-    RETURNED_TO_SENDER("RETURNED_TO_SENDER", NotificationStatusInt.VERSION_26);
+    RETURNED_TO_SENDER("RETURNED_TO_SENDER", NotificationStatusInt.VERSION_26),
+
+    DELIVERY_TIMEOUT("DELIVERY_TIMEOUT", NotificationStatusInt.VERSION_28);
 
     private final String value;
     private final int version;
 
     public static final int VERSION_10 = 10;
     public static final int VERSION_26 = 26;
+    public static final int VERSION_28 = 28;
 
     NotificationStatusInt(String value, int version) {
         this.value = value;

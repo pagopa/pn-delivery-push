@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.legalfacts;
 
 import it.pagopa.pn.deliverypush.action.utils.EndWorkflowStatus;
+import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.AARInfo;
@@ -120,4 +121,17 @@ public interface LegalFactGenerator {
      * @return a {@link String} representing the AAR notification for SMS.
      */
     String generateNotificationAARForSMS(NotificationInt notification);
+
+    /**
+     * Generates a PDF based on AnalogDeliveryWorkflowTimeoutLegalFact template.
+     *
+     * @param notification the notification object containing details about the notification.
+     * @param timeoutDate analog delivery workflow timeout date and time
+     * @return A byte array representing the generated legal fact for the analog delivery workflow timeout.
+     */
+    byte[] generateAnalogDeliveryWorkflowTimeoutLegalFact(NotificationInt notification,
+                                                          NotificationRecipientInt recipient,
+                                                          PhysicalAddressInt physicalAddress,
+                                                          String sentAttemptMade,
+                                                          Instant timeoutDate) throws IOException;
 }

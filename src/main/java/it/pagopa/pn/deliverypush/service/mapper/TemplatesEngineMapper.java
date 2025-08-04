@@ -350,4 +350,25 @@ public class TemplatesEngineMapper {
             });
         }
     }
+
+    public static AnalogDeliveryWorkflowTimeoutLegalFact analogDeliveryWorkflowTimeoutLegalFact(String iun,
+                                                                                                Instant TimeoutDate,
+                                                                                                CustomInstantWriter instantWriter,
+                                                                                                NotificationRecipientInt recipient,
+                                                                                                String sentAttemptMade,
+                                                                                                PhysicalAddressWriter physicalAddressWriter) {
+        String physicalAddressToString = physicalAddressWriter.nullSafePhysicalAddressToString(
+                recipient.getPhysicalAddress(), recipient.getDenomination(), "<br/>");
+        AnalogDeliveryWorkflowTimeoutRecipient analogDeliveryWorkflowTimeoutRecipient = new AnalogDeliveryWorkflowTimeoutRecipient()
+                .denomination(recipient.getDenomination())
+                .taxId(recipient.getTaxId())
+                .physicalAddress(physicalAddressToString);
+
+        return new AnalogDeliveryWorkflowTimeoutLegalFact()
+                .iun(iun)
+                .endWorkflowDate(instantWriter.instantToDate(TimeoutDate, true))
+                .endWorkflowTime(instantWriter.instantToTime(TimeoutDate))
+                .recipient(analogDeliveryWorkflowTimeoutRecipient)
+                .attempt(sentAttemptMade);
+    }
 }
