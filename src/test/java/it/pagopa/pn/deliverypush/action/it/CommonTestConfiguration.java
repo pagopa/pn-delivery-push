@@ -194,7 +194,8 @@ import static org.awaitility.Awaitility.setDefaultTimeout;
         AnalogWorkflowTimeoutHandler.class,
         AnalogWorkflowTimeoutActionHandler.class,
         PaperTrackerServiceImpl.class,
-        PaperTrackerClientMock.class
+        PaperTrackerClientMock.class,
+        AnalogWorkflowDeliveryTimeoutHandler.class
 
 })
 @ExtendWith(SpringExtension.class)
