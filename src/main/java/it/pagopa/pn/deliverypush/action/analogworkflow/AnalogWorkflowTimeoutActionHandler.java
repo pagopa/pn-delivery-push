@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -26,6 +27,7 @@ public class AnalogWorkflowTimeoutActionHandler {
     private final SaveLegalFactsService saveLegalFactsService;
     private final TimelineUtils timelineUtils;
     private final DocumentCreationRequestService documentCreationRequestService;
+    private final AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     public void handleAnalogWorkflowTimeout(String iun, String sendAnalogDomicileTimelineId, Integer recIndex, AnalogWorkflowTimeoutDetails analogWorkflowTimeoutDetails, Instant timeoutDate) {
         NotificationInt notification = notificationService.getNotificationByIun(iun);
@@ -39,8 +41,8 @@ public class AnalogWorkflowTimeoutActionHandler {
             if (sendAnalogDomicileTimelineElementOpt.isPresent()) {
                 SendAnalogDetailsInt sendAnalogDetails = sendAnalogDomicileTimelineElementOpt.get();
                 String prepareRequestId = sendAnalogDetails.getPrepareRequestId();
-                if (paperTrackerService.isPresentDematForPrepareRequest(prepareRequestId)) {
-                    log.info("Demat is present for prepareRequestId: {}, skipping analog workflow timeout handling for IUN: {}, recIndex: {}, sentAttemptMade: {}", prepareRequestId, iun, recIndex, sentAttemptMade);
+                if (paperTrackerService.isPresentDematForPrepareRequest(prepareRequestId) || analogDeliveryTimeoutUtils.isSendAnalogFeedbackPresentInTimeline(iun, recIndex, sentAttemptMade)) {
+                    log.info("Demat or SEND_ANALOG_FEEDBACK is present for prepareRequestId: {}, skipping analog workflow timeout handling for IUN: {}, recIndex: {}, sentAttemptMade: {}", prepareRequestId, iun, recIndex, sentAttemptMade);
                 } else {
                     String legalFactId = saveLegalFactsService.sendCreationRequestForAnalogDeliveryWorkflowTimeoutLegalFact(notification, notification.getRecipients().get(recIndex), sendAnalogDetails.getPhysicalAddress(), String.valueOf(sentAttemptMade), timeoutDate);
                     log.info("Adding SEND_ANALOG_TIMEOUT_CREATION_REQUEST timeline element for IUN: {}, recIndex: {}, sentAttemptMade: {}", iun, recIndex, sentAttemptMade);

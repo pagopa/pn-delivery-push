@@ -8,7 +8,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import lombok.AllArgsConstructor;
@@ -82,6 +84,16 @@ public class AnalogDeliveryTimeoutUtils {
 
     private boolean isNotificationViewed(String iun, int recIndex) {
         return timelineUtils.checkIsNotificationViewed(iun, recIndex);
+    }
+
+    //Ricerca del SEND_ANALOG_FEEDBACK iterando la lista della timeline per iun, recIndex e sentAttemptMade
+    public boolean isSendAnalogFeedbackPresentInTimeline(String iun, int recIndex, int sentAttemptMade) {
+        return timelineService.getTimeline(iun, false).stream()
+                .filter(element -> TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK.equals(element.getCategory()))
+                .anyMatch(element -> {
+                    SendAnalogFeedbackDetailsInt sendAnalogFeedbackDetailsInt = (SendAnalogFeedbackDetailsInt) element.getDetails();
+                    return sendAnalogFeedbackDetailsInt.getRecIndex() == recIndex && sendAnalogFeedbackDetailsInt.getSentAttemptMade() == sentAttemptMade;
+                });
     }
 
 }

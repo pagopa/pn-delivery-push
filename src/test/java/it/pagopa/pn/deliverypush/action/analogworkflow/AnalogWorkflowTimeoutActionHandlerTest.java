@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.action.analogworkflow;
 
 import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.documentcreation.DocumentCreationTypeInt;
@@ -39,6 +40,8 @@ public class AnalogWorkflowTimeoutActionHandlerTest {
     private TimelineUtils timelineUtils;
     @Mock
     private DocumentCreationRequestService documentCreationRequestService;
+    @Mock
+    private AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     @InjectMocks
     private AnalogWorkflowTimeoutActionHandler handler;
@@ -53,7 +56,8 @@ public class AnalogWorkflowTimeoutActionHandlerTest {
                 paperTrackerService,
                 saveLegalFactsService,
                 timelineUtils,
-                documentCreationRequestService
+                documentCreationRequestService,
+                analogDeliveryTimeoutUtils
         );
     }
 
@@ -97,6 +101,28 @@ public class AnalogWorkflowTimeoutActionHandlerTest {
         when(timelineService.getTimelineElementDetails(eq(iun), any(), eq(SendAnalogDetailsInt.class)))
                 .thenReturn(Optional.of(sendAnalogDetails));
         when(paperTrackerService.isPresentDematForPrepareRequest("PREP_REQ_ID")).thenReturn(true);
+
+        handler.handleAnalogWorkflowTimeout(iun, "timelineId", 0, mock(AnalogWorkflowTimeoutDetails.class), Instant.now());
+
+        verifyNoInteractions(saveLegalFactsService, timelineUtils, documentCreationRequestService);
+    }
+
+    @Test
+    void shouldSkipWhenDematNotPresent_SendAnalogFeedbackPresent() {
+        String iun = "IUN3";
+        NotificationInt notification = mock(NotificationInt.class);
+        when(notificationService.getNotificationByIun(iun)).thenReturn(notification);
+        when(notification.getSentAt()).thenReturn(Instant.now());
+        when(featureEnabledUtils.isAnalogWorkflowTimeoutFeatureEnabled(any())).thenReturn(true);
+        TimelineElementInternal timelineElementInternal = mock(TimelineElementInternal.class);
+
+        SendAnalogDetailsInt sendAnalogDetails = mock(SendAnalogDetailsInt.class);
+        when(sendAnalogDetails.getPrepareRequestId()).thenReturn("PREP_REQ_ID");
+        when(timelineService.getTimelineElementDetails(eq(iun), any(), eq(SendAnalogDetailsInt.class)))
+                .thenReturn(Optional.of(sendAnalogDetails));
+        when(paperTrackerService.isPresentDematForPrepareRequest("PREP_REQ_ID")).thenReturn(false);
+        when(analogDeliveryTimeoutUtils.isSendAnalogFeedbackPresentInTimeline(anyString(), anyInt(), anyInt()))
+                .thenReturn(true);
 
         handler.handleAnalogWorkflowTimeout(iun, "timelineId", 0, mock(AnalogWorkflowTimeoutDetails.class), Instant.now());
 
