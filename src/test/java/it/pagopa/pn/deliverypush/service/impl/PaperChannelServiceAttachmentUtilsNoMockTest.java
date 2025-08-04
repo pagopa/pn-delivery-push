@@ -6,10 +6,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
-import it.pagopa.pn.deliverypush.action.utils.AarUtils;
-import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
-import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.action.utils.*;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
@@ -73,6 +70,8 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
     NotificationProcessCostService notificationProcessCostService;
     @Mock
     PnSendModeUtils pnSendModeUtils;
+    @Mock
+    AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     @BeforeEach
     void setup() {
@@ -97,7 +96,8 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 attachmentUtils,
                 schedulerService,
                 pnDeliveryPushConfigs,
-                timelineService);
+                timelineService,
+                analogDeliveryTimeoutUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
