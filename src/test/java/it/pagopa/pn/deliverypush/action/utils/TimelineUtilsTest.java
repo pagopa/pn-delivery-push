@@ -1600,16 +1600,67 @@ class TimelineUtilsTest {
     }
 
     @Test
-    void buildAnalogFailureWorkflowTimeoutDetailsInt() {
+    void buildSendAnalogTimeoutCreationRequest() {
+        NotificationInt notification = buildNotification();
+        String relatedRequestId = "relatedRequestIdExample";
+        int sentAttemptMade = 0;
+        int recIndex = 1;
+        Instant timeoutDate = Instant.now();
+        String legalFactId = "legalFactIdExample";
+        String expectedIun = notification.getIun();
+        String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT_CREATION_REQUEST.IUN_Example_IUN_1234_Test.RECINDEX_1.ATTEMPT_0";
+
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeoutCreationRequest(notification,recIndex, timeoutDate, sentAttemptMade, relatedRequestId, legalFactId);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT_CREATION_REQUEST, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
+        );
+    }
+
+    @Test
+    void buildSendAnalogTimeout() {
+        NotificationInt notification = buildNotification();
+        String relatedRequestId = "relatedRequestIdExample";
+        int sentAttemptMade = 0;
+        int recIndex = 1;
+
+        SendAnalogDetailsInt sendAnalogDetailsInt = SendAnalogDetailsInt.builder()
+                .sentAttemptMade(sentAttemptMade)
+                .recIndex(recIndex)
+                .relatedRequestId(relatedRequestId)
+                .physicalAddress(buildPhysicalAddressInt())
+                .serviceLevel(ServiceLevelInt.AR_REGISTERED_LETTER)
+                .build();
+
+        Instant timeoutDate = Instant.now();
+        String expectedIun = notification.getIun();
+        String timelineEventIdExpected = "SEND_ANALOG_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1.ATTEMPT_0";
+
+        TimelineElementInternal result = timelineUtils.buildSendAnalogTimeout(notification, sendAnalogDetailsInt, timeoutDate);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(expectedIun, result.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, result.getElementId()),
+                () -> Assertions.assertEquals(TimelineElementCategoryInt.SEND_ANALOG_TIMEOUT, result.getCategory()),
+                () -> Assertions.assertNotNull(result.getDetails())
+        );
+    }
+
+    @Test
+    void buildAnalogFailureWorkflowTimeout() {
         NotificationInt notification = buildNotification();
         int recIndex = 1;
         String generatedAarUrl = "https://example.com/aar";
         Instant timeoutDate = Instant.now();
         int notificationCost = 100;
         String expectedIun = notification.getIun();
+        Boolean addNotificationCost = false;
         String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW_TIMEOUT.IUN_Example_IUN_1234_Test.RECINDEX_1";
 
-        TimelineElementInternal result = timelineUtils.buildAnalogFailureWorkflowTimeoutDetailsInt(notification,recIndex, generatedAarUrl, notificationCost, timeoutDate);
+        TimelineElementInternal result = timelineUtils.buildAnalogFailureWorkflowTimeout(notification,recIndex, generatedAarUrl, notificationCost, timeoutDate, addNotificationCost);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(expectedIun, result.getIun()),

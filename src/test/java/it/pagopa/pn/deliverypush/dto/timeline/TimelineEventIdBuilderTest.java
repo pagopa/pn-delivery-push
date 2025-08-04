@@ -1008,6 +1008,52 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
+    void buildSEND_ANALOG_TIMEOUT_CREATION_REQUEST() {
+        Integer recIndex = 0;
+        Integer sentAttemptMade = 0;
+        String timeLineEventIdExpected = String.format("SEND_ANALOG_TIMEOUT_CREATION_REQUEST.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_%s.ATTEMPT_%d", recIndex, sentAttemptMade);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.getValue())
+                .withIun(IUN)
+                .withRecIndex(recIndex)
+                .withSentAttemptMade(sentAttemptMade)
+                .build();
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_ANALOG_TIMEOUT_CREATION_REQUEST.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(recIndex)
+                .sentAttemptMade(sentAttemptMade)
+                .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+
+    @Test
+    void buildSEND_ANALOG_TIMEOUT() {
+        Integer recIndex = 0;
+        Integer sentAttemptMade = 0;
+        String timeLineEventIdExpected = String.format("SEND_ANALOG_TIMEOUT.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_%s.ATTEMPT_%d", recIndex, sentAttemptMade);
+        String timeLineEventIdActual = new TimelineEventIdBuilder()
+                .withCategory(TimelineEventId.SEND_ANALOG_TIMEOUT.getValue())
+                .withIun(IUN)
+                .withRecIndex(recIndex)
+                .withSentAttemptMade(sentAttemptMade)
+                .build();
+        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
+
+        String timeLineEventIdActualFromBuildEvent = TimelineEventId.SEND_ANALOG_TIMEOUT.buildEventId(EventId
+                .builder()
+                .iun(IUN)
+                .recIndex(recIndex)
+                .sentAttemptMade(sentAttemptMade)
+                .build());
+
+        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
+    }
+
+    @Test
     void buildANALOG_FAILURE_WORKFLOW_TIMEOUT() {
         Integer recIndex = 0;
         String timeLineEventIdExpected = String.format("ANALOG_FAILURE_WORKFLOW_TIMEOUT.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_%s", recIndex);

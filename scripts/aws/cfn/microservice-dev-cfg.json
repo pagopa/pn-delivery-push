@@ -26,7 +26,7 @@
     "MountEfs": "false",
     "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
-    "ActionQueueMap": "{\"NOTIFICATION_VALIDATION\":\"ActionValidationQueue\",\"NOTIFICATION_REFUSED\":\"ActionValidationQueue\",\"NOTIFICATION_CANCELLATION\":\"ActionQueue\",\"SCHEDULE_RECEIVED_LEGALFACT_GENERATION\":\"ActionValidationQueue\", \"CHECK_ATTACHMENT_RETENTION\":\"ActionQueue\", \"START_RECIPIENT_WORKFLOW\":\"ActionQueue\", \"CHOOSE_DELIVERY_MODE\":\"ActionQueue\", \"ANALOG_WORKFLOW\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_RETRY_ACTION\":\"ActionQueue\", \"SEND_DIGITAL_FINAL_STATUS_RESPONSE\":\"ActionQueue\", \"REFINEMENT_NOTIFICATION\":\"ActionQueue\", \"SENDER_ACK\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE\":\"ActionQueue\", \"POST_ACCEPTED_PROCESSING_COMPLETED\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"ActionValidationQueue\", \"SEND_ANALOG_FINAL_STATUS_RESPONSE\":\"ActionQueue\"}",
+    "ActionQueueMap": "{\"NOTIFICATION_VALIDATION\":\"ActionValidationQueue\",\"NOTIFICATION_REFUSED\":\"ActionValidationQueue\",\"NOTIFICATION_CANCELLATION\":\"ActionQueue\",\"SCHEDULE_RECEIVED_LEGALFACT_GENERATION\":\"ActionValidationQueue\", \"CHECK_ATTACHMENT_RETENTION\":\"ActionQueue\", \"START_RECIPIENT_WORKFLOW\":\"ActionQueue\", \"CHOOSE_DELIVERY_MODE\":\"ActionQueue\", \"ANALOG_WORKFLOW\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NEXT_EXECUTE_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_NO_RESPONSE_TIMEOUT_ACTION\":\"ActionQueue\", \"DIGITAL_WORKFLOW_RETRY_ACTION\":\"ActionQueue\", \"SEND_DIGITAL_FINAL_STATUS_RESPONSE\":\"ActionQueue\", \"REFINEMENT_NOTIFICATION\":\"ActionQueue\", \"SENDER_ACK\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE\":\"ActionQueue\", \"POST_ACCEPTED_PROCESSING_COMPLETED\":\"ActionQueue\", \"DOCUMENT_CREATION_RESPONSE_SENDER_ACK\":\"ActionValidationQueue\", \"SEND_ANALOG_FINAL_STATUS_RESPONSE\":\"ActionQueue\", \"ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT\":\"ActionQueue\"}",
     "QueueUrlMap": "{\"ActionQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_actions\", \"ActionValidationQueue\":\"https://sqs.eu-south-1.amazonaws.com/830192246553/pn-delivery_push_validation_actions\"}",
     "ActionRouterKinesisBatchSize": "1",
     "CdcPnActionShards": "8",
@@ -42,6 +42,10 @@
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z",
     "ActionLambdasEnabledStart": "1546300800000",
-    "ActionLambdasEnabledEnd": "1752075900000"
+    "ActionLambdasEnabledEnd": "1753173328000",
+    "EnableVpcForNotificationCancellationActionInsertLambda": "true",
+    "EnableWorkflowChannels": "false",
+    "OldWorkflowLambdasEnabledStart": "1753142400000",
+    "OldWorkflowLambdasEnabledEnd": "1753881000000"
     }
 }

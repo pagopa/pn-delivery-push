@@ -151,4 +151,16 @@ public class TemplatesClientImpl implements TemplatesClient {
         return templateEngineClient.notificationAarRaddAlt(xLanguage, notificationAarRaddAlt);
     }
 
+    /**
+     * Generates a PDF based on AnalogDeliveryWorkflowTimeoutLegalFact template.
+     *
+     * @param xLanguage The language for the legal fact.
+     * @param analogDeliveryWorkflowTimeoutLegalFact The analog delivery workflow timeout legal fact to generate.
+     * @return A byte array representing the generated legal fact.
+     */
+    @Override
+    public byte[] analogDeliveryWorkflowTimeoutLegalFact(LanguageEnum xLanguage, AnalogDeliveryWorkflowTimeoutLegalFact analogDeliveryWorkflowTimeoutLegalFact) {
+        return templateEngineClient.analogDeliveryWorkflowTimeoutLegalFact(xLanguage, analogDeliveryWorkflowTimeoutLegalFact);
+    }
+
 }

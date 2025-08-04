@@ -601,6 +601,30 @@ public enum TimelineEventId {
         }
     },
 
+    SEND_ANALOG_TIMEOUT_CREATION_REQUEST("SEND_ANALOG_TIMEOUT_CREATION_REQUEST") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .withSentAttemptMade(eventId.getSentAttemptMade())
+                    .build();
+        }
+    },
+
+    SEND_ANALOG_TIMEOUT("SEND_ANALOG_TIMEOUT") {
+        @Override
+        public String buildEventId(EventId eventId) {
+            return new TimelineEventIdBuilder()
+                    .withCategory(this.getValue())
+                    .withIun(eventId.getIun())
+                    .withRecIndex(eventId.getRecIndex())
+                    .withSentAttemptMade(eventId.getSentAttemptMade())
+                    .build();
+        }
+    },
+
     ANALOG_FAILURE_WORKFLOW_TIMEOUT("ANALOG_FAILURE_WORKFLOW_TIMEOUT") {
         @Override
         public String buildEventId(EventId eventId) {
