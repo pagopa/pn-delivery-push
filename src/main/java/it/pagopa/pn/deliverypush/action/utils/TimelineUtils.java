@@ -1238,8 +1238,11 @@ public class TimelineUtils {
                 .build());
     }
 
-    public boolean checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled(String iun, Integer recIndex) {
-        log.debug("checkNotificationIsViewedOrRefinedOrDeceasedOrCancelled - iun={} recIndex={}", iun, recIndex);
+    /**
+     * Metodo che verifica se per un dato destinatario esistono elementi di Timeline che abbiano prodotto aggiornamenti della retention degli allegati.
+     * */
+    public boolean hasTimelineTriggeredAttachmentRetentionUpdate(String iun, Integer recIndex) {
+        log.debug("hasTimelineTriggeredAttachmentRetentionUpdate - iun={} recIndex={}", iun, recIndex);
 
         if (checkIsNotificationViewed(iun, recIndex)) {
             return true;
@@ -1254,7 +1257,12 @@ public class TimelineUtils {
         if (checkIsRecipientDeceased(iun, recIndex)) {
             return true;
         }
-        log.debug("Notification is not deceased need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
+        log.debug("Notification is not deceased need to check if it is in a failure timeout - iun={} recIndex={}", iun, recIndex);
+
+        if (checkIsNotificationFailureTimeout(iun, recIndex)) {
+            return true;
+        }
+        log.debug("Notification is not failed for timeout need to check if it is cancelled - iun={} recIndex={}", iun, recIndex);
 
         return checkIsNotificationCancellationRequested(iun);
     }
@@ -1611,6 +1619,24 @@ public class TimelineUtils {
         }
 
         return buildTimeline(notification, TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, elementId, details);
+    }
+
+    public boolean checkIsNotificationFailureTimeout(String iun, Integer recIndex) {
+        log.debug("checkIsNotificationFailureTimeout - iun={} recIndex={}", iun, recIndex);
+        Optional<TimelineElementInternal> elementInternalOptional = getNotificationFailureTimeout(iun, recIndex);
+
+        log.debug("check notification failure timeout is {} - iun={} recIndex={}", elementInternalOptional.isPresent(), iun, recIndex);
+        return elementInternalOptional.isPresent();
+    }
+
+    private Optional<TimelineElementInternal> getNotificationFailureTimeout(String iun, Integer recIndex) {
+        String elementId = TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.buildEventId(
+                EventId.builder()
+                        .iun(iun)
+                        .recIndex(recIndex)
+                        .build());
+
+        return timelineService.getTimelineElement(iun, elementId);
     }
 
     public String getIunFromTimelineId(String timelineId) {
