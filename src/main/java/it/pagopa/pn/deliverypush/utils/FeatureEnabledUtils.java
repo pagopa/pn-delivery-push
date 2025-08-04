@@ -29,4 +29,9 @@ public class FeatureEnabledUtils {
                 .orElse(false);
     }
 
+    public boolean isAnalogWorkflowTimeoutFeatureEnabled(Instant notificationSentAt) {
+        Instant startDate = configs.getStartAnalogWorkflowTimeoutFeatureDate();
+        return startDate != null && notificationSentAt.compareTo(startDate) >= 0;
+    }
+
 }

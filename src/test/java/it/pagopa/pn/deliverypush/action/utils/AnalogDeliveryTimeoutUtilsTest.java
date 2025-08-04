@@ -6,7 +6,9 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogTimeoutCreationRequestDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -156,5 +159,47 @@ class AnalogDeliveryTimeoutUtilsTest {
         assertThrows(PnInternalException.class, () ->
                 analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate)
         );
+    }
+
+    @Test
+    void testIsSendAnalogFeedbackPresentInTimeline_Found() {
+        String iun = "iun";
+        int recIndex = 1;
+        int sentAttemptMade = 2;
+
+        TimelineElementInternal element = mock(TimelineElementInternal.class);
+        when(element.getCategory()).thenReturn(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK);
+
+        SendAnalogFeedbackDetailsInt details = mock(SendAnalogFeedbackDetailsInt.class);
+        when(details.getRecIndex()).thenReturn(recIndex);
+        when(details.getSentAttemptMade()).thenReturn(sentAttemptMade);
+        when(element.getDetails()).thenReturn(details);
+
+        when(timelineService.getTimeline(iun, false)).thenReturn(Set.of(element));
+
+        boolean result = analogDeliveryTimeoutUtils.isSendAnalogFeedbackPresentInTimeline(iun, recIndex, sentAttemptMade);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void testIsSendAnalogFeedbackPresentInTimeline_NotFound() {
+        String iun = "iun";
+        int recIndex = 1;
+        int sentAttemptMade = 2;
+
+        TimelineElementInternal element = mock(TimelineElementInternal.class);
+        when(element.getCategory()).thenReturn(TimelineElementCategoryInt.SEND_ANALOG_FEEDBACK);
+
+        SendAnalogFeedbackDetailsInt details = mock(SendAnalogFeedbackDetailsInt.class);
+        when(details.getRecIndex()).thenReturn(99); // Different recIndex
+        when(details.getSentAttemptMade()).thenReturn(99); // Different sentAttemptMade
+        when(element.getDetails()).thenReturn(details);
+
+        when(timelineService.getTimeline(iun, false)).thenReturn(Set.of(element));
+
+        boolean result = analogDeliveryTimeoutUtils.isSendAnalogFeedbackPresentInTimeline(iun, recIndex, sentAttemptMade);
+
+        assertFalse(result);
     }
 }
