@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.analogworkflow.AnalogWorkflowUtils;
 import it.pagopa.pn.deliverypush.action.details.AnalogWorkflowTimeoutDetails;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.AttachmentUtils;
 import it.pagopa.pn.deliverypush.action.startworkflow.notificationvalidation.F24ResolutionMode;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
@@ -60,6 +61,7 @@ public class PaperChannelServiceImpl implements PaperChannelService {
     private final SchedulerService schedulerService;
     private final PnDeliveryPushConfigs pnDeliveryPushConfigs;
     private final TimelineService timelineService;
+    private final AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
 
     /**
      * Send registered letter to external channel
@@ -195,17 +197,11 @@ public class PaperChannelServiceImpl implements PaperChannelService {
                 // il relatedEventId del primo tentativo serve a paperChannel distinguere e correlare la seconda invocazione dalla prima
                 relatedEventId = paperChannelUtils.buildPrepareAnalogDomicileEventId(notification, recIndex, sentAttemptMade - 1);
 
+                // Verifico la presenza dell'elemento di tipo SendAnalogTimeoutCreationRequest all'interno della timeline.
+                // Se esiste, l'elemento SendAnalogFeedback non sarà presente nella timeline; altrimenti
                 // ricostruisco il feedback corrispondente, tanto ha la forma che gli avevo dato io all'iterazione precedente.
                 // mi serve per recuperare il discoveredAddress all'interno
-                String relatedAnalogFeedbackEventId = paperChannelUtils.buildSendAnalogFeedbackEventId(notification, recIndex, sentAttemptMade - 1);
-
-                TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
-                discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
-                if (discoveredAddress != null && !StringUtils.hasText(discoveredAddress.getFullname()))
-                {
-                    // se il discovered address non contiene il full name, lo imposto alla denominazione del recipient
-                    discoveredAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
-                }
+                discoveredAddress = retrieveDiscoveredAddressIfPresent(notification.getIun(), recIndex, sentAttemptMade, notification);
 
                 // se la relatedrequestid non è nulla, il receiver address è quello usato nella prima send
                 String eventIdPreviousSend = paperChannelUtils.buildSendAnalogDomicileEventId(notification, recIndex, sentAttemptMade-1);
@@ -423,6 +419,27 @@ public class PaperChannelServiceImpl implements PaperChannelService {
         }
     }
 
+    private PhysicalAddressInt retrieveDiscoveredAddressIfPresent(String iun, int recIndex, Integer sentAttemptMade, NotificationInt notification) {
+        Integer previousSentAttemptMade = sentAttemptMade - 1;
+        if (analogDeliveryTimeoutUtils.isSendAnalogTimeoutCreationRequestPresent(iun, recIndex, previousSentAttemptMade)) {
+            log.info("retrieveDiscoveredAddressIfPresent - SendAnalogTimeoutCreationRequest already present in timeline for iun={} recIndex={} previousSentAttemptMade={}", iun, recIndex, previousSentAttemptMade);
+            return null;
+        } else {
+            return retrieveSendAnalogFeedbackDiscoveredAddress(recIndex, notification, previousSentAttemptMade);
+        }
+    }
 
+    private PhysicalAddressInt retrieveSendAnalogFeedbackDiscoveredAddress(int recIndex, NotificationInt notification, Integer previousSentAttemptMade) {
+        log.info("retrieveSendAnalogFeedbackDiscoveredAddress - Retrieving discovered address for iun={} recIndex={} previousSentAttemptMade={}", notification.getIun(), recIndex, previousSentAttemptMade);
+        String relatedAnalogFeedbackEventId = paperChannelUtils.buildSendAnalogFeedbackEventId(notification, recIndex, previousSentAttemptMade);
+
+        TimelineElementInternal previousResult = paperChannelUtils.getPaperChannelNotificationTimelineElement(notification.getIun(), relatedAnalogFeedbackEventId);
+        PhysicalAddressInt discoveredAddress = ((SendAnalogFeedbackDetailsInt)previousResult.getDetails()).getNewAddress();
+        if (discoveredAddress != null && !StringUtils.hasText(discoveredAddress.getFullname())) {
+            // se il discovered address non contiene il full name, lo imposto alla denominazione del recipient
+            discoveredAddress.setFullname(notification.getRecipients().get(recIndex).getDenomination());
+        }
+        return discoveredAddress;
+    }
 
 }

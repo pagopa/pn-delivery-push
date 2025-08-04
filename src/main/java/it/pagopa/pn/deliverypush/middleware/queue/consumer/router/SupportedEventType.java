@@ -27,6 +27,7 @@ public enum SupportedEventType {
     DOCUMENT_CREATION_RESPONSE,
     POST_ACCEPTED_PROCESSING_COMPLETED,
     SEND_ANALOG_FINAL_STATUS_RESPONSE,
+    ANALOG_WORKFLOW_NO_FEEDBACK_TIMEOUT,
     // Fine eventi coda Actions
     // Inizio eventi coda ExternalChannels
     SEND_PEC_RESPONSE,

@@ -1436,6 +1436,15 @@ public class TimelineUtils {
                 }
             }
 
+            //If there is no notificationCost on Deceased we check the Failure Timeout
+            if (notificationCost == 0) {
+                notificationOpt = getNotificationFailureTimeout(notification.getIun(), recIndex);
+                if (notificationOpt.isPresent()) {
+                    AnalogFailureWorkflowTimeoutDetailsInt failureWorkflowTimeoutDetailsInt = ((AnalogFailureWorkflowTimeoutDetailsInt) notificationOpt.get().getDetails());
+                    notificationCost = Optional.ofNullable(failureWorkflowTimeoutDetailsInt.getNotificationCost()).orElse(0);
+                }
+            }
+
             if (notificationCost == 0) {
                 notRefinedRecipientList.add(recIndex);
             }

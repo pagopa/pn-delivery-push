@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.action.analogworkflow;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.deliverypush.action.utils.AnalogDeliveryTimeoutUtils;
 import it.pagopa.pn.deliverypush.action.utils.PaperChannelUtils;
 import it.pagopa.pn.deliverypush.dto.address.PhysicalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +44,11 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     private final AuditLogService auditLogService;
     private final SchedulerService schedulerService;
     private final TimelineService timelineService;
-    
+
+    private final AnalogDeliveryTimeoutUtils analogDeliveryTimeoutUtils;
+
+    private static final Integer FIRST_ATTEMPT_MADE = 0;
+
 
     public void paperChannelPrepareResponseHandler(PrepareEventInt response) {
 
@@ -75,18 +81,20 @@ public class AnalogWorkflowPaperChannelResponseHandler {
     }
 
     private void handlePrepareKO(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {
-
-
         // se era una prepare di un analog, procedo con nextworkflow. E' l'unica caso in cui mi interessa gestire il KO (e che può verificarsi da flusso workflo)
         if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_ANALOG_DOMICILE){
             // salvo in timeline l'evento di fallimento
-            paperChannelUtils.addPrepareAnalogFailureTimelineElement(response.getReceiverAddress(), response.getRequestId(), response.getFailureDetailCode(), recIndex, notification);
-
             auditLogEvent.generateWarning("Received KO for prepare requestId=" + requestId + " failureDetailCause=" + response.getFailureDetailCode() + " recIndex=" + recIndex).log();
-            log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
-            this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
-        }
-        else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
+            paperChannelUtils.addPrepareAnalogFailureTimelineElement(response.getReceiverAddress(), response.getRequestId(), response.getFailureDetailCode(), recIndex, notification);
+            Optional<SendAnalogTimeoutCreationRequestDetailsInt> sendAnalogTimeoutCreationRequestDetails = analogDeliveryTimeoutUtils.getSendAnalogTimeoutCreationRequestDetails(notification.getIun(), recIndex, FIRST_ATTEMPT_MADE);
+            if (sendAnalogTimeoutCreationRequestDetails.isPresent()) {
+                SendAnalogTimeoutCreationRequestDetailsInt timelineDetails = sendAnalogTimeoutCreationRequestDetails.get();
+                addAnalogFailureWorkflowTimeoutElement(notification, recIndex, timelineDetails);
+            } else {
+                log.info("paperChannelPrepareResponseHandler prepare response is for analog, setting as unreachable iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
+                this.analogWorkflowHandler.nextWorkflowStep(notification, recIndex, AnalogWorkflowHandler.ATTEMPT_MADE_UNREACHABLE, null);
+            }
+        } else if (timelineElementInternal.getCategory() == TimelineElementCategoryInt.PREPARE_SIMPLE_REGISTERED_LETTER){
             log.error("paperChannelPrepareResponseHandler prepare response is for simple registered letter  event is KO and is not expected iun={} requestId={} statusCode={} statusDesc={} statusDate={}", response.getIun(), response.getRequestId(), response.getStatusCode(), response.getStatusDetail(), response.getStatusDateTime());
 
             throw new PnInternalException("Unexpected KO for simple registered letter requestId=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
@@ -95,6 +103,12 @@ public class AnalogWorkflowPaperChannelResponseHandler {
         {
             throw new PnInternalException("Unexpected detail of timelineElement timeline=" + requestId, ERROR_CODE_DELIVERYPUSH_PAPERUPDATEFAILED);
         }
+    }
+
+    private void addAnalogFailureWorkflowTimeoutElement(NotificationInt notification, int recIndex, SendAnalogTimeoutCreationRequestDetailsInt timelineDetails) {
+        log.info("addAnalogFailureWorkflowTimeoutElement - adding in timeline ANALOG_FAILURE_WORKFLOW_TIMEOUT element for iun={} - recipient index={} - sentAttemptMade={}", notification.getIun(), recIndex, FIRST_ATTEMPT_MADE);
+        Instant timeoutDate = timelineDetails.getTimeoutDate();
+        analogDeliveryTimeoutUtils.buildAnalogFailureWorkflowTimeoutElement(notification, recIndex, timeoutDate);
     }
 
     private void handlerPrepareOK(PrepareEventInt response, NotificationInt notification, TimelineElementInternal timelineElementInternal, int recIndex, String requestId, PnAuditLogEvent auditLogEvent) {

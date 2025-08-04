@@ -1407,12 +1407,7 @@ class TimelineUtilsTest {
     void buildCancelledTimelineElementPerfectionatedForView() {
         NotificationInt notification = buildNotification();
         String legalFactId = "001";
-        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(1).build();
-
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
-                .details(notificationViewedDetailsInt)
-                .build();
+        TimelineElementInternal timelineElementInternal = getNotificationViewedElementInternal(1);
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Optional.of(timelineElementInternal));
@@ -1440,17 +1435,9 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         String legalFactId = "001";
 
-        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(0).build();
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
-                .details(notificationViewedDetailsInt)
-                .build();
+        TimelineElementInternal timelineElementInternal = getNotificationViewedElementInternal(0);
 
-        RefinementDetailsInt refinementDetailsInt = RefinementDetailsInt.builder().notificationCost(1).build();
-        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.REFINEMENT.getValue())
-                .details(refinementDetailsInt)
-                .build();
+        TimelineElementInternal refinementTimelineElementInternal = getRefinementElementInternal(1);
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Optional.of(timelineElementInternal))
@@ -1479,23 +1466,11 @@ class TimelineUtilsTest {
         NotificationInt notification = buildNotification();
         String legalFactId = "001";
 
-        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(0).build();
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
-                .details(notificationViewedDetailsInt)
-                .build();
+        TimelineElementInternal timelineElementInternal = getNotificationViewedElementInternal(0);
 
-        RefinementDetailsInt refinementDetailsInt = RefinementDetailsInt.builder().notificationCost(0).build();
-        TimelineElementInternal refinementTimelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.REFINEMENT.getValue())
-                .details(refinementDetailsInt)
-                .build();
+        TimelineElementInternal refinementTimelineElementInternal = getRefinementElementInternal(0);
 
-        AnalogWorfklowRecipientDeceasedDetailsInt deceasedDetailsInt = AnalogWorfklowRecipientDeceasedDetailsInt.builder().notificationCost(1).build();
-        TimelineElementInternal deceasedTimelineElementInternal = TimelineElementInternal.builder()
-                .elementId(TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue())
-                .details(deceasedDetailsInt)
-                .build();
+        TimelineElementInternal deceasedTimelineElementInternal = getDeceasedElementInternal(1);
 
         Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Optional.of(timelineElementInternal))
@@ -1694,5 +1669,71 @@ class TimelineUtilsTest {
                 () -> Assertions.assertEquals(TimelineElementCategoryInt.ANALOG_FAILURE_WORKFLOW_TIMEOUT, result.getCategory()),
                 () -> Assertions.assertNotNull(result.getDetails())
         );
+    }
+
+    @Test
+    void buildCancelledTimelineElementFailureTimeout() {
+        NotificationInt notification = buildNotification();
+        String legalFactId = "001";
+
+        TimelineElementInternal timelineElementInternal = getNotificationViewedElementInternal(0);
+
+        TimelineElementInternal refinementTimelineElementInternal = getRefinementElementInternal(0);
+
+        TimelineElementInternal deceasedTimelineElementInternal = getDeceasedElementInternal(0);
+
+        TimelineElementInternal failureTimeoutTimelineElementInternal = getFailureTimeoutElementInternal(1);
+
+        Mockito.when(timelineService.getTimelineElement(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Optional.of(timelineElementInternal))
+                .thenReturn(Optional.of(refinementTimelineElementInternal))
+                .thenReturn(Optional.of(deceasedTimelineElementInternal))
+                .thenReturn(Optional.of(failureTimeoutTimelineElementInternal));
+
+        String timelineEventIdExpected = "NOTIFICATION_CANCELLED.IUN_Example_IUN_1234_Test";
+
+        TimelineElementInternal actual = timelineUtils.buildCancelledTimelineElement(notification, legalFactId);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals("Example_IUN_1234_Test", actual.getIun()),
+                () -> Assertions.assertEquals(timelineEventIdExpected, actual.getElementId()),
+                () -> Assertions.assertEquals("TEST_PA_ID", actual.getPaId())
+        );
+
+        NotificationCancelledDetailsInt detailsInt = (NotificationCancelledDetailsInt) actual.getDetails();
+        Assertions.assertEquals(0, detailsInt.getNotificationCost());
+        Assertions.assertEquals(0, detailsInt.getNotRefinedRecipientIndexes().size());
+    }
+
+    private static TimelineElementInternal getNotificationViewedElementInternal(Integer notificationCost) {
+        NotificationViewedDetailsInt notificationViewedDetailsInt = NotificationViewedDetailsInt.builder().notificationCost(notificationCost).build();
+        return TimelineElementInternal.builder()
+                .elementId(TimelineEventId.NOTIFICATION_VIEWED.getValue())
+                .details(notificationViewedDetailsInt)
+                .build();
+    }
+
+    private static TimelineElementInternal getRefinementElementInternal(Integer notificationCost) {
+        RefinementDetailsInt refinementDetailsInt = RefinementDetailsInt.builder().notificationCost(notificationCost).build();
+        return TimelineElementInternal.builder()
+                .elementId(TimelineEventId.REFINEMENT.getValue())
+                .details(refinementDetailsInt)
+                .build();
+    }
+
+    private static TimelineElementInternal getDeceasedElementInternal(Integer notificationCost) {
+        AnalogWorfklowRecipientDeceasedDetailsInt deceasedDetailsInt = AnalogWorfklowRecipientDeceasedDetailsInt.builder().notificationCost(notificationCost).build();
+        return TimelineElementInternal.builder()
+                .elementId(TimelineEventId.ANALOG_WORKFLOW_RECIPIENT_DECEASED.getValue())
+                .details(deceasedDetailsInt)
+                .build();
+    }
+
+    private static TimelineElementInternal getFailureTimeoutElementInternal(Integer notificationCost) {
+        AnalogFailureWorkflowTimeoutDetailsInt failureTimeoutDetailsInt = AnalogFailureWorkflowTimeoutDetailsInt.builder().notificationCost(notificationCost).build();
+        return TimelineElementInternal.builder()
+                .elementId(TimelineEventId.ANALOG_FAILURE_WORKFLOW_TIMEOUT.getValue())
+                .details(failureTimeoutDetailsInt)
+                .build();
     }
 }
