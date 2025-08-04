@@ -24,10 +24,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.paperchannel.PaperChannelSendClient;
-import it.pagopa.pn.deliverypush.service.AuditLogService;
-import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
-import it.pagopa.pn.deliverypush.service.PaperChannelService;
-import it.pagopa.pn.deliverypush.service.SafeStorageService;
+import it.pagopa.pn.deliverypush.service.*;
 import it.pagopa.pn.deliverypush.utils.PnSendMode;
 import it.pagopa.pn.deliverypush.utils.PnSendModeUtils;
 import org.junit.jupiter.api.Assertions;
@@ -59,6 +56,10 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
     private AnalogWorkflowUtils analogWorkflowUtils;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private TimelineService timelineService;
+    @Mock
+    private SchedulerService schedulerService;
 
     private PaperChannelService paperChannelService;
 
@@ -93,7 +94,10 @@ class PaperChannelServiceAttachmentUtilsNoMockTest {
                 mvpParameterConsumer,
                 analogWorkflowUtils,
                 auditLogService,
-                attachmentUtils);
+                attachmentUtils,
+                schedulerService,
+                pnDeliveryPushConfigs,
+                timelineService);
     }
 
     @ExtendWith(MockitoExtension.class)

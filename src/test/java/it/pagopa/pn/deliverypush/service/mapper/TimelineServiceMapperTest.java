@@ -200,7 +200,7 @@ class TimelineServiceMapperTest {
         it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result = TimelineServiceMapper.toNotificationHistoryResponseDto(input);
 
         assertNotNull(result);
-        assertEquals(NotificationStatusV26.DELIVERED, result.getNotificationStatus());
+        assertEquals(NotificationStatusV28.DELIVERED, result.getNotificationStatus());
         assertNotNull(result.getTimeline());
         assertEquals(1, result.getTimeline().size());
         TimelineElementV28 elem = result.getTimeline().get(0);
@@ -235,7 +235,7 @@ class TimelineServiceMapperTest {
     }
 
     @Test
-    void getNotificationStatusHistoryElementV26List_mapsFieldsCorrectly() {
+    void getNotificationStatusHistoryElementList_mapsFieldsCorrectly() {
         NotificationStatusHistoryElement element = new NotificationStatusHistoryElement()
                 .status(NotificationStatus.DELIVERED)
                 .activeFrom(Instant.now())
@@ -244,13 +244,13 @@ class TimelineServiceMapperTest {
         NotificationHistoryResponse source = new NotificationHistoryResponse()
                 .notificationStatusHistory(List.of(element));
 
-        List<NotificationStatusHistoryElementV26> result =
+        List<NotificationStatusHistoryElementV28> result =
                 TimelineServiceMapper.toNotificationHistoryResponseDto(source).getNotificationStatusHistory();
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        NotificationStatusHistoryElementV26 mapped = result.get(0);
-        assertEquals(NotificationStatusV26.DELIVERED, mapped.getStatus());
+        NotificationStatusHistoryElementV28 mapped = result.get(0);
+        assertEquals(NotificationStatusV28.DELIVERED, mapped.getStatus());
         assertEquals(element.getActiveFrom(), mapped.getActiveFrom());
         assertEquals(element.getRelatedTimelineElements(), mapped.getRelatedTimelineElements());
     }
