@@ -42,6 +42,10 @@
     "WebhookFeatureFlags": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z,2019-01-01T00:00:00Z,2099-01-01T00:00:00Z",
     "pfNewWorkflowFeatureFlag": "2099-01-01T00:00:00Z,2099-02-01T00:00:00Z",
     "ActionLambdasEnabledStart": "1546300800000",
-    "ActionLambdasEnabledEnd": "1752075900000"
+    "ActionLambdasEnabledEnd": "1753173328000",
+    "EnableVpcForNotificationCancellationActionInsertLambda": "true",
+    "EnableWorkflowChannels": "false",
+    "OldWorkflowLambdasEnabledStart": "1753142400000",
+    "OldWorkflowLambdasEnabledEnd": "1753881000000"
     }
 }
