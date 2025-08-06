@@ -803,7 +803,7 @@ Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
   EnableWorkflowChannels: !Equals [ !Ref EnableWorkflowChannels, "true" ]
-  EnableValidatorChannels: !Equals [ !Ref ValidatorChannels, "true" ]
+  EnableValidatorChannels: !Equals [ !Ref EnableValidatorChannels, "true" ]
 
 Resources:
 

@@ -47,6 +47,6 @@
     "EnableWorkflowChannels": "false",
     "OldWorkflowLambdasEnabledStart": "1753142400000",
     "OldWorkflowLambdasEnabledEnd": "1753881000000",
-    "EnableValidatorChannels": "true"
+    "EnableValidatorChannels": "false"
     }
 }
