@@ -763,11 +763,11 @@ Parameters:
     Type: CommaDelimitedList
     Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
     Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
-  
+
   OldWorkflowLambdasEnabledStart:
     Type: String
     Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
-  
+
   OldWorkflowLambdasEnabledEnd:
     Type: String
     Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
@@ -777,6 +777,13 @@ Parameters:
     Default: ''
     Description: 'Applicative environment variable file checksum'
 
+  EnableValidatorChannels:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Enable or disable Validator Consumer"
+
   EnableVpcForNotificationCancellationActionInsertLambda:
     Type: String
     Default: 'false'
@@ -784,7 +791,7 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-  
+
   EnableWorkflowChannels:
     Type: String
     AllowedValues:
@@ -796,6 +803,8 @@ Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
   EnableWorkflowChannels: !Equals [ !Ref EnableWorkflowChannels, "true" ]
+  EnableValidatorChannels: !Equals [ !Ref EnableValidatorChannels, "true" ]
+
 Resources:
 
   # PN-Delivery-push microservice
@@ -992,7 +1001,11 @@ Resources:
         ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
         ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
         ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37: 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryNewNotificationEventConsumer;pnDeliveryPushValidationActionsInboundConsumer;pnSafeStorageEventInboundConsumer;pnAddressManagerEventInboundConsumer;pnF24EventInboundConsumer'
+        ContainerEnvEntry37:
+          Fn::If:
+            - EnableValidatorChannels
+            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryNewNotificationEventConsumer;pnDeliveryPushValidationActionsInboundConsumer;pnSafeStorageEventInboundConsumer;pnAddressManagerEventInboundConsumer;pnF24EventInboundConsumer'
+            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST='
         ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
         #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'

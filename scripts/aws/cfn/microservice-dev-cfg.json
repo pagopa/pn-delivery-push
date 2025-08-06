@@ -46,6 +46,7 @@
     "EnableVpcForNotificationCancellationActionInsertLambda": "true",
     "EnableWorkflowChannels": "false",
     "OldWorkflowLambdasEnabledStart": "1753142400000",
-    "OldWorkflowLambdasEnabledEnd": "1753881000000"
+    "OldWorkflowLambdasEnabledEnd": "1753881000000",
+    "EnableValidatorChannels": "false"
     }
 }
