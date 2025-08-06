@@ -274,7 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV28"
         '400':
           description: Invalid input
           content:
@@ -640,7 +640,7 @@ components:
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV27'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV28'
 
 
     ############################################################################################

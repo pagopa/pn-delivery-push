@@ -1,7 +1,11 @@
 
 components:
   schemas:
-    
+
+    ############################################################################################
+    ###                               Legal Facts Id                                         ###
+    ############################################################################################
+
     LegalFactsId:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
@@ -18,6 +22,26 @@ components:
         category:
           $ref: '#/components/schemas/LegalFactCategory'
 
+    LegalFactsIdV20:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di consegna
+          type: string
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+          maxLength: 512
+        category:
+          $ref: '#/components/schemas/LegalFactCategoryV20'
+
+    ############################################################################################
+    ###                               Legal Fact Category                                    ###
+    ############################################################################################
+
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
@@ -32,13 +56,49 @@ components:
         - RECIPIENT_ACCESS
         - PEC_RECEIPT
         - ANALOG_FAILURE_DELIVERY
-    
+
+    LegalFactCategoryV20:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a disposizione dei suoi utenti. <br/>
+          - SENDER_ACK  <br/>
+          - DIGITAL_DELIVERY  <br/>
+          - ANALOG_DELIVERY  <br/>
+          - RECIPIENT_ACCESS <br/>
+          - PEC_RECEIPT  <br/>
+          - ANALOG_FAILURE_DELIVERY  <br/>
+          - NOTIFICATION_CANCELLED  <br/>
+      type: string
+      enum:                       # NO EXTERNAL
+        - SENDER_ACK              # NO EXTERNAL
+        - DIGITAL_DELIVERY        # NO EXTERNAL
+        - ANALOG_DELIVERY         # NO EXTERNAL
+        - RECIPIENT_ACCESS        # NO EXTERNAL
+        - PEC_RECEIPT             # NO EXTERNAL
+        - ANALOG_FAILURE_DELIVERY # NO EXTERNAL
+        - NOTIFICATION_CANCELLED  # NO EXTERNAL
+
+    ############################################################################################
+    ###                               Legal Fact List                                        ###
+    ############################################################################################
+
     LegalFactList:
       title: Elenco atti opponibili
       description: Elenco degli atti opponibili a terzi correlati a una notifica
       type: array
       items:
         $ref: '#/components/schemas/LegalFactListElement'
+
+    LegalFactListV20:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElementV20'
+
+    ############################################################################################
+    ###                               Legal Fact List Element                                ###
+    ############################################################################################
 
     LegalFactListElement:
       description: Informazioni relative ad un atto opponibile a terzi
@@ -61,7 +121,29 @@ components:
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         legalFactsId:
           $ref: '#/components/schemas/LegalFactsId'
-    
+
+    LegalFactListElementV20:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+          minLength: 11
+          maxLength: 16
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsIdV20'
+
 
     ############################################################################################
     ###                           DOWNLOAD ATTI OPPONIBILI A TERZI                           ###

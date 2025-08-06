@@ -82,7 +82,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
                                   
-  '/delivery-push/v2.0/{iun}/legal-facts':
+  '/delivery-push/v2.8/{iun}/legal-facts':
     get:
       summary: Elenco atti opponibili a terzi
       description: >-
@@ -91,8 +91,8 @@ paths:
         <br/>
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFactsV20                                      # NO EXTERNAL
-#      operationId: retrieveNotificationLegalFactsV20                                # ONLY EXTERNAL
+      operationId: getNotificationLegalFactsV28                                      # NO EXTERNAL
+#      operationId: retrieveNotificationLegalFactsV28                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
@@ -106,7 +106,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV28"
         '400':
           description: Invalid input
           content:
