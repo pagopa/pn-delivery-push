@@ -22,5 +22,13 @@
             "key": "safestorage://example",
             "category": "NOTIFICATION_CANCELLED"
         }
+    },
+    {
+        "taxId": "ABCDEF12G76H557O",
+        "iun": "ABCD-EFGH-IJKL-123456-M-1",
+        "legalFactsId": {
+            "key": "safestorage://example2",
+            "category": "ANALOG_DELIVERY_TIMEOUT"
+        }
     }
 ]
