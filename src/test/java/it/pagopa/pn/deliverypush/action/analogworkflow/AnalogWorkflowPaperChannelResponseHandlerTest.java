@@ -416,12 +416,17 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
                 .build();
-
+        TimelineElementInternal sendAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().physicalAddress(new PhysicalAddressInt()).build())
+                .build();
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+        Mockito.when(paperChannelUtils.getSendRequestElementByPrepareRequestId(Mockito.anyString(), Mockito.anyString())).thenReturn(sendAnalogDomicileElement);
 
         // WHEN
         Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));
@@ -430,7 +435,7 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void paperChannelSendResponseHandler_success() {
+    void paperChannelSendResponseHandler_statusOK_success() {
         // GIVEN
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
@@ -443,12 +448,17 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
                 .build();
-
+        TimelineElementInternal sendAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().physicalAddress(new PhysicalAddressInt()).build())
+                .build();
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+        Mockito.when(paperChannelUtils.getSendRequestElementByPrepareRequestId(Mockito.anyString(), Mockito.anyString())).thenReturn(sendAnalogDomicileElement);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
@@ -466,7 +476,48 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void paperChannelSendResponseHandler_fail() {
+    void paperChannelSendResponseHandler_statusOK_fail() {
+        // GIVEN
+        SendEventInt sendEventInt = SendEventInt.builder()
+                .iun("IUN_01")
+                .statusDetail("004")
+                .statusCode(StatusCodeEnum.OK.getValue())
+                .statusDateTime(Instant.now())
+                .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
+                .requestId("IUN-01_abcd")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+        TimelineElementInternal sendAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().physicalAddress(new PhysicalAddressInt()).build())
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+        Mockito.when(paperChannelUtils.getSendRequestElementByPrepareRequestId(Mockito.anyString(), Mockito.anyString())).thenReturn(sendAnalogDomicileElement);
+        Mockito.when(analogWorkflowUtils.addSuccessAnalogFeedbackToTimeline(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenThrow(new PnInternalException("Test exception", "Test cause"));
+
+        PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
+        Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
+        Mockito.when(auditLogEvent.generateFailure(Mockito.anyString(), Mockito.any())).thenReturn(auditLogEvent);
+
+
+        // WHEN
+        Assertions.assertThrows(PnInternalException.class, () -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));
+
+        Mockito.verify( auditLogEvent).generateFailure(Mockito.anyString(), Mockito.any());
+        Mockito.verify( auditLogEvent).log();
+        Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess(Mockito.anyString(), Mockito.any());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void paperChannelSendResponseHandler_statusKO_success() {
         // GIVEN
         SendEventInt sendEventInt = SendEventInt.builder()
                 .iun("IUN_01")
@@ -479,12 +530,19 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
         NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        TimelineElementInternal sendAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().physicalAddress(new PhysicalAddressInt()).build())
                 .build();
 
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
         Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+        Mockito.when(paperChannelUtils.getSendRequestElementByPrepareRequestId(Mockito.anyString(), Mockito.anyString())).thenReturn(sendAnalogDomicileElement);
 
         PnAuditLogEvent auditLogEvent = Mockito.mock(PnAuditLogEvent.class);
         Mockito.when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_PD_EXECUTE_RECEIVE), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(auditLogEvent);
@@ -502,6 +560,32 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void paperChannelSendResponseHandler_fails_withoutStatusCode() {
+        // GIVEN
+        SendEventInt sendEventInt = SendEventInt.builder()
+                .iun("IUN_01")
+                .statusDetail("004")
+                .statusCode(null)
+                .statusDateTime(Instant.now())
+                .discoveredAddress(PhysicalAddressInt.builder().address("via casa").build())
+                .requestId("IUN-01_abcd")
+                .build();
+
+        NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
+        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+
+        // WHEN
+        Assertions.assertThrows(PnInternalException.class, () -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void paperChannelSendResponseHandlerWithAtt() {
         // GIVEN
         SendEventInt sendEventInt = SendEventInt.builder()
@@ -515,13 +599,20 @@ class AnalogWorkflowPaperChannelResponseHandlerTest {
                 .build();
 
         NotificationInt notificationInt = NotificationInt.builder().iun("IUN-01").build();
-        TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
+        TimelineElementInternal prepareAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("PREPARE_ANALOG_DOMICILE_001")
                 .details(SendAnalogDetailsInt.builder().sentAttemptMade(0).build())
+                .build();
+
+        TimelineElementInternal sendAnalogDomicileElement = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_DOMICILE_001")
+                .details(SendAnalogDetailsInt.builder().physicalAddress(new PhysicalAddressInt()).build())
                 .build();
 
 
         Mockito.when(notificationService.getNotificationByIun(Mockito.anyString())).thenReturn(notificationInt);
-        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(timelineElementInternal);
+        Mockito.when(paperChannelUtils.getPaperChannelNotificationTimelineElement(Mockito.anyString(), Mockito.anyString())).thenReturn(prepareAnalogDomicileElement);
+        Mockito.when(paperChannelUtils.getSendRequestElementByPrepareRequestId(Mockito.anyString(), Mockito.anyString())).thenReturn(sendAnalogDomicileElement);
 
         // WHEN
         Assertions.assertDoesNotThrow(() -> analogWorkflowPaperChannelResponseHandler.paperChannelSendResponseHandler(sendEventInt));

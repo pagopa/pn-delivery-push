@@ -94,11 +94,12 @@ async function startHandleEvent(event, context) {
         lastDestinationQueue = currentDestinationQueue;
         console.log('New lastDestinationQueue queue is ', lastDestinationQueue)
       }
-      
+
       actionToSend.push(action);
       lastActionType = currentActionType;
       console.log('New lastActionType queue is ', lastDestinationQueue)
       console.info('Handling action completed ', action.actionId)
+      
     }else{
       console.info('The record is not to send ', JSON.stringify(decodedRecord))
     }

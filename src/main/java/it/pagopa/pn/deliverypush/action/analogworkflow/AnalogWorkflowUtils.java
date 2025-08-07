@@ -9,9 +9,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.AttachmentDetailsInt;
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseAnalogDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.BaseRegisteredLetterDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -70,9 +68,9 @@ public class AnalogWorkflowUtils {
         return false;
     }
 
-    public String addAnalogFailureAttemptToTimeline(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
-                                                  BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogFailureAttemptTimelineElement(notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId);
+    public String addFailureAnalogFeedbackToTimeline(NotificationInt notification, int sentAttemptMade, List<AttachmentDetailsInt> attachments,
+                                                     BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildFailureAnalogFeedbackTimelineElement(notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId);
 
         addTimelineElement(timelineElementInternal,
                 notification);
@@ -99,9 +97,9 @@ public class AnalogWorkflowUtils {
                 notification);
     }
 
-    public String addAnalogSuccessAttemptToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
-                                                    BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
-        TimelineElementInternal timelineElementInternal = timelineUtils.buildAnalogSuccessAttemptTimelineElement(
+    public String addSuccessAnalogFeedbackToTimeline(NotificationInt notification, List<AttachmentDetailsInt> attachments,
+                                                     BaseAnalogDetailsInt sendPaperDetails, SendEventInt sendEventInt, String sendRequestId) {
+        TimelineElementInternal timelineElementInternal = timelineUtils.buildSuccessAnalogFeedbackTimelineElement(
                 notification,
                 attachments,
                 sendPaperDetails,
