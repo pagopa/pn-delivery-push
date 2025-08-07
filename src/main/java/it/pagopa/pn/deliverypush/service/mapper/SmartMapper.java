@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV28;
 import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
@@ -36,7 +36,7 @@ public class SmartMapper {
     private static String SERCQ_SEND = "send-self";
 
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV27> addressDetailPropertyMap = new PropertyMap<>() {
+    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV28> addressDetailPropertyMap = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getNewAddress());
@@ -45,7 +45,7 @@ public class SmartMapper {
     };
 
 
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV27> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
+    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV28> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
         @Override
         protected void configure() {
             skip(destination.getPhysicalAddress());
@@ -75,29 +75,29 @@ public class SmartMapper {
 
         List<BiFunction> postMappingTransformers = new ArrayList<>();
         postMappingTransformers.add( (source, result)-> {
-            if (source instanceof TimelineElementDetailsInt && !(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27 resultCast){
+            if (source instanceof TimelineElementDetailsInt && !(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV28 resultCast){
                 resultCast.setNotRefinedRecipientIndexes(null);
             }
-            if (source instanceof TimelineElementDetailsInt && !(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27 resultCast){
+            if (source instanceof TimelineElementDetailsInt && !(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV28 resultCast){
                 resultCast.setRecIndexes(null);
             }
 
             /*
                 Le successive condizioni sono state aggiunte per gestire la conversione tra gli oggetti di TimelineElementDetails
-                e TimelineElementDetailsV27, nell'ambito dell'API di history di delivery-push. Riprendono lo spirito delle
+                e TimelineElementDetailsV28, nell'ambito dell'API di history di delivery-push. Riprendono lo spirito delle
                 precedenti condizioni, ma a causa della differenza di implementazione richiedono un trattamento diverso.
                 E' necessario settare a null sull'oggetto result i campi notRefinedRecipientIndexes e recIndexes poichè
                 essendo attributi required sull'openapi (schemas-pn-timeline.yaml) nei rispettivi schemi di details
                 (PublicRegistryValidationCallDetails e NotificationCancelledDetails), la classe generata che li contiene
-                (TimelineElementDetailsV27) cerca sempre di istanziarli come liste vuote, anche quando non sono previsti.
+                (TimelineElementDetailsV28) cerca sempre di istanziarli come liste vuote, anche quando non sono previsti.
                 In questo modo vengono rimappati a null per tutti gli elementi di timeline che non sono di tipo
                 PUBLIC_REGISTRY_VALIDATION_CALL o NOTIFICATION_CANCELLED, cioè gli unici per i quali ha senso impostare questi 2 campi.
             */
 
-            if(source instanceof TimelineElementDetails details && !details.getCategoryType().equals("NOTIFICATION_CANCELLED") && result instanceof TimelineElementDetailsV27 resultCast) {
+            if(source instanceof TimelineElementDetails details && !details.getCategoryType().equals("NOTIFICATION_CANCELLED") && result instanceof TimelineElementDetailsV28 resultCast) {
                 resultCast.setNotRefinedRecipientIndexes(null);
             }
-            if(source instanceof TimelineElementDetails details && !details.getCategoryType().equals("PUBLIC_REGISTRY_VALIDATION_CALL") && result instanceof TimelineElementDetailsV27 resultCast) {
+            if(source instanceof TimelineElementDetails details && !details.getCategoryType().equals("PUBLIC_REGISTRY_VALIDATION_CALL") && result instanceof TimelineElementDetailsV28 resultCast) {
                 resultCast.setRecIndexes(null);
             }
 

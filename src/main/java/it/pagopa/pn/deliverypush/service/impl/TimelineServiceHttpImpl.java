@@ -12,7 +12,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElementDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -155,7 +155,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
     }
 
     private boolean isPublicElement(String elementCategory) {
-        return Arrays.stream(TimelineElementCategoryV27.values())
+        return Arrays.stream(TimelineElementCategoryV28.values())
                 .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
     }
 

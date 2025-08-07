@@ -30,7 +30,7 @@ class PnLegalFactsControllerTest {
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     private static final String MANDATE_ID = "4fd712cd-8751-48ba-9f8c-471815146896";
     private static final String LEGAL_FACT_ID = "legal_fact_id";
-    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.0";
+    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.8";
 
     @Autowired
     WebTestClient webTestClient;
@@ -41,11 +41,11 @@ class PnLegalFactsControllerTest {
 
     @Test
     void getNotificationLegalFactsSuccess() {
-        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
+        List<LegalFactListElementV28> legalFactsList = Collections.singletonList(LegalFactListElementV28.builder()
                 .iun(IUN)
                 .taxId("taxId")
-                .legalFactsId(LegalFactsIdV20.builder()
-                        .category(LegalFactCategoryV20.SENDER_ACK)
+                .legalFactsId(LegalFactsIdV28.builder()
+                        .category(LegalFactCategoryV28.SENDER_ACK)
                         .key("key")
                         .build()
                 ).build()

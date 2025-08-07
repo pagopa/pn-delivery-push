@@ -33,7 +33,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 })
 @WebFluxTest
 class PnLegalFactsControllerTestIT {
-    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.0";
+    public static final String GET_NOTIFICATION_LEGALFACT_VERSION = "v2.8";
 
     @org.springframework.boot.test.context.TestConfiguration
     static class SpringTestConfiguration extends it.pagopa.pn.deliverypush.rest.it.TestConfiguration {

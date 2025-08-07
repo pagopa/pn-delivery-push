@@ -274,7 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20"
+                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV28"
         '400':
           description: Invalid input
           content:
@@ -632,15 +632,15 @@ components:
       type: object
       properties:
         notificationStatus:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV28'
         notificationStatusHistory:
-          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV28'
         timeline:
           description: >-
             elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
           type: array
           items:
-            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV27'
+            $ref: './schemas-pn-timeline.yaml#/components/schemas/TimelineElementV28'
 
 
     ############################################################################################

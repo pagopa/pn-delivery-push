@@ -38,11 +38,11 @@ class PnPrivateLegalFactsControllerTest {
     private TimelineUtils timelineUtils;
     @Test
     void getNotificationLegalFactsSuccess() {
-        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
+        List<LegalFactListElementV28> legalFactsList = Collections.singletonList(LegalFactListElementV28.builder()
                 .iun(IUN)
                 .taxId("taxId")
-                .legalFactsId(LegalFactsIdV20.builder()
-                        .category(LegalFactCategoryV20.SENDER_ACK)
+                .legalFactsId(LegalFactsIdV28.builder()
+                        .category(LegalFactCategoryV28.SENDER_ACK)
                         .key("key")
                         .build()
                 ).build()
@@ -93,11 +93,11 @@ class PnPrivateLegalFactsControllerTest {
     void getNotificationLegalFactsCancelledPA() {
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
-        List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
+        List<LegalFactListElementV28> legalFactsList = Collections.singletonList(LegalFactListElementV28.builder()
             .iun(IUN)
             .taxId("taxId")
-            .legalFactsId(LegalFactsIdV20.builder()
-                .category(LegalFactCategoryV20.SENDER_ACK)
+            .legalFactsId(LegalFactsIdV28.builder()
+                .category(LegalFactCategoryV28.SENDER_ACK)
                 .key("key")
                 .build()
             ).build()
