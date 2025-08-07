@@ -10,7 +10,8 @@ const {
   isAfterEq,
   isEqStr,
   isAfterEqStr,
-  isAfterStr
+  isAfterStr,
+  convertFromEpochToIsoDateTime
 } = require("../app/timeHelper");
 
 const { InvalidDateException } = require("../app/exceptions");
@@ -155,5 +156,24 @@ describe("Test Time Functions 1", () => {
     const dateStr1 = "2024-12-01T12:02:00Z";
     const res = isEqStr(dateStr, dateStr1);
     expect(res).to.be.equal(false);
+  });
+
+  it("convertFromEpochToIsoDateTime: valid epoch number", () => {
+    const epoch = 1752066000000; // Example epoch time
+    const expectedDateTime = "2025-07-09T13:00:00.000Z"; // Expected ISO string
+    const converted = convertFromEpochToIsoDateTime(epoch);
+    expect(converted).to.equal(expectedDateTime);
+  });
+
+  it("convertFromEpochToIsoDateTime: valid epoch string", () => {
+    const epoch = "1707742800000"; // Example epoch time
+    const expectedDateTime = "2024-02-12T13:00:00.000Z"; // Expected ISO string
+    const converted = convertFromEpochToIsoDateTime(epoch);
+    expect(converted).to.equal(expectedDateTime);
+  });
+
+  it("convertFromEpochToIsoDateTime: invalid epoch", () => {
+    const epoch = "invalid-epoch"; // Invalid epoch time
+    expect(() => convertFromEpochToIsoDateTime(epoch)).to.throw(InvalidDateException);
   });
 });

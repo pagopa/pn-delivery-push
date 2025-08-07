@@ -50,7 +50,7 @@ const testOverride = (
         timeslot.lastWorkedTimeslot = newTime,
       getActionsByTimeSlot: async (
         _unused1,
-        timeSlot,
+        { timeSlot, _sub_unused1, _sub_unused2 },
         _unused2
       ) => {
         let dataSet;

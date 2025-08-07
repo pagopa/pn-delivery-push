@@ -1,10 +1,5 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
-import static it.pagopa.pn.deliverypush.utils.StatusUtils.COMPLETED_DELIVERY_WORKFLOW_CATEGORY;
-
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
@@ -19,19 +14,9 @@ import it.pagopa.pn.deliverypush.dto.ext.datavault.ConfidentialTimelineElementDt
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusHistoryElementInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.status.NotificationStatusInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.CourtesyAddressRelatedTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DigitalAddressRelatedTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NewAddressRelatedTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PersonalInformationRelatedTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.PhysicalAddressRelatedTimelineElement;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
@@ -49,12 +34,6 @@ import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineElementMapper;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
 import it.pagopa.pn.deliverypush.utils.StatusUtils;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockConfiguration;
@@ -63,6 +42,15 @@ import net.javacrumbs.shedlock.core.SimpleLock;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
+import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
+import static it.pagopa.pn.deliverypush.utils.StatusUtils.COMPLETED_DELIVERY_WORKFLOW_CATEGORY;
 
 @Service
 @Slf4j
@@ -318,18 +306,14 @@ public class TimeLineServiceImpl implements TimelineService {
             Optional<Map<String, ConfidentialTimelineElementDtoInt>> mapConfOtp;
             mapConfOtp = confidentialInformationService.getTimelineConfidentialInformation(iun);
 
-            if (mapConfOtp.isPresent()) {
-                Map<String, ConfidentialTimelineElementDtoInt> mapConf = mapConfOtp.get();
-
-                setTimelineElements.forEach(
-                        timelineElementInt -> {
-                            ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
-                            if (dtoInt != null) {
-                                enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
-                            }
+            mapConfOtp.ifPresent(mapConf -> setTimelineElements.forEach(
+                    timelineElementInt -> {
+                        ConfidentialTimelineElementDtoInt dtoInt = mapConf.get(timelineElementInt.getElementId());
+                        if (dtoInt != null) {
+                            enrichTimelineElementWithConfidentialInformation(timelineElementInt.getDetails(), dtoInt);
                         }
-                );
-            }
+                    }
+            ));
         }
     }
 
@@ -353,10 +337,7 @@ public class TimeLineServiceImpl implements TimelineService {
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
 
-        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true)
-                .stream()
-                .filter(this::isNotDiagnosticTimelineElement)
-                .collect(Collectors.toSet());
+        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
 
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory(timelineElements, numberOfRecipients, createdAt);
@@ -384,19 +365,14 @@ public class TimeLineServiceImpl implements TimelineService {
             }
         }
 
-        if (inValidationStatusActiveFromOpt.isPresent()) {
-
-            //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
-            Instant inValidationStatusActiveFrom = inValidationStatusActiveFromOpt.get();
-
-            statusHistory.stream()
-                    .filter(
-                            statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals(statusHistoryElement.getStatus())
-                    ).findFirst()
-                    .ifPresent(
-                            el -> el.setActiveFrom(inValidationStatusActiveFrom)
-                    );
-        }
+        //Viene sostituito il campo ActiveFrom dell'elemento ACCEPTED con quella dell'elemento eliminato IN_VALIDATION
+        inValidationStatusActiveFromOpt.ifPresent(inValidationStatusActiveFrom -> statusHistory.stream()
+                .filter(
+                        statusHistoryElement -> NotificationStatusInt.ACCEPTED.equals(statusHistoryElement.getStatus())
+                ).findFirst()
+                .ifPresent(
+                        el -> el.setActiveFrom(inValidationStatusActiveFrom)
+                ));
     }
 
     private NotificationHistoryResponse createResponse(Set<TimelineElementInternal> timelineElements, List<NotificationStatusHistoryElementInt> statusHistory,
@@ -405,6 +381,7 @@ public class TimeLineServiceImpl implements TimelineService {
         var timelineList = timelineElements.stream()
                 .map(t -> smartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
+                .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)
                 .toList();
 
@@ -427,15 +404,6 @@ public class TimeLineServiceImpl implements TimelineService {
         return Arrays.stream(TimelineElementCategoryV27.values())
                 .anyMatch(TimelineElementCategoryV26 -> TimelineElementCategoryV26.getValue().equalsIgnoreCase(internalCategory));
 
-    }
-
-    @Override
-    public boolean isPresentTimeLineElement(String iun, Integer recIndex, TimelineEventId timelineEventId) {
-        EventId eventId = EventId.builder()
-                .iun(iun)
-                .recIndex(recIndex)
-                .build();
-        return this.timelineDao.getTimelineElement(iun, timelineEventId.buildEventId(eventId)).isPresent();
     }
 
     @Override
@@ -466,15 +434,14 @@ public class TimeLineServiceImpl implements TimelineService {
         throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
-    @Override
-    public void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
+    private void enrichTimelineElementWithConfidentialInformation(TimelineElementDetailsInt details,
                                                                  ConfidentialTimelineElementDtoInt confidentialDto) {
 
         if (details instanceof CourtesyAddressRelatedTimelineElement courtesyAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
             CourtesyDigitalAddressInt address = courtesyAddressRelatedTimelineElement.getDigitalAddress();
 
             address = getCourtesyDigitalAddress(confidentialDto, address);
-            ((CourtesyAddressRelatedTimelineElement) details).setDigitalAddress(address);
+            courtesyAddressRelatedTimelineElement.setDigitalAddress(address);
         }
 
         if (details instanceof DigitalAddressRelatedTimelineElement digitalAddressRelatedTimelineElement && confidentialDto.getDigitalAddress() != null) {
@@ -483,7 +450,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             address = getDigitalAddress(confidentialDto, address);
 
-            ((DigitalAddressRelatedTimelineElement) details).setDigitalAddress(address);
+            digitalAddressRelatedTimelineElement.setDigitalAddress(address);
         }
 
         if (details instanceof PhysicalAddressRelatedTimelineElement physicalAddressRelatedTimelineElement && confidentialDto.getPhysicalAddress() != null) {
@@ -491,7 +458,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             physicalAddress = getPhysicalAddress(physicalAddress, confidentialDto.getPhysicalAddress());
 
-            ((PhysicalAddressRelatedTimelineElement) details).setPhysicalAddress(physicalAddress);
+            physicalAddressRelatedTimelineElement.setPhysicalAddress(physicalAddress);
         }
 
         if (details instanceof NewAddressRelatedTimelineElement newAddressRelatedTimelineElement && confidentialDto.getNewPhysicalAddress() != null) {
@@ -500,7 +467,7 @@ public class TimeLineServiceImpl implements TimelineService {
 
             newAddress = getPhysicalAddress(newAddress, confidentialDto.getNewPhysicalAddress());
 
-            ((NewAddressRelatedTimelineElement) details).setNewAddress(newAddress);
+            newAddressRelatedTimelineElement.setNewAddress(newAddress);
         }
 
         if (details instanceof PersonalInformationRelatedTimelineElement personalInformationRelatedTimelineElement) {

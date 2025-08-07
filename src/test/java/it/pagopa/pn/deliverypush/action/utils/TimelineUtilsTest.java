@@ -12,7 +12,6 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.CategorizedAttachmentsResu
 import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendEventInt;
 import it.pagopa.pn.deliverypush.dto.ext.publicregistry.NationalRegistriesResponse;
 import it.pagopa.pn.deliverypush.dto.io.IoSendMessageResultInt;
-import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.mandate.DelegateInfoInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
@@ -383,10 +382,6 @@ class TimelineUtilsTest {
     void buildFailureAnalogWorkflowTimelineElement() {
         NotificationInt notification = buildNotification();
         Integer recIndex = 1;
-        List<LegalFactsIdInt> attachments = Collections.singletonList(LegalFactsIdInt.builder()
-                .category(LegalFactCategoryInt.ANALOG_DELIVERY)
-                .key("key")
-                .build());
         String timelineEventIdExpected = "ANALOG_FAILURE_WORKFLOW#IUN_Example_IUN_1234_Test#RECINDEX_1".replace("#", TimelineEventIdBuilder.DELIMITER);
 
         TimelineElementInternal actual = timelineUtils.buildFailureAnalogWorkflowTimelineElement(
@@ -449,7 +444,7 @@ class TimelineUtilsTest {
     }
 
     @Test
-    void buildAnalogFailureAttemptTimelineElement() {
+    void buildFailureAnalogFeedbackTimelineElement() {
         NotificationInt notification = buildNotification();
         int sentAttemptMade = 1;
         List<AttachmentDetailsInt> attachments = new ArrayList<>();
@@ -466,7 +461,7 @@ class TimelineUtilsTest {
 
         final String sendRequestId = "send_request_id";
 
-        TimelineElementInternal actual = timelineUtils.buildAnalogFailureAttemptTimelineElement(
+        TimelineElementInternal actual = timelineUtils.buildFailureAnalogFeedbackTimelineElement(
                 notification, sentAttemptMade, attachments, sendPaperDetails, sendEventInt, sendRequestId
         );
 

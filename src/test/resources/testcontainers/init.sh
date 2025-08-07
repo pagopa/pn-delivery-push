@@ -2,7 +2,7 @@
 
 echo "### CREATE QUEUES ###"
 
-queues="local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res local-address-manager-to-delivery-push"
+queues="local-delivery-push-safestorage-inputs local-delivery-push-actions local-ext-channels-inputs local-ext-channels-outputs local-delivery-push-actions-done local-ext-channels-elab-res local-address-manager-to-delivery-push local-delivery-push-validation-inputs local-delivery-push-validation-actions"
 
 for qn in  $( echo $queues | tr " " "\n" ) ; do
 
