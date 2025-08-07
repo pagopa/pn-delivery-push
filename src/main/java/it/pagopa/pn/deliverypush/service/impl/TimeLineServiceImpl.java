@@ -46,6 +46,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_ADDTIMELINEFAILED;
@@ -337,7 +338,10 @@ public class TimeLineServiceImpl implements TimelineService {
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("getTimelineAndStatusHistory Start - iun={} ", iun);
 
-        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true);
+        Set<TimelineElementInternal> timelineElements = getTimeline(iun, true)
+                .stream()
+                .filter(this::isNotDiagnosticTimelineElement)
+                .collect(Collectors.toSet());
 
         List<NotificationStatusHistoryElementInt> statusHistory = statusUtils
                 .getStatusHistory(timelineElements, numberOfRecipients, createdAt);
@@ -381,7 +385,6 @@ public class TimeLineServiceImpl implements TimelineService {
         var timelineList = timelineElements.stream()
                 .map(t -> smartMapper.mapTimelineInternal(t, timelineElements)) // rimappo su se stessa, per sistemare eventuali campi interni
                 .sorted(Comparator.naturalOrder())
-                .filter(this::isNotDiagnosticTimelineElement)
                 .map(TimelineElementMapper::internalToExternal)
                 .toList();
 
