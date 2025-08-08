@@ -94,6 +94,7 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     private CourtesyDigitalAddressInt buildTppCourtesy() {
         return CourtesyDigitalAddressInt.builder()
+                .address("APP")
                 .type(CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT.TPP)
                 .build();
 
