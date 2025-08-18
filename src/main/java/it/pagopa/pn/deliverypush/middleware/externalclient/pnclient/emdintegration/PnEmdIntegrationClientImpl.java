@@ -16,12 +16,12 @@ public class PnEmdIntegrationClientImpl extends CommonBaseClient implements PnEm
     private final MessageApi messageApi;
 
     public SendMessageResponse sendMessage(SendMessageRequestBody sendMessageRequest) {
-        log.logInvokingExternalDownstreamService(CLIENT_NAME, SEND_MESSAGE);
+        log.logInvokingExternalService(CLIENT_NAME, SEND_MESSAGE);
         try {
             return messageApi.sendMessage(sendMessageRequest)
                     .block();
         } catch (Exception e) {
-            log.logInvokationResultDownstreamFailed("Error sending message to EMD, fallback with NO_CHANNELS_ENABLED", e.getMessage());
+            log.error("Error sending message to EMD, fallback with NO_CHANNELS_ENABLED, message={}", e.getMessage());
             SendMessageResponse response = new SendMessageResponse();
             response.setOutcome(SendMessageResponse.OutcomeEnum.NO_CHANNELS_ENABLED);
             return response;
