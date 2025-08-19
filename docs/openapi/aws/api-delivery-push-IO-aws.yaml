@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Zj+gBQuBvM1NuCQNxn66wRBKWnPe1LKNcmrfOtaissg=
+  version: 1xDk0cdtvmXyqqF10MzA4DwHY1RqjBvwj/jdx+MfB/g=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -82,7 +82,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.0/{iun}/legal-facts:
+  /v2.8/{iun}/legal-facts:
     get:
       summary: Elenco atti opponibili a terzi
       description: >-
@@ -90,7 +90,7 @@ paths:
         a terzi  registrati durante il processo di notifica. <br/>
       tags:
         - LegalFacts
-      operationId: retrieveNotificationLegalFactsV20
+      operationId: retrieveNotificationLegalFactsV28
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -100,7 +100,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LegalFactListV20'
+                $ref: '#/components/schemas/LegalFactListV28'
         '400':
           description: Invalid input
           content:
@@ -124,7 +124,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/{iun}/legal-facts
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.8/{iun}/legal-facts
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -142,10 +142,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.0/{iun}/legal-facts API CORS
+      operationId: Options for /v2.8/{iun}/legal-facts API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/{iun}/legal-facts
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.8/{iun}/legal-facts
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -439,6 +439,67 @@ paths:
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
         type: aws_proxy
+  /v2.0/{iun}/legal-facts:
+    get:
+      deprecated: true
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili
+        a terzi  registrati durante il processo di notifica. <br/>
+      tags:
+        - LegalFacts
+      operationId: retrieveNotificationLegalFactsV20
+      x-pagopa-lambda-name: pn-versioningGetNotificationLegalFactsLambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactListV20'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-versioningGetNotificationLegalFactsLambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
 components:
   parameters:
     legalFactsSearchMandateId:
@@ -598,7 +659,7 @@ components:
       required:
         - status
         - errors
-    LegalFactCategoryV20:
+    LegalFactCategoryV28:
       title: Tipi di atti opponibili a terzi
       description: >-
         Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
@@ -610,8 +671,9 @@ components:
           - PEC_RECEIPT  <br/>
           - ANALOG_FAILURE_DELIVERY  <br/>
           - NOTIFICATION_CANCELLED  <br/>
+          - ANALOG_DELIVERY_TIMEOUT <br/>
       type: string
-    LegalFactsIdV20:
+    LegalFactsIdV28:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
       required:
@@ -626,8 +688,8 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
-          $ref: '#/components/schemas/LegalFactCategoryV20'
-    LegalFactListElementV20:
+          $ref: '#/components/schemas/LegalFactCategoryV28'
+    LegalFactListElementV28:
       description: Informazioni relative ad un atto opponibile a terzi
       type: object
       required:
@@ -647,13 +709,13 @@ components:
           maxLength: 25
           pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         legalFactsId:
-          $ref: '#/components/schemas/LegalFactsIdV20'
-    LegalFactListV20:
+          $ref: '#/components/schemas/LegalFactsIdV28'
+    LegalFactListV28:
       title: Elenco atti opponibili
       description: Elenco degli atti opponibili a terzi correlati a una notifica
       type: array
       items:
-        $ref: '#/components/schemas/LegalFactListElementV20'
+        $ref: '#/components/schemas/LegalFactListElementV28'
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
@@ -780,6 +842,62 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/LegalFactListElement'
+    LegalFactCategoryV20:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti. <br/>
+          - SENDER_ACK  <br/>
+          - DIGITAL_DELIVERY  <br/>
+          - ANALOG_DELIVERY  <br/>
+          - RECIPIENT_ACCESS <br/>
+          - PEC_RECEIPT  <br/>
+          - ANALOG_FAILURE_DELIVERY  <br/>
+          - NOTIFICATION_CANCELLED  <br/>
+      type: string
+    LegalFactsIdV20:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
+          type: string
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+          maxLength: 512
+        category:
+          $ref: '#/components/schemas/LegalFactCategoryV20'
+    LegalFactListElementV20:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+          minLength: 11
+          maxLength: 16
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsIdV20'
+    LegalFactListV20:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElementV20'
   responses: {}
   securitySchemes:
     api_key_openapi:
