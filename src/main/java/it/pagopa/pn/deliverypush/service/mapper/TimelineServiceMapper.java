@@ -57,20 +57,20 @@ public class TimelineServiceMapper {
         return it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.builder()
                 .notificationStatus(getNotificationStatusV26(source))
                 .notificationStatusHistory(getNotificationStatusHistoryElementV26List(source))
-                .timeline(getTimelineElementV27List(source))
+                .timeline(getTimelineElementV28List(source))
                 .build();
     }
 
-    private static List<TimelineElementV27> getTimelineElementV27List(NotificationHistoryResponse source) {
-        List<TimelineElementV27> timeline = null;
+    private static List<TimelineElementV28> getTimelineElementV28List(NotificationHistoryResponse source) {
+        List<TimelineElementV28> timeline = null;
         if (source.getTimeline() != null) {
             timeline = source.getTimeline().stream()
-                    .map(item -> TimelineElementV27.builder()
+                    .map(item -> TimelineElementV28.builder()
                             .elementId(item.getElementId())
                             .timestamp(item.getTimestamp())
-                            .legalFactsIds(item.getLegalFactsIds() != null ? toLegalFactsIdV20List(item.getLegalFactsIds()) : null)
-                            .category(TimelineElementCategoryV27.valueOf(item.getCategory().getValue()))
-                            .details(toTimelineElementDetailsV27(item.getDetails()))
+                            .legalFactsIds(item.getLegalFactsIds() != null ? toLegalFactsIdV28List(item.getLegalFactsIds()) : null)
+                            .category(TimelineElementCategoryV28.valueOf(item.getCategory().getValue()))
+                            .details(toTimelineElementDetailsV28(item.getDetails()))
                             .notificationSentAt(item.getNotificationSentAt())
                             .ingestionTimestamp(item.getIngestionTimestamp())
                             .eventTimestamp(item.getEventTimestamp())
@@ -149,7 +149,7 @@ public class TimelineServiceMapper {
                 .toList();
     }
 
-    private static List<LegalFactsIdV20> toLegalFactsIdV20List(List<LegalFactsId> legalFactsIdList) {
+    private static List<LegalFactsIdV28> toLegalFactsIdV28List(List<LegalFactsId> legalFactsIdList) {
         if (legalFactsIdList.isEmpty()) {
             return Collections.emptyList();
         }
@@ -157,9 +157,9 @@ public class TimelineServiceMapper {
         return legalFactsIdList.stream()
                 .map(legalFactsId -> {
                     assert legalFactsId.getCategory() != null;
-                    return LegalFactsIdV20.builder()
+                    return LegalFactsIdV28.builder()
                             .key(legalFactsId.getKey())
-                            .category(LegalFactCategoryV20.valueOf(legalFactsId.getCategory().getValue()))
+                            .category(LegalFactCategoryV28.valueOf(legalFactsId.getCategory().getValue()))
                             .build();
                 })
                 .toList();
@@ -179,8 +179,8 @@ public class TimelineServiceMapper {
         return SmartMapper.mapToClass(details, category.getDetailsJavaClass());
     }
 
-    private static TimelineElementDetailsV27 toTimelineElementDetailsV27(TimelineElementDetails details) {
-        return SmartMapper.mapToClass(details, TimelineElementDetailsV27.class);
+    private static TimelineElementDetailsV28 toTimelineElementDetailsV28(TimelineElementDetails details) {
+        return SmartMapper.mapToClass(details, TimelineElementDetailsV28.class);
     }
 
     private static StatusInfoInternal toStatusInfoInternal(StatusInfo statusInfo) {

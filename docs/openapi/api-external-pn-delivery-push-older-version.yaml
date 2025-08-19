@@ -78,6 +78,48 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  '/delivery-push/v2.0/{iun}/legal-facts':
+    get:
+      deprecated: true
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili a terzi 
+        registrati durante il processo di notifica.
+        <br/>
+      tags:
+        - LegalFacts
+      operationId: retrieveNotificationLegalFactsV20                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: 'pn-versioningGetNotificationLegalFactsLambda:live'
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas-pn-legal-facts-older-version.yaml#/components/schemas/LegalFactListV20"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
 components:
   parameters:
     ############################################################################################
