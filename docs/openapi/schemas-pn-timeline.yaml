@@ -58,6 +58,9 @@ components:
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
 #   * `GENERATE_F24_REQUEST` - Invio della richiesta di generazione degli F24 presenti nella richiesta di notifica con costo base # NO EXTERNAL
 #   * `GENERATED_F24` - F24 generati # NO EXTERNAL
+#   * `SEND_ANALOG_TIMEOUT_CREATION_REQUEST` - Richiesta di creazione atto opponibile per notifiche sprovviste di esito di consegna cartacea nell' intervallo temporale stabilito  # NO EXTERNAL
+#   * `SEND_ANALOG_TIMEOUT` - Mancata ricezione di un esito per il tentativo di consegna analogico nell'intervallo temporale stabilito  # NO EXTERNAL
+#   * `ANALOG_FAILURE_WORKFLOW_TIMEOUT` - Completato con fallimento il workflow di invio cartaceo per l'assenza di esiti per ogni tentativo di spedizione nell'intervallo temporale stabilito  # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
