@@ -923,7 +923,7 @@
 								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
 							</typeMappings>
 							<inputSpec>
-								https://raw.githubusercontent.com/pagopa/pn-timeline-service/12d51061ce088a0bfdd0d7b7102d9978d43c0f4f/docs/openapi/pn-timeline-service-private.yaml
+								https://raw.githubusercontent.com/pagopa/pn-timeline-service/3507fc7ef2c651ce9a206cb4eda068dbb5656e8a/docs/openapi/pn-timeline-service-private.yaml
 							</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
