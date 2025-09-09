@@ -14,7 +14,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotifica
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.utils.StatusUtils;
+
 import java.time.Instant;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,8 +34,6 @@ class NotificationViewedRequestHandlerTest {
     @Mock
     private TimelineService timelineService;
     @Mock
-    private StatusUtils statusUtils;
-    @Mock
     private ViewNotification viewNotification;
     @Mock
     private PaperNotificationFailedService paperNotificationFailedService;
@@ -47,7 +45,7 @@ class NotificationViewedRequestHandlerTest {
         NotificationUtils notificationUtils = new NotificationUtils();
 
         handler = new NotificationViewedRequestHandler(timelineService, notificationService,
-                timelineUtils, statusUtils, notificationUtils, viewNotification, paperNotificationFailedService);
+                timelineUtils, notificationUtils, viewNotification, paperNotificationFailedService);
     }
 
 

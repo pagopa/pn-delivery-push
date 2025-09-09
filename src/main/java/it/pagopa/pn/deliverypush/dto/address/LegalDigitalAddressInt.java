@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class LegalDigitalAddressInt extends DigitalAddressInt{
     
+    @Getter
     public enum LEGAL_DIGITAL_ADDRESS_TYPE{
         PEC("PEC"),
         SERCQ("SERCQ");
@@ -19,10 +20,6 @@ public class LegalDigitalAddressInt extends DigitalAddressInt{
 
         LEGAL_DIGITAL_ADDRESS_TYPE(String value) {
             this.value = value;
-        }
-
-        public String getValue() {
-            return value;
         }
 
         @Override

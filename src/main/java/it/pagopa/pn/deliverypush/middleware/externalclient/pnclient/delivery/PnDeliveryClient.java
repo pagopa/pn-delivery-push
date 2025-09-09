@@ -12,5 +12,4 @@ public interface PnDeliveryClient {
     String GET_QUICK_ACCESS_TOKEN = "GET QUICK ACCESS TOKEN";
 
     SentNotificationV25 getSentNotification(String iun);
-    Map<String, String> getQuickAccessLinkTokensPrivate(String iun);
 }

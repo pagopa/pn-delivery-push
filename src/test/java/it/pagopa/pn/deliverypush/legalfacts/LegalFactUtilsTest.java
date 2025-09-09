@@ -17,13 +17,12 @@ import static org.mockito.Mockito.when;
 
 class LegalFactUtilsTest {
     private SaveLegalFactsServiceImpl legalFactsService;
-    private LegalFactGenerator pdfUtils;
     private SafeStorageService safeStorageService;
 
 
     @BeforeEach
     public void setup() {
-        pdfUtils = Mockito.mock(LegalFactGenerator.class);
+        LegalFactGenerator pdfUtils = Mockito.mock(LegalFactGenerator.class);
         safeStorageService = Mockito.mock(SafeStorageServiceImpl.class);
         legalFactsService = new SaveLegalFactsServiceImpl(
                 pdfUtils,
@@ -34,8 +33,6 @@ class LegalFactUtilsTest {
     @Test
     void successSaveLegalFact() {
 
-        String iun = "TestIun1";
-        String legalFactName = "TestLegalFact";
         byte[] legalFact = new byte[]{77, 97, 114, 121};
         int expectedBodyLength = legalFact.length;
 
@@ -63,11 +60,6 @@ class LegalFactUtilsTest {
 
     @Test
     void onceWriterTest() {
-
-        String iun1 = "Test_iun1";
-        String iun2 = "Test_iun2";
-        String legalFactName = "TestLegalFact";
-
         byte[] legalFact1 = new byte[]{77, 97, 114, 121};
         byte[] legalFact2 = new byte[]{77, 97, 114, 122};
 

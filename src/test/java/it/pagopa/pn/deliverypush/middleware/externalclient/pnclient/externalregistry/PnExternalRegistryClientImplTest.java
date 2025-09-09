@@ -14,9 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 class PnExternalRegistryClientImplTest {
-    
-    @Mock
-    private SendIoMessageApi sendIoMessageApi;
 
     @Mock
     private RootSenderIdApi rootSenderIdApi;
@@ -25,24 +22,9 @@ class PnExternalRegistryClientImplTest {
 
     @BeforeEach
     void setup() {
-        client = new PnExternalRegistryClientImpl(sendIoMessageApi,rootSenderIdApi);
+        client = new PnExternalRegistryClientImpl(rootSenderIdApi);
     }
 
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void sendIOMessage() {
-
-        SendMessageRequest request = new SendMessageRequest();
-        request.setIun("001");
-
-        SendMessageResponse response = new SendMessageResponse();
-        response.setId("001");
-        
-        Mockito.when(sendIoMessageApi.sendIOMessageWithHttpInfo(request)).thenReturn(ResponseEntity.ok(response));
-
-        SendMessageResponse resp = client.sendIOMessage(request);
-
-        Assertions.assertEquals("001", resp.getId());
-    }
+    //Todo: fare test per getRootSenderId
 
 }

@@ -5,94 +5,23 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecip
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TimelineServiceMapperTest {
-
-    @Test
-    void toTimelineElementDetailsInt() {
-        TimelineElementDetails details = new TimelineElementDetails()
-                .categoryType("TEST_CATEGORY")
-                .legalFactId("LF123")
-                .recIndex(5)
-                .notificationRequestId("REQ123")
-                .paProtocolNumber("PROT456")
-                .idempotenceToken("TOKEN789")
-                .generatedAarUrl("http://test/aar")
-                .completionWorkflowDate(Instant.now())
-                .legalFactGenerationDate(Instant.now())
-                .isAvailable(true)
-                .attemptDate(Instant.now())
-                .eventTimestamp(Instant.now())
-                .raddType("FSU")
-                .raddTransactionId("RADD123")
-                .sourceChannel("WEB")
-                .sourceChannelDetails("Dettagli")
-                .notificationCost(1000L)
-                .sentAttemptMade(2)
-                .sendDate(Instant.now())
-                .relatedFeedbackTimelineId("FB123")
-                .requestTimelineId("REQTL123")
-                .numberOfRecipients(3)
-                .schedulingDate(Instant.now())
-                .lastAttemptDate(Instant.now())
-                .retryNumber(1)
-                .nextSourceAttemptsMade(1)
-                .nextLastAttemptMadeForSource(Instant.now())
-                .isFirstSendRetry(false)
-                .notificationDate(Instant.now())
-                .deliveryFailureCause("Nessuna")
-                .deliveryDetailCode("D01")
-                .sendingReceipts(new ArrayList<>())
-                .shouldRetry(false)
-                .relatedRequestId("RELREQ123")
-                .productType("RS")
-                .analogCost(500)
-                .numberOfPages(10)
-                .envelopeWeight(20)
-                .prepareRequestId("PREP123")
-                .f24Attachments(new ArrayList<>())
-                .vat(22)
-                .attachments(new ArrayList<>())
-                .sendRequestId("SENDREQ123")
-                .registeredLetterCode("RL123")
-                .foreignState("IT")
-                .aarKey("AARKEY123")
-                .reasonCode("RC01")
-                .reason("Test Reason")
-                .amount(1500)
-                .creditorTaxId("77777777777")
-                .noticeCode("302000100000019421")
-                .paymentSourceChannel("WEB")
-                .uncertainPaymentDate(false)
-                .schedulingAnalogDate(Instant.now())
-                .cancellationRequestId("CANC123")
-                .notRefinedRecipientIndexes(Arrays.asList(1, 2, 3))
-                .failureCause("D00")
-                .recIndexes(Arrays.asList(1, 2, 3))
-                .registry("ANPR")
-                .status("OK");
-
-        TimelineElementDetailsInt result = TimelineServiceMapper.toTimelineElementDetailsInt(details, TimelineElementCategoryInt.NOTIFICATION_VIEWED);
-        NotificationViewedDetailsInt notificationViewedDetailsInt = (NotificationViewedDetailsInt) result;
-
-        assertNotNull(notificationViewedDetailsInt);
-        assertEquals(details.getRecIndex(), notificationViewedDetailsInt.getRecIndex());
-        assertEquals(details.getNotificationCost().intValue(), notificationViewedDetailsInt.getNotificationCost());
-    }
 
     @Test
     void toTimelineElementDetailsIntCategory() {
@@ -109,7 +38,7 @@ class TimelineServiceMapperTest {
                 .ingestionTimestamp(Instant.now())
                 .eventTimestamp(Instant.now());
 
-        TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
+        TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_CANCELLED;
         TimelineElementDetailsInt result = TimelineServiceMapper.toTimelineElementDetailsInt(timelineElement.getDetails(), category);
         assertNotNull(result);
     }
@@ -120,7 +49,7 @@ class TimelineServiceMapperTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .iun("IUN_TEST")
                 .elementId("ELEM_ID")
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED_CREATION_REQUEST)
                 .build();
 
         NotificationRecipientInt recipient1 = NotificationRecipientInt.builder().internalId("rec1").build();
@@ -151,7 +80,7 @@ class TimelineServiceMapperTest {
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .iun("IUN_TEST")
                 .elementId("ELEM_ID")
-                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
+                .category(TimelineElementCategoryInt.AAR_GENERATION)
                 .legalFactsIds(List.of(LegalFactsIdInt.builder().category(LegalFactCategoryInt.SENDER_ACK).build()))
                 .build();
 
@@ -253,54 +182,6 @@ class TimelineServiceMapperTest {
         assertEquals(NotificationStatusV26.DELIVERED, mapped.getStatus());
         assertEquals(element.getActiveFrom(), mapped.getActiveFrom());
         assertEquals(element.getRelatedTimelineElements(), mapped.getRelatedTimelineElements());
-    }
-
-    @Test
-    void toTimelineElementDetailsInt_mapsFieldsCorrectly() {
-        TimelineElementDetails details = new TimelineElementDetails()
-                .categoryType("TEST_CATEGORY")
-                .recIndex(5);
-
-        TimelineElement timelineElement = new TimelineElement()
-                .details(details)
-                .category(TimelineCategory.NOTIFICATION_VIEWED);
-
-        TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
-
-        Object result = TimelineServiceMapper.toTimelineElementDetailsInt(timelineElement.getDetails(), category);
-
-        assertNotNull(result);
-        assertInstanceOf(NotificationViewedDetailsInt.class, result);
-        NotificationViewedDetailsInt viewedDetails = (NotificationViewedDetailsInt) result;
-        assertEquals(5, viewedDetails.getRecIndex());
-    }
-
-    @Test
-    void toTimelineElementInternal_mapsFieldsCorrectly() {
-        TimelineElementDetails details = new TimelineElementDetails().categoryType("NOTIFICATION_VIEWED").recIndex(1);
-        StatusInfo statusInfo = new StatusInfo().actual("DELIVERED").statusChangeTimestamp(Instant.now()).statusChanged(true);
-        LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
-        TimelineElement timelineElement = new TimelineElement()
-                .iun("IUN_TEST")
-                .elementId("ELEM_ID")
-                .timestamp(Instant.now())
-                .paId("PA_TEST")
-                .legalFactsIds(List.of(legalFactsId))
-                .category(TimelineCategory.NOTIFICATION_VIEWED)
-                .details(details)
-                .statusInfo(statusInfo)
-                .notificationSentAt(Instant.now())
-                .ingestionTimestamp(Instant.now())
-                .eventTimestamp(Instant.now());
-
-        TimelineElementInternal result = TimelineServiceMapper.toTimelineElementInternal(timelineElement);
-
-        assertNotNull(result);
-        assertEquals("IUN_TEST", result.getIun());
-        assertEquals("ELEM_ID", result.getElementId());
-        assertEquals(TimelineElementCategoryInt.NOTIFICATION_VIEWED, result.getCategory());
-        assertNotNull(result.getDetails());
-        assertNotNull(result.getStatusInfo());
     }
 
 }

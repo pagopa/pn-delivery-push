@@ -16,7 +16,7 @@ public class ConsoleAppenderCustom extends ConsoleAppender<ILoggingEvent> {
     private static List<LogEvent> eventListWarning
         = Collections.synchronizedList(new ArrayList<>());
 
-    private static List<LogEvent> allEvents = Collections.synchronizedList(new ArrayList<>());
+    private static final List<LogEvent> allEvents = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     protected void append(ILoggingEvent event) {

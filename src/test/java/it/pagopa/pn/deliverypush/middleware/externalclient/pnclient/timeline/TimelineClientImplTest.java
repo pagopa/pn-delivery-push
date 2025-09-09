@@ -65,19 +65,6 @@ class TimelineClientImplTest {
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, thrown.getStatusCode());
     }
 
-    @Test
-    void retrieveAndIncrementCounterForTimelineEvent_returnsExpectedCounter() {
-        String timelineId = "timeline123";
-        Long expectedCounter = 42L;
-
-        Mockito.when(timelineControllerApi.retrieveAndIncrementCounterForTimelineEvent(timelineId))
-                .thenReturn(expectedCounter);
-
-        Long result = timelineServiceClient.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-
-        assertEquals(expectedCounter, result);
-        Mockito.verify(timelineControllerApi).retrieveAndIncrementCounterForTimelineEvent(timelineId);
-    }
 
     @Test
     void getTimelineElement_returnsExpectedElement() {
@@ -141,37 +128,6 @@ class TimelineClientImplTest {
                 timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category)
         );
     }
-
-    @Test
-    void getTimelineElementForSpecificRecipient_returnsExpectedElement() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.NOTIFICATION_VIEWED;
-        TimelineElement expectedElement = new TimelineElement();
-
-        Mockito.when(timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category))
-                .thenReturn(expectedElement);
-
-        TimelineElement result = timelineServiceClient.getTimelineElementForSpecificRecipient(iun, recIndex, category);
-
-        assertEquals(expectedElement, result);
-        Mockito.verify(timelineControllerApi).getTimelineElementForSpecificRecipient(iun, recIndex, category);
-    }
-
-    @Test
-    void getTimelineElementForSpecificRecipient_throwsException() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.NOTIFICATION_VIEWED;
-
-        Mockito.when(timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category))
-                .thenThrow(new RuntimeException("Errore"));
-
-        assertThrows(RuntimeException.class, () ->
-                timelineServiceClient.getTimelineElementForSpecificRecipient(iun, recIndex, category)
-        );
-    }
-
     @Test
     void getTimeline_returnsExpectedList() {
         String iun = "iun123";

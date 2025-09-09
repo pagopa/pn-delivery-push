@@ -9,7 +9,6 @@ import java.util.List;
 public interface TimelineClient {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_TIMELINE_SERVICE;
     String ADD_TIMELINE_ELEMENT = "ADD TIMELINE ELEMENT";
-    String RETRIEVE_AND_INCREMENT_COUNTER_FOR_TIMELINE_EVENT = "RETRIEVE AND INCREMENT COUNTER FOR TIMELINE EVENT";
     String GET_TIMELINE_ELEMENT = "GET TIMELINE ELEMENT";
     String GET_TIMELINE_ELEMENT_DETAILS = "GET TIMELINE ELEMENT DETAILS";
     String GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT = "GET TIMELINE ELEMENT DETAIL FOR SPECIFIC RECIPIENT";
@@ -19,15 +18,11 @@ public interface TimelineClient {
 
     boolean addTimelineElement(NewTimelineElement newTimelineElement);
 
-    Long retrieveAndIncrementCounterForTimelineEvent(String timelineId);
-
     TimelineElement getTimelineElement(String iun, String timelineId, Boolean strongly);
 
     TimelineElementDetails getTimelineElementDetails(String iun, String timelineId);
 
     TimelineElementDetails getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineCategory category);
-
-    TimelineElement getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineCategory category);
 
     List<TimelineElement> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId);
 

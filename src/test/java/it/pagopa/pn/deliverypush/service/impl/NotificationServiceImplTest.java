@@ -19,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.Map;
 
 class NotificationServiceImplTest {
 
@@ -86,53 +85,7 @@ class NotificationServiceImplTest {
                     return Mono.empty();
                 });
     }
-    
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void getRecipientsQuickAccessLinkToken() {
-        Map<String, String> expected = Map.of("internalId","token");
 
-        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001")).thenReturn(expected);
-
-        Map<String, String> actual = service.getRecipientsQuickAccessLinkToken("001");
-
-        Assertions.assertEquals(expected, actual);
-    }
-    
-    
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void getRecipientsQuickAccessLinkTokenFailure() {       
-        Mockito.when(pnDeliveryClient.getQuickAccessLinkTokensPrivate("001"))
-        .thenThrow(PnHttpResponseException.class);
-        Assertions.assertThrows(PnHttpResponseException.class, () -> service.getRecipientsQuickAccessLinkToken("001"));
-        
-    }
-
-
-
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void removeAllNotificationCostsByIun() {
-        Mockito.when(pnDeliveryClientReactive.removeAllNotificationCostsByIun("001"))
-                .thenReturn(Mono.empty());
-
-        Mono<Void> mono = service.removeAllNotificationCostsByIun("001");
-        Assertions.assertDoesNotThrow( () -> mono.block());
-
-    }
-
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void removeAllNotificationCostsByIunError() {
-        Mockito.when(pnDeliveryClientReactive.removeAllNotificationCostsByIun("001"))
-                .thenReturn(Mono.error(new PnHttpResponseException("", 400)));
-
-        Mono<Void> mono = service.removeAllNotificationCostsByIun("001");
-        Assertions.assertThrows(PnInternalException.class, mono::block);
-
-    }
-    
     private SentNotificationV25 buildSentNotification() {
         SentNotificationV25 sentNotification = new SentNotificationV25();
         sentNotification.setIun("001");

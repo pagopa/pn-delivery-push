@@ -22,9 +22,6 @@ public class CustomInstantWriter {
         return instantToDate(instant, ITALIAN_DATE_TIME_FORMAT);
     }
 
-    public String instantToTime(Instant instant) {
-        return instantToDate(instant, ITALIAN_DATE_TIME_FORMAT_TIME_ONLY);
-    }
 
     public String instantToDate(Instant instant, boolean withoutTime) {
         return instantToDate(instant, withoutTime?ITALIAN_DATE_TIME_FORMAT_NO_TIME:ITALIAN_DATE_TIME_FORMAT);

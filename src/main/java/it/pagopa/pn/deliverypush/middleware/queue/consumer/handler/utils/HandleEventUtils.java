@@ -45,17 +45,6 @@ public class HandleEventUtils {
         return createdAt != null ? Instant.parse((CharSequence) createdAt) : null;
     }
 
-    public static void addIunAndCorrIdToMdc(String iun, String correlationId) {
-        addIunToMdc(iun);
-        addCorrelationIdToMdc(correlationId);
-    }
-
-    public static void addIunAndRecIndexAndCorrIdToMdc(String iun, Integer recIndex, String correlationId) {
-        addIunToMdc(iun);
-        addRecIndexToMdc(recIndex);
-        addCorrelationIdToMdc(correlationId);
-    }
-
     public static void addIunAndRecIndexToMdc(String iun, int recIndex) {
         addIunToMdc(iun);
         addRecIndexToMdc(recIndex);
@@ -69,9 +58,5 @@ public class HandleEventUtils {
         if(recIndex != null){
             MDC.put(MDCUtils.MDC_PN_CTX_RECIPIENT_INDEX, String.valueOf(recIndex));
         }
-    }
-
-    public static void addCorrelationIdToMdc(String correlationId) {
-        MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, correlationId);
     }
 }

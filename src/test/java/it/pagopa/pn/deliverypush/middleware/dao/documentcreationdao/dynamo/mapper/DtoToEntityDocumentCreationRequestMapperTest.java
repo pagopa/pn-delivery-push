@@ -23,7 +23,7 @@ class DtoToEntityDocumentCreationRequestMapperTest {
                 .timelineId("timelineId")
                 .recIndex(1)
                 .key("keyY")
-                .documentCreationType(DocumentCreationTypeInt.SENDER_ACK)
+                .documentCreationType(DocumentCreationTypeInt.RECIPIENT_ACCESS)
                 .build();
 
         DocumentCreationRequestEntity entity = mapper.dto2Entity(request);

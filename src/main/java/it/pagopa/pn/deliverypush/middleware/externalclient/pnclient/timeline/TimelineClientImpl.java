@@ -36,13 +36,6 @@ public class TimelineClientImpl implements TimelineClient {
     }
 
     @Override
-    public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
-        log.logInvokingExternalService(CLIENT_NAME, RETRIEVE_AND_INCREMENT_COUNTER_FOR_TIMELINE_EVENT);
-
-        return timelineControllerApi.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-    }
-
-    @Override
     public TimelineElement getTimelineElement(String iun, String timelineId, Boolean strongly) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT);
 
@@ -61,13 +54,6 @@ public class TimelineClientImpl implements TimelineClient {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT);
 
         return timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
-    }
-
-    @Override
-    public TimelineElement getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineCategory category) {
-        log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT);
-
-        return timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category);
     }
 
     @Override
