@@ -9,14 +9,6 @@ Parameters:
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
       experimental environments without crash official development environment'
     
-  ActionQueueMap:
-    Type: String
-    Description: 'Define relation from actionType to sqs queue name'
-  
-  QueueUrlMap:
-    Type: String
-    Description: 'Define relation from queue name to sqs queue url'
-
   ApiDnsName:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
@@ -49,102 +41,6 @@ Parameters:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
   
-  DeliveryPushInputsQueueName:
-    Type: String
-    Description: 'Queue to pull for inputs event'
-    
-  DeliveryPushInputsQueueARN:
-    Type: String
-    Description: 'Queue to pull for inputs event'
-
-  DeliveryPushInputsQueueAlarmARN:
-    Type: String
-    Description: 'pn-delivery-push input queue alarm ARN'
-
-  DeliveryPushInputsQueueAgeAlarmARN:
-    Type: String
-    Description: pn-delivery-push input queue age alarm ARN
-    
-  DeliveryPushValidationInputsQueueName:
-    Type: String
-    Description: DeliveryPushValidationInputsQueue queue name
-    
-  DeliveryPushValidationInputsQueueARN:
-    Type: String
-    Description: DeliveryPushValidationInputsQueue queue ARN
-    
-  DeliveryPushValidationInputsQueueAlarmARN:
-    Type: String
-    Description: DeliveryPushValidationInputsQueue alarm ARN
-    
-  DeliveryPushValidationInputsQueueAgeAlarmARN:
-    Type: String
-    Description: DeliveryPushValidationInputsQueue age alarm ARN
-
-  ExternalChannelsOutputsQueueName:
-    Type: String
-    Description: 'Pull external-channel messages from this Queue'
-    
-  ExternalChannelsOutputsQueueARN:
-    Type: String
-    Description: 'Pull external-channel messages from this Queue'
-
-  ScheduledActionsQueueName:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-    
-  ScheduledActionsQueueARN:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-
-  ScheduledValidationActionsQueueName:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-
-  ScheduledValidationActionsQueueARN:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
- 
-  ActionRouterDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionEnqueuerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-  
-  ActionTimeoutErrorDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionRouterDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-    
-  ActionEnqueuerDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionEnqueuer lambda'
-  
-  ActionTimeoutErrorDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionTimeoutErrorDLQURL:
-    Type: String
-    Description: 'DLQ URL for ActionRouter lambda'
-  
-  DoneActionsQueueName:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
-
-  DoneActionsQueueURL:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
-
-  DoneActionsQueueARN:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
-
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -172,23 +68,8 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'Network load balancer link for API-GW'
-
-  TimelinesDynamoTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing timelines'
-
-  TimelinesDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing timelines'
-
-  TimelinesCounterTableName:
-    Type: String
-    Description: Name of dynamodb used by application to access the key-value store of CounterTable
-
-  TimelinesCounterTableArn:
-    Type: String
-    Description: ARN Dynamo Name used by application to access the key-value store of CounterTable
-
+    
+  #DynamoDb Tables
   PaperNotificationFailedDynamoTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -197,35 +78,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
 
-  ActionDynamoTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  ActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  FutureActionDynamoTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  FutureActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-
-  LastPollForFutureActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-  PnDeliveryPushShedLockDynamoTableName:
-    Type: String
-    Description: 'Name of dynamodb table containing'
-
-  PnDeliveryPushShedLockDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
   DocumentCreationRequestTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -233,14 +85,11 @@ Parameters:
   DocumentCreationRequestTableArn:
     Type: String
     Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
+  ##
       
   AlarmSNSTopicArn:
     Type: String
     Description: 'ARN of alarm topic'
-
-  ExternalChannelBaseUrl:
-    Type: String
-    Description: 'External channel base url'
     
   SandboxSafeStorageBaseUrl:
     Type: String
@@ -254,14 +103,6 @@ Parameters:
     Type: String
     Description: 'Kinesis stream that receive logs'
   
-  CdcPnActionArn:
-    Type: String
-    Description: 'Kinesis stream for pn-action'
-
-  CdcPnFutureActionArn:
-    Type: String
-    Description: 'Kinesis stream for pn-futureAction'
-
   PagoPaNotificationFee:
     Type: String
     Description: 'PagoPa notification fee per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
@@ -271,78 +112,6 @@ Parameters:
     Type: String
     Description: 'PagoPa notification vat per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
     Default: '22'
-
-  SafeStorageToDeliveryPushQueueName:
-    Type: String
-    Description: 'SafeStorage-to-delivery-push queue Name'
-    
-  SafeStorageToDeliveryPushQueueARN:
-    Type: String
-    Description: 'SafeStorage-to-delivery-push queue ARN'
-
-  SafeStorageToDeliveryPushQueueAlarmARN:
-    Type: String
-    Description: SafeStorage-to-delivery-push queue alarm ARN
-
-  SafeStorageToDeliveryPushQueueAgeAlarmARN:
-    Type: String
-    Description: SafeStorage-to-delivery-push queue age alarm ARN
-  
-  AddressManagerToDeliveryPushQueueName:
-    Type: String
-    Description: 'AddressManager-to-delivery-push queue Name'
-
-  F24ToDeliveryPushQueueName:
-    Type: String
-    Description: F24-to-delivery-push Queue Name
-
-  F24ToDeliveryPushQueueARN:
-    Type: String
-    Description: F24-to-delivery-push queue ARN
-
-  F24ToDeliveryPushQueueAlarmARN:
-    Type: String
-    Description: F24-to-delivery-push queue alarm ARN
-
-  F24ToDeliveryPushQueueAgeAlarmARN:
-    Type: String
-    Description: F24-to-delivery-push queue age alarm ARN
-
-  AddressManagerToDeliveryPushQueueARN:
-    Type: String
-    Description: AddressManager-to-delivery-push queue ARN
-
-  AddressManagerToDeliveryPushQueueAlarmARN:
-    Type: String
-    Description: AddressManager-to-delivery-push queue alarm ARN
-
-  AddressManagerToDeliveryPushQueueAgeAlarmARN:
-    Type: String
-    Description: AddressManager-to-delivery-push queue age alarm ARN
-  
-  DoneActionsQueueAlarmARN:
-    Type: String
-    Description: delivery push actions queue dlq alarm ARN
-
-  DoneActionsQueueAgeAlarmARN:
-    Type: String
-    Description: delivery push actions queue age alarm ARN
-
-  ScheduledActionsQueueAlarmARN:
-    Type: String
-    Description: delivery push actions done queue dlq alarm ARN
-
-  ScheduledActionsQueueAgeAlarmARN:
-    Type: String
-    Description: delivery push actions done queue age alarm ARN
-  
-  ScheduledValidationActionsQueueAlarmARN:
-    Type: String
-    Description: delivery push validation actions queue dlq alarm ARN
-    
-  ScheduledValidationActionsQueueAgeAlarmARN:
-    Type: String
-    Description: delivery push validation actions queue age alarm ARN
 
   AlbSecurityGroup:
     Type: String
@@ -359,44 +128,10 @@ Parameters:
     Default: ''
     Description: 'Base key of the microservice in the s3 bucket'
 
-  NationalRegistries2DeliveryPushQueueName:
-    Type: String
-    Description: 'National Registries to delivery-push queue name'
-
-  NationalRegistries2DeliveryPushQueueARN:
-    Type: String
-    Description: 'National Registries to delivery-push queue ARN'
-
-  NationalRegistries2DeliveryPushQueueAlarmARN:
-    Type: String
-    Description: 'National Registries to delivery-push queue dlq alarm'
-
-  NationalRegistries2DeliveryPushQueueAgeAlarmARN:
-    Type: String
-    Description: 'National Registries to delivery-push queue age alarm'
-
-  DeliveryPushToExternalRegistriesQueueURL: # defined in pn-infra
-    Type: String
-    Description: 'delivery-push to external-registries queue URL'
-
-  DeliveryPushToExternalRegistriesQueueARN: # defined in pn-infra
-    Type: String
-    Description: 'delivery-push to external-registries queue ARN'
-
   # Log group parameters
   EcsLogGroup:
     Type: String
     Description: 'Ecs log group name'
-
-  # Log group parameters
-  EcsValidatorLogGroup:
-    Type: String
-    Description: 'Ecs log group name (Validator task)'
-
-  # Log group parameters
-  EcsWorkflowLogGroup:
-    Type: String
-    Description: 'Ecs log group name (Workflow task)'
 
   # Heath Check parameters
   HealthCheckInterval:
@@ -444,50 +179,6 @@ Parameters:
     Description: memory amount reserved to the task pod.
     AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
 
-  # Instance parameters
-  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
-  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
-  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
-  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
-  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
-  CpuValueValidator:
-    Type: Number
-    Default: 1024
-    Description: Fargate virtual CPU quantity 1024 equals one vCPU (Validator task)
-
-  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
-  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
-  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
-  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
-  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-  MemoryAmountValidator:
-    Type: String
-    Default: 2GB
-    Description: memory amount reserved to the task pod (Validator task)
-    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
-
-  # Instance parameters
-  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
-  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
-  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
-  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
-  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
-  CpuValueWorkflow:
-    Type: Number
-    Default: 1024
-    Description: Fargate virtual CPU quantity 1024 equals one vCPU (Workflow task)
-
-  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
-  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
-  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
-  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
-  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-  MemoryAmountWorkflow:
-    Type: String
-    Default: 2GB
-    Description: memory amount reserved to the task pod (Workflow task)
-    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
-
   # Autoscaling parameters
   AutoscalingCheckPeriod:
     Default: 60
@@ -504,35 +195,7 @@ Parameters:
     Type: Number
     Description: activate when N datapoint on M
 
-  AutoscalingDataPointValidatorN:
-    Default: 1
-    Type: Number
-    Description: activate when N datapoint on M (Validator task)
-
-  AutoscalingDataPointValidatorM:
-    Default: 1
-    Type: Number
-    Description: activate when N datapoint on M (Validator task)
-
-  AutoscalingDataPointWorkflowN:
-    Default: 1
-    Type: Number
-    Description: activate when N datapoint on M (Workflow task)
-
-  AutoscalingDataPointWorkflowM:
-    Default: 1
-    Type: Number
-    Description: activate when N datapoint on M (Workflow task)
-
   AutoscalingThreshold:
-    Default: 70
-    Type: String
-
-  AutoscalingThresholdValidator:
-    Default: 70
-    Type: String
-
-  AutoscalingThresholdWorkflow:
     Default: 70
     Type: String
 
@@ -546,45 +209,10 @@ Parameters:
     Type: Number
     Description: maximum autoscaling number of tasks
 
-  MinTasksNumberValidator:
-    Default: 1
-    Type: Number
-    Description: minimum autoscaling number of tasks (Validator task)
-
-  MaxTasksNumberValidator:
-    Default: 6
-    Type: Number
-    Description: maximum autoscaling number of tasks (Validator task)
-
-  MinTasksNumberWorkflow:
-    Default: 1
-    Type: Number
-    Description: minimum autoscaling number of tasks (Workflow task)
-
-  MaxTasksNumberWorkflow:
-    Default: 6
-    Type: Number
-    Description: maximum autoscaling number of tasks (Workflow task)
-
   LogAlarmStrategy:
     Type: String
     Default: 'FATAL'
     
-  ConsumedQueueMessagePerMinute:
-    Type: Number
-    Default: 0
-    Description: Weight to assign to queue number of visible messages metric
-
-  ConsumedQueueMessagePerMinuteValidator:
-    Type: Number
-    Default: 0
-    Description: Weight to assign to queue number of visible messages metric (Validator task)
-
-  ConsumedQueueMessagePerMinuteWorkflow:
-    Type: Number
-    Default: 0
-    Description: Weight to assign to queue number of visible messages metric (Workflow task)
-
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
     Default: ''
@@ -593,7 +221,8 @@ Parameters:
   IOBackendCidrs:
     Type: String
     Default: ''
-
+    
+  #Lambda
   VersioningGetNotificationLegalFactsLambdaName:
     Type: String
     Description: 'VersioningGetNotificationLegalFactsLambda'
@@ -602,64 +231,8 @@ Parameters:
     Type: Number
     Description: 'VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency'
     Default: 1
-
-  ActionRouterKinesisBatchSize:
-    Type: Number
-    Description: "Batch size for kinesis to lambda action router"
     
-  ActionRouterLambdaName:
-    Type: String
-
-  ActionEnqueuerKinesisBatchSize:
-    Type: Number
-    Description: "Batch size for kinesis to lambda action router"
-    Default: 10
-    
-  ActionEnqueuerLambdaName:
-    Type: String
-
-  ActionRemoverLambdaName:
-    Type: String
-
-  PaperEventsCostUpdateLambdaName:
-    Type: String
-
-  PaperEventsCostUpdateDLQARN:
-    Type: String
-    Description: 'DLQ ARN for PaperEventsCostUpdateLambda'
-
-  PaperEventsCostUpdateDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
-
-  # Lambda parameters
-
-  NotificationCancellationActionInsertLambdaName:
-    Type: String
-
-  NotificationCancellationActionInsertDLQARN:
-    Type: String
-    Description: 'DLQ ARN for NotificationCancellationActionInsertLambda'
-
-  NotificationCancellationActionInsertDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for NotificationCancellationActionInsertLambda'
-
-  ActionTtlDays:
-    Default: 365
-    Type: Number
-    Description: TTL in days for pn-Action table rows
-
-  ActionLambdasEnabledStart:
-    Type: String
-    Description: 'Start date in EPOCH millis format (important!) for action lambdas enabled'
-
-  ActionLambdasEnabledEnd:
-    Type: String
-    Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
-
   # CDC
-
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
@@ -668,29 +241,6 @@ Parameters:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
 
-
-  #Webhook event manager lambda parameters
-  NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "60"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  NotificationCancellationActionInsertLambdaBatchSize:
-    Type: String
-    Default: "20"
-    Description: 'BatchSize asseveration event source mapping'
-
-  # Paper Cost Notification lambda parameters
-  PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "20"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  PaperEventsCostUpdateLambdaBatchSize:
-    Type: String
-    Default: "60"
-    Description: 'BatchSize asseveration event source mapping'
-
   EnhancedWebSecurityEnabled:
     Type: String
     Default: false
@@ -698,10 +248,6 @@ Parameters:
     AllowedValues:
       - true
       - false
-
-  F24DeliveryPushUser:
-    Type: String
-    Description: 'pn-delivery-push clientId for communication with pn-f24'
 
   B2bWafLimit:
     Default: 600000
@@ -739,11 +285,6 @@ Parameters:
       - "true"
       - "false"
 
-  FutureActionTtlExtraDays:
-    Default: 365
-    Type: Number
-    Description: TTL in days days to add to the futureAction start date
-
   AttemptTimeoutSec:
     Type: Number
     Description: 'Timeout in seconds for each retry attempt for each idempotent versioning lambda'
@@ -754,59 +295,12 @@ Parameters:
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
 
-  WebhookFeatureFlags:
-    Type: CommaDelimitedList
-    Description: List containing in order StartReadStream, StopReadStream, StartWriteBusinessTimestamp, StopWriteBusinessTimestamp
-    Default: '1999-01-01T00:00:00Z,2099-02-01T00:00:00Z,2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
-
-  pfNewWorkflowFeatureFlag:
-    Type: CommaDelimitedList
-    Description: List containing in order pfNewWorkflowStart, pfNewWorkflowStop
-    Default: '2099-01-01T00:00:00Z,2099-02-01T00:00:00Z'
-
-  OldWorkflowLambdasEnabledStart:
-    Type: String
-    Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
-
-  OldWorkflowLambdasEnabledEnd:
-    Type: String
-    Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
-
   ApplicativeEnvFileChecksum:
     Type: String
     Default: ''
     Description: 'Applicative environment variable file checksum'
 
-  EnableValidatorChannels:
-    Type: String
-    AllowedValues:
-      - "true"
-      - "false"
-    Description: "Enable or disable Validator Consumer"
-
-  EnableVpcForNotificationCancellationActionInsertLambda:
-    Type: String
-    Default: 'false'
-    Description: 'Enable or disable VPC association for NotificationCancellationActionInsertLambda'
-    AllowedValues:
-      - 'true'
-      - 'false'
-
-  EnableWorkflowChannels:
-    Type: String
-    AllowedValues:
-      - "true"
-      - "false"
-    Description: "Enable or disable WorkflowChannels Consumer"
-
-Conditions:
-  UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
-  AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
-  EnableWorkflowChannels: !Equals [ !Ref EnableWorkflowChannels, "true" ]
-  EnableValidatorChannels: !Equals [ !Ref EnableValidatorChannels, "true" ]
-
 Resources:
-
   # PN-Delivery-push microservice
   DeliveryPushMicroservice:
     Type: AWS::CloudFormation::Stack
@@ -833,98 +327,20 @@ Resources:
         WireTapLogActivation: !Ref WireTapLogActivation
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        #ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATEPHYSICAL=${PhysicalPersonPortalUrl}'
-        #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
-        #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
-        #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
-        #ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
-        #ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
-        #ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20:
-          Fn::If:
-            - UseExternalChannelMock
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        #ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
-        #ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
-        #ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
-        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST='
-        ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37: 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST='
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
-        #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
-        #ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
-        #ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIMECASE=${TimeToAddInNonVisibilityTimeCase}'
-        #ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
-        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
-        ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
-        #ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
-        ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        #ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
-        #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
-        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
-        #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
-        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
-        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
-        #ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONBASECOST=${PagoPaNotificationBaseCost}'
-        #ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
-        #ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
-        #ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
-        #quickWorkAroundForPN-9116
-        #ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
-        ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
-        ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        #ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORCAF=${RaddOperatorCaf}'
-        #ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
-        #ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
-        #ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
-        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
-        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
-        #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
-        #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
-        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
-        #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
-        #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
-        ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
-        ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
-        #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
-        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
-        ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
+        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry6: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
+        ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
+        ContainerEnvEntry10: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry11: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -941,348 +357,13 @@ Resources:
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
-  # PN-Delivery-push validator microservice
-  DeliveryPushValidatorMicroservice:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push-validator'
-        CpuValue: !Ref CpuValueValidator
-        MemoryAmount: !Ref MemoryAmountValidator
-        HealthCheckTimeout: !Ref HealthCheckTimeout
-        HealthCheckInterval: !Ref HealthCheckInterval
-        HealthyThresholdCount: !Ref HealthyThresholdCount
-        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
-        AutoscalingStrategy: CUSTOM
-        AutoscalingThreshold: !Ref AutoscalingThresholdValidator
-        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
-        MinTasksNumber: !Ref MinTasksNumberValidator
-        MaxTasksNumber: !Ref MaxTasksNumberValidator
-        AutoscalingDataPointN: !Ref AutoscalingDataPointValidatorN
-        AutoscalingDataPointM: !Ref AutoscalingDataPointValidatorM
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        EfsFilesystem: !Ref FargateEFSFileSystemID
-        MountEfs: !Ref MountEfs
-        WireTapLogActivation: !Ref WireTapLogActivation
-        ContainerImageURI: !Sub '${ContainerImageUri}'
-        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        #ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATEPHYSICAL=${PhysicalPersonPortalUrl}'
-        #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
-        #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
-        #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
-        #ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
-        #ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
-        #ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20:
-          Fn::If:
-            - UseExternalChannelMock
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        #ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
-        #ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
-        #ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
-        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${SafeStorageToDeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName}'
-        ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37:
-          Fn::If:
-            - EnableValidatorChannels
-            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryNewNotificationEventConsumer;pnDeliveryPushValidationActionsInboundConsumer;pnSafeStorageEventInboundConsumer;pnAddressManagerEventInboundConsumer;pnF24EventInboundConsumer'
-            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST='
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
-        #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
-        #ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
-        #ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIMECASE=${TimeToAddInNonVisibilityTimeCase}'
-        #ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
-        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
-        ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
-        #ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
-        ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        #ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
-        #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
-        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
-        #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
-        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
-        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
-        #ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONBASECOST=${PagoPaNotificationBaseCost}'
-        #ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
-        #ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
-        #ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
-        #quickWorkAroundForPN-9116
-        #ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
-        ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
-        ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        #ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORCAF=${RaddOperatorCaf}'
-        #ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
-        #ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
-        #ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
-        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
-        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
-        #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
-        #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
-        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
-        #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
-        #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
-        ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
-        ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
-        #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
-        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
-        ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
-        ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
-        ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
-        ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
-        MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
-        MappedPaths: '/delivery-push-validator-not-available'
-        ECSClusterName: !Ref ECSClusterName
-        Subnets: !Join [ ',', !Ref SubnetsIds ]
-        VpcId: !Ref VpcId
-        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
-        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
-        LoadbalancerRulePriority:
-          Fn::Transform:
-            Name: GenerateLBPriorityIdMacro
-            Parameters:
-              msNumber: !Ref MicroserviceNumber
-              index: 1
-        TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
-        AlbSecurityGroup: !Ref AlbSecurityGroup
-        EcsLogGroup: !Ref EcsValidatorLogGroup
-        LogAlarmStrategyV1: !Ref LogAlarmStrategy
-
-  # PN-Delivery-push workflow microservice
-  DeliveryPushWorkflowMicroservice:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
-      Parameters:
-        MicroServiceUniqueName: !Sub '${ProjectName}-delivery-push-workflow'
-        CpuValue: !Ref CpuValueWorkflow
-        MemoryAmount: !Ref MemoryAmountWorkflow
-        HealthCheckTimeout: !Ref HealthCheckTimeout
-        HealthCheckInterval: !Ref HealthCheckInterval
-        HealthyThresholdCount: !Ref HealthyThresholdCount
-        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
-        AutoscalingStrategy: CUSTOM
-        AutoscalingThreshold: !Ref AutoscalingThresholdWorkflow
-        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
-        MinTasksNumber: !Ref MinTasksNumberWorkflow
-        MaxTasksNumber: !Ref MaxTasksNumberWorkflow
-        AutoscalingDataPointN: !Ref AutoscalingDataPointWorkflowN
-        AutoscalingDataPointM: !Ref AutoscalingDataPointWorkflowM
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        EfsFilesystem: !Ref FargateEFSFileSystemID
-        MountEfs: !Ref MountEfs
-        WireTapLogActivation: !Ref WireTapLogActivation
-        ContainerImageURI: !Sub '${ContainerImageUri}'
-        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        #ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATEPHYSICAL=${PhysicalPersonPortalUrl}'
-        #ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_WEBAPP_DIRECTACCESSURLTEMPLATELEGAL=${LegalPersonPortalUrl}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_PAPERCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_TOPICS_FROMEXTERNALCHANNEL=${ExternalChannelsOutputsQueueName}'
-        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_TOPICS_SCHEDULEDACTIONS=${ScheduledActionsQueueName}'
-        #ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_TOPICS_EXECUTEDACTIONS=${DoneActionsQueueName}'
-        #ContainerEnvEntry11: 'PN_DELIVERYPUSH_WEBAPP_QUICKACCESSURLAARDETAILSUFFIX=?aar'
-        #ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_WAITINGFORREADCOURTESYMESSAGE=${WaitingForReadCourtesyMessage}'
-        #ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SECONDNOTIFICATIONWORKFLOWWAITINGTIME=${SecondNotificationWorkflowWaitingTime}'
-        #ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSDIGITALREFINEMENT=${SchedulingDaysSuccessDigitalRefinement}'
-        #ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREDIGITALREFINEMENT=${SchedulingDaysFailureDigitalRefinement}'
-        #ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSSUCCESSANALOGREFINEMENT=${SchedulingDaysSuccessAnalogRefinement}'
-        #ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_SCHEDULINGDAYSFAILUREANALOGREFINEMENT=${SchedulingDaysFailureAnalogRefinement}'
-        ContainerEnvEntry20:
-          Fn::If:
-            - UseExternalChannelMock
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-            - !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNELBASEURL=${ExternalChannelBaseUrl}'
-        #ContainerEnvEntry21: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYCOUNT=${ExternalChannelDigitalRetryCount}'
-        #ContainerEnvEntry22: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALRETRYDELAY=${ExternalChannelDigitalRetryDelay}'
-        #ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_EXTERNALCHANNEL_DIGITALSENDNORESPONSETIMEOUT=${ExternalChannelDigitalSendNoResponseTimeout}'
-        ContainerEnvEntry24: !Sub 'PN_DELIVERYPUSH_USERATTRIBUTESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry25: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${NationalRegistries2DeliveryPushQueueName},${DoneActionsQueueName}'
-        ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
-        ContainerEnvEntry32: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
-        ContainerEnvEntry33: !Sub 'PN_DELIVERYPUSH_ACTIONDAO_TABLENAME=${ActionDynamoTableName}'
-        ContainerEnvEntry34: !Sub 'PN_DELIVERYPUSH_FUTUREACTIONDAO_TABLENAME=${FutureActionDynamoTableName}'
-        ContainerEnvEntry36: !Sub 'PN_DELIVERYPUSH_LASTPOLLFORFUTUREACTIONDAO_LOCKTABLENAME=${PnDeliveryPushShedLockDynamoTableName}'
-        ContainerEnvEntry37:
-          Fn::If:
-            - EnableWorkflowChannels
-            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST=pnDeliveryPushInputsInboundConsumer;pnExtChannelEventInboundConsumer;pnDeliveryPushActionsInboundConsumer;pnNationalRegistriesEventInboundConsumer'
-            - !Sub 'SPRING_CLOUD_FUNCTION_DEFINITION_LIST='
-        ContainerEnvEntry38: !Sub 'PN_DELIVERYPUSH_TOPICS_VALIDATIONACTIONS=${ScheduledValidationActionsQueueName}'
-        #ContainerEnvEntry37: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        #ContainerEnvEntry38: 'PN_DELIVERYPUSH_WEBAPP_FAQURLTEMPLATESUFFIX=faq'
-        #ContainerEnvEntry39: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_NOTIFICATIONNONVISIBILITYTIME=${NotificationNonVisibilityTime}'
-        #ContainerEnvEntry40: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_TIMETOADDINNONVISIBILITYTIMECASE=${TimeToAddInNonVisibilityTimeCase}'
-        #ContainerEnvEntry41: !Sub 'PN_DELIVERYPUSH_RETENTION_ATTACHMENT_DAYS_AFTER_REFINEMENT=${RetentionAttachmentDaysAfterRefinement}'
-        ContainerEnvEntry42: !Sub 'PN_DELIVERYPUSH_TOPICS_SAFESTORAGEEVENTS=${SafeStorageToDeliveryPushQueueName}'
-        ContainerEnvEntry43: !Sub 'PN_DELIVERYPUSH_NATIONALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry44: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
-        #ContainerEnvEntry45: !Sub 'PN_DELIVERYPUSH_VALIDATIONRETRYINTERVALS=${ValidationRetryIntervals}'
-        ContainerEnvEntry46: !Sub 'PN_DELIVERYPUSH_TOPICS_NATIONALREGISTRIESEVENTS=${NationalRegistries2DeliveryPushQueueName}'
-        #ContainerEnvEntry47: !Sub 'PN_DELIVERYPUSH_PNSENDMODE=${PnSendMode}'
-        #ContainerEnvEntry49: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEFILENOTFOUNDRETRY=${SafeStorageFileNotFoundRetry}'
-        #ContainerEnvEntry50: !Sub 'PN_DELIVERYPUSH_WEBAPP_LANDINGURL=${LandingUrl}'
-        ContainerEnvEntry51: 'PN_DELIVERYPUSH_WEBAPP_FAQSENDHASH=send-cosa-e'
-        #ContainerEnvEntry53: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERBASEURL=${AddressManagerBaseUrl}'
-        ContainerEnvEntry54: !Sub 'PN_DELIVERYPUSH_TOPICS_ADDRESSMANAGEREVENTS=${AddressManagerToDeliveryPushQueueName}'
-        #ContainerEnvEntry55: !Sub 'PN_DELIVERYPUSH_CHECKPDFVALIDENABLED=${EnableCheckPdfContent}'
-        #ContainerEnvEntry56: !Sub 'PN_DELIVERYPUSH_CHECKPDFSIZE=${MaxPdfAllowedSize}'
-        ContainerEnvEntry58: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        #ContainerEnvEntry59: !Sub 'PN_DELIVERYPUSH_CHECKCFENABLED=${CheckCfEnabled}'
-        ContainerEnvEntry60: !Sub 'PN_DELIVERYPUSH_TOPICS_F24EVENTS=${F24ToDeliveryPushQueueName}'
-        ContainerEnvEntry61: !Sub 'PN_DELIVERYPUSH_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry62: !Sub 'PN_DELIVERYPUSH_F24CXID=${F24DeliveryPushUser}'
-        #ContainerEnvEntry63: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONBASECOST=${PagoPaNotificationBaseCost}'
-        #ContainerEnvEntry64: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTRETENTIONTIMEAFTERVALIDATION=${AttachmentRetentionTimeAfterValidation}'
-        #ContainerEnvEntry65: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_CHECKATTACHMENTTIMEBEFOREEXPIRATION=${CheckAttachmentTimeBeforeExpiration}'
-        #ContainerEnvEntry66: !Sub 'PN_DELIVERYPUSH_TIMEPARAMS_ATTACHMENTTIMETOADDAFTEREXPIRATION=${AttachmentTimeToAddAfterExpiration}'
-        #quickWorkAroundForPN-9116
-        #ContainerEnvEntry67: !Sub 'PN_DELIVERYPUSH_SENDMORETHAN20GRAMSDEFAULTVALUE=${SendMoreThan20GramsDefaultValue}'
-        ContainerEnvEntry68: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
-        ContainerEnvEntry69: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        #ContainerEnvEntry70: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORCAF=${RaddOperatorCaf}'
-        #ContainerEnvEntry71: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORMOONEY=${RaddOperatorMooney}'
-        #ContainerEnvEntry72: !Sub 'PN_DELIVERYPUSH_WEBAPP_ADDITIONAL_RADDOPERATORSAILPOST=${RaddOperatorSailpost}'
-        #ContainerEnvEntry73: !Sub 'PN_DELIVERYPUSH_ERRORCORRECTIONLEVELQRCODE=${ErrorCorrectionLevelQrCode}'
-        ContainerEnvEntry74: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
-        ContainerEnvEntry75: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
-        #ContainerEnvEntry76: !Sub 'PN_DELIVERYPUSH_WEBAPP_RADDPHONENUMBER=${RaddPhoneNumber}'
-        #ContainerEnvEntry77: !Sub 'PN_DELIVERYPUSH_RADDEXPERIMENTATIONSTORESNAME=${RaddParameterStoresNames}'
-        ContainerEnvEntry80: !Sub 'PN_DELIVERYPUSH_TOPICS_DELIVERYVALIDATIONEVENTS=${DeliveryPushValidationInputsQueueName}'
-        #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
-        ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
-        #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
-        #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
-        ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
-        ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
-        ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
-        #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
-        ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
-        ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
-        ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry94: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry95: !Sub 'PN_DELIVERYPUSH_STARTACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledStart}'
-        ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
-
-        ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
-        ParentMicroserviceName: !Sub '${ProjectName}-delivery-push'
-        MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
-        MappedPaths: '/delivery-push-workflow-not-available'
-        ECSClusterName: !Ref ECSClusterName
-        Subnets: !Join [ ',', !Ref SubnetsIds ]
-        VpcId: !Ref VpcId
-        EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
-        LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
-        LoadbalancerRulePriority:
-          Fn::Transform:
-            Name: GenerateLBPriorityIdMacro
-            Parameters:
-              msNumber: !Ref MicroserviceNumber
-              index: 2
-        TaskRoleManagedPolicyArn: !Ref DeliveryPushMicroserviceTaskManagedPolicy
-        AlbSecurityGroup: !Ref AlbSecurityGroup
-        EcsLogGroup: !Ref EcsWorkflowLogGroup
-        LogAlarmStrategyV1: !Ref LogAlarmStrategy
-
-  # Grant operational rights to PN-Delivery-push microservice microservice
+  # Grant operational rights to PN-Delivery-push microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:ChangeMessageVisibilityBatch
-              - sqs:DeleteMessage
-              - sqs:DeleteMessageBatch
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:ReceiveMessage
-              - sqs:SendMessage
-              - sqs:SendMessageBatch
-            Resource:
-              - !Ref DeliveryPushInputsQueueARN
-              - !Ref DeliveryPushValidationInputsQueueARN
-              - !Ref ExternalChannelsOutputsQueueARN
-              - !Ref ScheduledActionsQueueARN
-              - !Ref ScheduledValidationActionsQueueARN
-              - !Ref DoneActionsQueueARN
-              - !Ref SafeStorageToDeliveryPushQueueARN
-              - !Ref NationalRegistries2DeliveryPushQueueARN
-              - !Ref AddressManagerToDeliveryPushQueueARN
-              - !Ref F24ToDeliveryPushQueueARN
-          - Effect: Allow
-            Action:
-              - 'dynamodb:GetItem'
-              - 'dynamodb:Query'
-              - 'dynamodb:PutItem'
-            Resource:
-              - !Sub "${TimelinesDynamoTableArn}"
-              - !Sub "${ActionDynamoTableArn}"
-          - Effect: Allow
-            Action:
-              - dynamodb:GetItem
-              - dynamodb:PutItem
-              - dynamodb:DeleteItem
-              - dynamodb:UpdateItem
-            Resource:
-              - !Sub "${TimelinesCounterTableArn}"
-          - Effect: Allow
-            Action:
-              - 'ssm:GetParameter'
-              - 'ssm:GetParameters'
-            Resource:
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendMoreThan20Grams'
-              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/radd-experimentation-zip-*'
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -1292,8 +373,6 @@ Resources:
               - 'dynamodb:UpdateItem'
             Resource:
               - !Sub "${PaperNotificationFailedDynamoTableArn}"
-              - !Sub "${FutureActionDynamoTableArn}"
-              - !Sub "${PnDeliveryPushShedLockDynamoTableArn}"
               - !Sub "${DocumentCreationRequestTableArn}"
   
   # Expose PN-Delivery-push microservice public API with API-GW for B2B usage
@@ -1351,377 +430,7 @@ Resources:
         IntendedUsage: B2BPG
         APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
         Limit: 600000
-
-  # CDC to Lambda action router
-  ActionRouterKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Ref ActionRouterKinesisBatchSize
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !GetAtt ActionRouterLambda.Outputs.FunctionName
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref ActionRouterDLQARN
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{"data":{"eventName":["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref ActionLambdasEnabledStart
-                - ', "<", '
-                - !Ref ActionLambdasEnabledEnd
-                - ']}]}}}'
-      MaximumBatchingWindowInSeconds: 300
-      MaximumRetryAttempts: 5
-      StartingPosition: TRIM_HORIZON
-
-
-  ActionRouterLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionRouterLambda-libs-layer
-
-  ActionRouterLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionRouterLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionRouterLambdaRole.Arn
-        Layer1: !Ref ActionRouterLambdaLibrariesLayer
-        EnvVariables:
-          !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
-            {
-              actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap,
-              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
-            },
-          ]
-    
-  # Lambda function role
-  ActionRouterLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionRouterLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  
-  # Lambda function IAM policy
-  ActionRouterLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionRouterLambdaPolicy
-      Roles:
-        - !Ref ActionRouterLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcPnActionArn
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow 
-            Action:
-              - sqs:SendMessage
-            Resource:
-              - !Ref ScheduledActionsQueueARN
-              - !Ref ScheduledValidationActionsQueueARN
-              - !Ref ActionRouterDLQARN
-              - !Ref ActionTimeoutErrorDLQARN
-          - Effect: Allow
-            Action:
-              - "dynamodb:PutItem"
-              - "dynamodb:BatchWriteItem"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-
-  # CDC To ActionEnqueuer
-  ActionEnqueuerKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Ref ActionEnqueuerKinesisBatchSize
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnFutureActionArn
-      FunctionName: !GetAtt ActionEnqueuerLambda.Outputs.FunctionName
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref ActionEnqueuerDLQARN
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{"data":{"eventName":["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref ActionLambdasEnabledStart
-                - ', "<", '
-                - !Ref ActionLambdasEnabledEnd
-                - ']}]}}}'
-      MaximumBatchingWindowInSeconds: 300
-      MaximumRetryAttempts: 5
-      StartingPosition: TRIM_HORIZON
-
-  ActionEnqueuerLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionEnqueuer-libs-layer    
-
-  ActionEnqueuerLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionEnqueuerLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
-        Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
-        EnvVariables:
-          !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
-            {
-              actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
-            },
-          ]
-    
-  # Lambda function role
-  ActionEnqueuerLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionEnqueuerLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  ActionEnqueuerLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionEnqueuerLambdaPolicy
-      Roles:
-        - !Ref ActionEnqueuerLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcPnFutureActionArn
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow 
-            Action:
-              - sqs:SendMessage
-            Resource:
-              - !Ref ScheduledActionsQueueARN
-              - !Ref ScheduledValidationActionsQueueARN
-              - !Ref ActionEnqueuerDLQARN
-              - !Ref ActionTimeoutErrorDLQARN
-          - Effect: Allow
-            Action:
-              - "dynamodb:PutItem"
-              - "dynamodb:BatchWriteItem"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-
-  ActionRemoverLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionRemover-libs-layer 
-
-  # Future Action Remover
-  ActionRemoverLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionRemoverLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
-        Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
-        EnvVariables: !Sub [
-          "LAST_WORKED_KEY=2###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
-          {
-            actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-            actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
-          }
-        ]
-    
-  # Lambda function role
-  ActionRemoverLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionRemoverLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  ActionRemoverLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionRemoverLambdaPolicy
-      Roles:
-        - !Ref ActionRemoverLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - "dynamodb:GetItem"
-              - "dynamodb:DeleteItem"
-              - "dynamodb:BatchWriteItem"
-              - "dynamodb:Query"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-          - Effect: Allow
-            Action:
-              - "dynamodb:GetItem"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Ref LastPollForFutureActionDynamoTableArn   
-
-  # Action Remover scheduler BEGIN
-  ActionRemoverSchedulerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: scheduler.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/"
-      Policies:
-        - PolicyName: LambdScheduleExecutionPolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource:
-                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-
-  ActionRemoverScheduler:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      Description: "Schedule Action Remover every minute"
-      FlexibleTimeWindow:
-        Mode: "OFF"
-      Name: "ActionRemoverShedule"
-      ScheduleExpression: "rate(1 minutes)"
-      State: ENABLED
-      Target:
-        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
-  # Action Remover scheduler END
-
-  
-
+ 
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
@@ -1750,258 +459,7 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disabled IP based rate limit rule
         AllowedCidrs: !Ref IOBackendCidrs
-
-  ##########################################################################
-  ###              notificationCancellationActionInsertLambda            ###
-  ##########################################################################
-  NotificationCancellationActionInsertSecGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub '${NotificationCancellationActionInsertLambdaName}-sec-group'
-      VpcId: !Ref VpcId
-
-  # Lambda function
-  NotificationCancellationActionInsertLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref NotificationCancellationActionInsertLambdaName
-      Runtime: nodejs22.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationCancellationActionInsert.zip"
-      Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
-      VpcConfig: !If 
-        - AttachNotificationCancellationActionInsertLambdaToVpc
-        - SecurityGroupIds:
-            - !GetAtt NotificationCancellationActionInsertSecGroup.GroupId
-          SubnetIds: !Ref SubnetsIds
-        - !Ref "AWS::NoValue"
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          ACTION_TTL_DAYS: !Ref ActionTtlDays
-          ACTION_LAMBDA_ENABLED_START: !Ref ActionLambdasEnabledStart
-          ACTION_LAMBDA_ENABLED_END: !Ref ActionLambdasEnabledEnd
-          ACTION_MANAGER_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  NotificationCancellationActionInsertLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-notificationCancellationActionInsertLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-
-  # Lambda function IAM policy
-  NotificationCancellationActionInsertLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-NotificationCancellationActionInsertLambdaPolicy
-      Roles:
-        - !Ref NotificationCancellationActionInsertLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - "dynamodb:TransactWriteItems"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action/*"
-          - Effect: Allow
-            Action:
-              - "dynamodb:TransactWriteItems"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction/*"
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource: !Ref NotificationCancellationActionInsertDLQARN
-
-  # CDC to NotificationCancellationActionInsert
-  NotificationCancellationActionInsertLambdaSource:
-    Type: AWS::Lambda::EventSourceMapping
-    DependsOn: NotificationCancellationActionInsertLambdaPolicy
-    Properties:
-      BatchSize: !Sub ${NotificationCancellationActionInsertLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref NotificationCancellationActionInsertLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref OldWorkflowLambdasEnabledStart
-                - ', "<", '
-                - !Ref OldWorkflowLambdasEnabledEnd
-                - ']}] } } }'
-      MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref NotificationCancellationActionInsertDLQARN
-
-  NotificationCancellationActionInsertLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref NotificationCancellationActionInsertLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
-  #########################################################
-  ###             PaperEventsCostUpdateLambda           ###
-  #########################################################
-
-  # Lambda function
-  PaperEventsCostUpdateLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref PaperEventsCostUpdateLambdaName
-      Runtime: nodejs22.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paperEventsCostUpdate.zip"
-      Role: !GetAtt PaperEventsCostUpdateLambdaRole.Arn
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DeliveryPushToExternalRegistriesQueueURL
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  PaperEventsCostUpdateLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-paperEventsCostUpdateLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  PaperEventsCostUpdateLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-PaperEventsCostUpdateLambdaPolicy
-      Roles:
-        - !Ref PaperEventsCostUpdateLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref DeliveryPushToExternalRegistriesQueueARN
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref PaperEventsCostUpdateDLQARN
-
-    # CDC to Paper Events Cost Update
-  PaperEventsCostUpdateLambdaKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Sub ${PaperEventsCostUpdateLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref PaperEventsCostUpdateLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref OldWorkflowLambdasEnabledStart
-                - ', "<", '
-                - !Ref OldWorkflowLambdasEnabledEnd
-                - ']}] } } }'
-      MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref PaperEventsCostUpdateDLQARN
-
-  PaperEventsCostUpdateLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref PaperEventsCostUpdateLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
+        
   VersioningGetNotificationLegalFactsSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -2040,14 +498,14 @@ Resources:
           Value: "true"
         - Key: "pn-eni-related-groupName-regexp"
           Value: !Base64 "^pn-delivery-microsvc-prod-VersioningGetNotificationLegalFactsSecGroup*$"
-
+  
   # a new version at each deploy, with provisioned concurrency set
   # remember to set transform -> UpdateDeploymentTransform at beginning of the file
   VersioningGetNotificationLegalFactsLambdaVersionPnPlaceholderEpochSeconds:
     Type: AWS::Lambda::Version
     Properties:
       FunctionName: !Ref VersioningGetNotificationLegalFactsLambda
-
+  
   VersioningGetNotificationLegalFactsLambdaVersionAlias:
     Type: AWS::Lambda::Alias
     Properties:
@@ -2056,7 +514,7 @@ Resources:
       Name: live
       ProvisionedConcurrencyConfig:
         ProvisionedConcurrentExecutions: !Ref VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency
-
+  
   # Lambda function role
   VersioningGetNotificationLegalFactsLambdaRole:
     Type: AWS::IAM::Role
@@ -2094,8 +552,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
-
-
+      
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -2104,13 +561,8 @@ Resources:
       Parameters:
         DashboardName: !Sub "${ProjectName}-delivery-push"
         DynamoDBTableNames: !Join 
-          - ',' 
-          - - !Ref TimelinesDynamoTableName
-            - !Ref TimelinesCounterTableName
-            - !Ref PaperNotificationFailedDynamoTableName
-            - !Ref ActionDynamoTableName
-            - !Ref FutureActionDynamoTableName
-            - !Ref PnDeliveryPushShedLockDynamoTableName
+          - ','
+          - - !Ref PaperNotificationFailedDynamoTableName
             - !Ref DocumentCreationRequestTableName 
         RestApiStageArns: !Join
           - ','
@@ -2125,231 +577,17 @@ Resources:
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
-            - !Ref DeliveryPushInputsQueueAlarmARN
-            - !Ref DeliveryPushInputsQueueAgeAlarmARN
-            - !Ref DeliveryPushValidationInputsQueueAlarmARN
-            - !Ref DeliveryPushValidationInputsQueueAgeAlarmARN
-            - !Ref SafeStorageToDeliveryPushQueueAlarmARN
-            - !Ref SafeStorageToDeliveryPushQueueAgeAlarmARN
-            - !Ref DoneActionsQueueAlarmARN
-            - !Ref DoneActionsQueueAgeAlarmARN
-            - !Ref ScheduledActionsQueueAlarmARN
-            - !Ref ScheduledActionsQueueAgeAlarmARN
-            - !Ref ScheduledValidationActionsQueueAlarmARN
-            - !Ref ScheduledValidationActionsQueueAgeAlarmARN
-            - !Ref NationalRegistries2DeliveryPushQueueAlarmARN
-            - !Ref NationalRegistries2DeliveryPushQueueAgeAlarmARN
-            - !Ref AddressManagerToDeliveryPushQueueAlarmARN
-            - !Ref F24ToDeliveryPushQueueAlarmARN
-            - !Ref AddressManagerToDeliveryPushQueueAgeAlarmARN
-            - !Ref F24ToDeliveryPushQueueAgeAlarmARN
-            - !Ref NotificationCancellationActionInsertDLQAlarmARN
-            - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !Ref PaperEventsCostUpdateDLQAlarmARN
-            - !Ref ActionRouterDLQAlarmARN
-            - !Ref ActionEnqueuerDLQAlarmARN
-            - !Ref ActionTimeoutErrorDLQAlarmARN
-            - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
-          - - !GetAtt NotificationCancellationActionInsertLambda.Arn
-            - !GetAtt PaperEventsCostUpdateLambda.Arn
-            - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
-        QueueArns: !Join
-          - ','
-          - - !Ref DeliveryPushInputsQueueARN
-            - !Ref DeliveryPushValidationInputsQueueARN
-            - !Ref ExternalChannelsOutputsQueueARN
-            - !Ref ScheduledActionsQueueARN
-            - !Ref ScheduledValidationActionsQueueARN
-            - !Ref DoneActionsQueueARN
-            - !Ref SafeStorageToDeliveryPushQueueARN
-            - !Ref NationalRegistries2DeliveryPushQueueARN
-            - !Ref AddressManagerToDeliveryPushQueueARN
-            - !Ref F24ToDeliveryPushQueueARN
+          - - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
-            - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
-            - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
-
-  #### Alarm for custom metric Autoscaling
-  AlarmCustomAutoscalingValidator:
-    Type: "AWS::CloudWatch::Alarm"
-    Properties:
-      AlarmName: !Sub "${ProjectName}-delivery-push-validator-autoscaling-custom-validator"
-      AlarmDescription: "Trigger scaling based on custom metric"
-      DatapointsToAlarm: !Ref AutoscalingDataPointValidatorN
-      ComparisonOperator: "GreaterThanOrEqualToThreshold"
-      Metrics:
-        - Id: m1
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "DeliveryPushValidationInputsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m2
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "ScheduledValidationActionsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m3
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m4
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m5
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "F24ToDeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m6
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: TargetGroup
-                  Value: !GetAtt DeliveryPushValidatorMicroservice.Outputs.TargetGroupName
-                - Name: LoadBalancer
-                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
-              Namespace: "AWS/ApplicationELB"
-              MetricName: "HealthyHostCount"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: code
-          Expression: !Sub "IF(m6==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
-          Label: !Sub "${ProjectName}-delivery-push-queue-validator-custom-metric"
-          ReturnData: False
-        - Id: e1
-          Expression: "code"
-          Label: !Sub "${ProjectName}-delivery-push-autoscale-validator-custom-metric"
-      EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
-      Threshold: 60
-      AlarmActions:
-        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
-      OKActions:
-        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleDownPolicy
-
-  #### Alarm for custom metric Autoscaling
-  AlarmCustomAutoscalingWorkflow:
-    Type: "AWS::CloudWatch::Alarm"
-    Properties:
-      AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom-workflow"
-      AlarmDescription: "Trigger scaling based on custom metric"
-      DatapointsToAlarm: !Ref AutoscalingDataPointWorkflowN
-      ComparisonOperator: "GreaterThanOrEqualToThreshold"
-      Metrics:
-        - Id: m1
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "DeliveryPushInputsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m2
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "ExternalChannelsOutputsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m3
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "NationalRegistries2DeliveryPushQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m4
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref "ScheduledActionsQueueName"
-              Namespace: "AWS/SQS"
-              MetricName: "ApproximateNumberOfMessagesVisible"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: m5
-          MetricStat:
-            Metric:
-              Dimensions:
-                - Name: TargetGroup
-                  Value: !GetAtt DeliveryPushWorkflowMicroservice.Outputs.TargetGroupName
-                - Name: LoadBalancer
-                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
-              Namespace: "AWS/ApplicationELB"
-              MetricName: "HealthyHostCount"
-            Period: !Ref AutoscalingCheckPeriod
-            Stat: Average
-          ReturnData: False
-        - Id: code
-          Expression: !Sub "IF(m5==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinuteWorkflow} * m5) )"
-          Label: !Sub "${ProjectName}-delivery-push-queue-workflow-custom-metric"
-          ReturnData: False
-        - Id: e1
-          Expression: "code"
-          Label: !Sub "${ProjectName}-delivery-push-autoscale-workflow-custom-metric"
-
-      EvaluationPeriods: !Ref AutoscalingDataPointWorkflowM
-      Threshold: 60
-      AlarmActions:
-        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleUpPolicy
-      OKActions:
-        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleDownPolicy
 
 Outputs:
 
   # 
   Version:
     Value: !Ref Version
-
