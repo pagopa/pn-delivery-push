@@ -417,6 +417,42 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  /delivery-push-private/notifications/{iun}/rework:
+    put:
+      summary: Verifica rework di una notifica
+      description: >-
+        Permette la verifica della possibilità di rework di una notifica
+      tags:
+        - NotificationRework
+      operationId: notificationRework
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReworkRequest'
+        required: true
+      responses:
+        '200':
+          description: Accepted - Richiesta di rework presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReworkResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
 components:
   parameters:
 
@@ -809,3 +845,38 @@ components:
             contentType:
               description: il contentType del file
               type: string
+
+    ############################################################################################
+    ###           OGGETTI PER OPERAZIONE REWORK                                              ###
+    ############################################################################################
+
+    ReworkRequest:
+      type: object
+      properties:
+        attemptId:
+          type: string
+          description: ''
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+      required:
+        - attemptId
+
+    ReworkResponse:
+      type: object
+      properties:
+        reworkId:
+          type: string
+        creationDate:
+          type: string
+          format: date-time
+        error:
+          $ref: '#/components/schemas/ReworkError'
+
+    ReworkError:
+      type: object
+      properties:
+        errorType:
+          type: string
+        message:
+          type: string
