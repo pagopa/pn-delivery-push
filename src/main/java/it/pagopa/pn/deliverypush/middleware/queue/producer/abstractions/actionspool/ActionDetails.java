@@ -22,7 +22,8 @@ import it.pagopa.pn.deliverypush.action.details.*;
         @JsonSubTypes.Type(value = DocumentCreationResponseActionDetails.class, name = "DOCUMENT_CREATION_RESPONSE"),
         @JsonSubTypes.Type(value = NotificationValidationActionDetails.class, name = "NOTIFICATION_VALIDATION"),
         @JsonSubTypes.Type(value = NotificationRefusedActionDetails.class, name = "NOTIFICATION_REFUSED"),
-        @JsonSubTypes.Type(value = SendDigitalFinalStatusResponseDetails.class, name = "SEND_DIGITAL_FINAL_STATUS_RESPONSE")
+        @JsonSubTypes.Type(value = SendDigitalFinalStatusResponseDetails.class, name = "SEND_DIGITAL_FINAL_STATUS_RESPONSE"),
+        @JsonSubTypes.Type(value = NotificationReworkRequestedDetails.class, name = "NOTIFICATION_REWORK_REQUESTED")
 })
 public interface ActionDetails {
 
