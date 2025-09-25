@@ -870,3 +870,13 @@ components:
         creationDate:
           type: string
           format: date-time
+        error:
+          $ref: '#/components/schemas/ReworkError'
+
+    ReworkError:
+      type: object
+      properties:
+        errorType:
+          type: string
+        message:
+          type: string
