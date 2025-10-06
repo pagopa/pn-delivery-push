@@ -354,6 +354,7 @@ public class CommonTestConfiguration {
         Mockito.when(cfg.getStopWriteBusinessTimestamp()).thenReturn(Instant.parse("2099-11-27T00:00:00Z"));
         Mockito.when(cfg.getTemplateURLforPEC()).thenReturn("/templates-engine-private/v1/templates/notification-aar-for-pec");
         Mockito.when(cfg.getTemplatesEngineBaseUrl()).thenReturn("http://localhost:8090");
+        Mockito.when(cfg.getSendCourtesyAtChooseDeliveryActivationDate()).thenReturn(Instant.parse("2028-11-27T00:00:00Z"));
     }
 
 }

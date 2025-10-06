@@ -104,27 +104,51 @@ public class TemplatesClientImpl implements TemplatesClient {
     }
 
     /**
-     * Generates an AAR for SMS for a notification in the specified language.
+     * Generates an AAR for SMS for an analog notification in the specified language.
      *
      * @param xLanguage             The language for the legal fact.
      * @param notificationAarForSms The notification AAR for SMS to generate.
      * @return A string representing the generated legal fact.
      */
     @Override
-    public String notificationAarForSms(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
-        return templateEngineClient.notificationAarForSms(xLanguage, notificationAarForSms);
+    public String notificationAarForSmsAnalog(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
+        return templateEngineClient.notificationAarForSmsAnalog(xLanguage, notificationAarForSms);
     }
 
     /**
-     * Generates an AAR for email for a notification in the specified language.
+     * Generates an AAR for SMS for a digital notification in the specified language.
+     *
+     * @param xLanguage             The language for the legal fact.
+     * @param notificationAarForSms The notification AAR for SMS to generate.
+     * @return A string representing the generated legal fact.
+     */
+    @Override
+    public String notificationAarForSmsDigital(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
+        return templateEngineClient.notificationAarForSmsDigital(xLanguage, notificationAarForSms);
+    }
+
+    /**
+     * Generates an AAR for email for an analog notification in the specified language.
      *
      * @param xLanguage               The language for the legal fact.
      * @param notificationAarForEmail The notification AAR for email to generate.
      * @return A string representing the generated legal fact.
      */
     @Override
-    public String notificationAarForEmail(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
-        return templateEngineClient.notificationAarForEmail(xLanguage, notificationAarForEmail);
+    public String notificationAarForEmailAnalog(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
+        return templateEngineClient.notificationAarForEmailAnalog(xLanguage, notificationAarForEmail);
+    }
+
+    /**
+     * Generates an AAR for email for a digital notification in the specified language.
+     *
+     * @param xLanguage               The language for the legal fact.
+     * @param notificationAarForEmail The notification AAR for email to generate.
+     * @return A string representing the generated legal fact.
+     */
+    @Override
+    public String notificationAarForEmailDigital(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
+        return templateEngineClient.notificationAarForEmailDigital(xLanguage, notificationAarForEmail);
     }
 
     /**

@@ -300,7 +300,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     }
 
     /**
-     * Generates the AAR body for a notification.
+     * Generates the AAR body for an analog notification.
      *
      * @param notification      the {@link NotificationInt} object containing details about the notification,
      *                          including its unique identifier (IUN).
@@ -317,7 +317,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * {@link NotificationAarForEmail} object and return the expected email body string.
      */
     @Override
-    public String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
+    public String generateNotificationAARBodyForEmailAnalog(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
         log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
         NotificationAarForEmail notificationAAR =
                 notificationAarForEmail(
@@ -327,7 +327,38 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
                         this.getFAQSendURL(),
                         this.getAccessUrl(recipient));
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templatesClient.notificationAarForEmail(language, notificationAAR);
+        return templatesClient.notificationAarForEmailAnalog(language, notificationAAR);
+    }
+
+    /**
+     * Generates the AAR body for a digital notification.
+     *
+     * @param notification      the {@link NotificationInt} object containing details about the notification,
+     *                          including its unique identifier (IUN).
+     * @param recipient         the {@link NotificationRecipientInt} object representing the recipient of the notification,
+     *                          including relevant details such as contact information.
+     * @param quickAccessToken  a {@link String} representing the token used to generate the quick access URL
+     *                          for the notification details.
+     * @return a {@link String} representing the body of the AAR email for the notification.
+     *
+     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
+     *
+     * <p><strong>Note:</strong></p>
+     * Ensure that {@code templatesClient} is properly configured to handle the generated
+     * {@link NotificationAarForEmail} object and return the expected email body string.
+     */
+    @Override
+    public String generateNotificationAARBodyForEmailDigital(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) {
+        log.info("retrieve NotificationAARBody template for iun {}", notification.getIun());
+        NotificationAarForEmail notificationAAR =
+                notificationAarForEmail(
+                        notification,
+                        this.getPerfezionamentoLink(),
+                        this.getQuickAccessLink(recipient, quickAccessToken),
+                        this.getFAQSendURL(),
+                        this.getAccessUrl(recipient));
+        LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
+        return templatesClient.notificationAarForEmailDigital(language, notificationAAR);
     }
 
     /**
@@ -364,7 +395,7 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
     }
 
     /**
-     * Generates the AAR for an SMS notification.
+     * Generates the AAR for an SMS analog notification.
      *
      * @param notification the {@link NotificationInt} object containing details about the notification,
      *                     including its unique identifier (IUN) and sender information.
@@ -376,11 +407,31 @@ public class LegalFactGeneratorTemplates implements LegalFactGenerator {
      * {@link NotificationAarForSms} object and return the expected SMS body string.
      */
     @Override
-    public String generateNotificationAARForSMS(NotificationInt notification) {
+    public String generateNotificationAARForSMSAnalog(NotificationInt notification) {
         log.info("retrieve NotificationAARForSMS template for iun {}", notification.getIun());
         NotificationAarForSms notificationAARForSMS = notificationAarForSms(notification);
         LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
-        return templatesClient.notificationAarForSms(language, notificationAARForSMS);
+        return templatesClient.notificationAarForSmsAnalog(language, notificationAARForSMS);
+    }
+
+    /**
+     * Generates the AAR for an SMS digital notification.
+     *
+     * @param notification the {@link NotificationInt} object containing details about the notification,
+     *                     including its unique identifier (IUN) and sender information.
+     * @return a {@link String} representing the SMS body for the AAR of the notification.
+     * @throws IllegalArgumentException if any required parameter is null or contains invalid data.
+     *
+     * <p><strong>Note:</strong></p>
+     * Ensure that {@code templatesClient} is properly configured to handle the generated
+     * {@link NotificationAarForSms} object and return the expected SMS body string.
+     */
+    @Override
+    public String generateNotificationAARForSMSDigital(NotificationInt notification) {
+        log.info("retrieve NotificationAARForSMS template for iun {}", notification.getIun());
+        NotificationAarForSms notificationAARForSMS = notificationAarForSms(notification);
+        LanguageEnum language = getLanguage(notification.getAdditionalLanguages());
+        return templatesClient.notificationAarForSmsDigital(language, notificationAARForSMS);
     }
 
     /**

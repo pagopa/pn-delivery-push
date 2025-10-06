@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service;
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.SendInformation;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 
 public interface ExternalChannelService {
     String sendDigitalNotification(NotificationInt notification,
@@ -10,6 +11,6 @@ public interface ExternalChannelService {
                                    boolean sendAlreadyInProgress,
                                    SendInformation sendInformation);
 
-    void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId);
+    void sendCourtesyNotification(NotificationInt notification, CourtesyDigitalAddressInt courtesyAddress, Integer recIndex, String eventId, DeliveryModeInt deliveryMode);
 
 }

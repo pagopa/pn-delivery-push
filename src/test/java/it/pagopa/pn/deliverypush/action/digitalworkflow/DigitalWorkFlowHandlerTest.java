@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.completionworkflow.CompletionWorkFlowHandler;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
+import it.pagopa.pn.deliverypush.action.utils.CourtesyMessageUtils;
 import it.pagopa.pn.deliverypush.action.utils.InstantNowSupplier;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
@@ -42,6 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DigitalWorkFlowHandlerTest {
@@ -67,6 +69,10 @@ class DigitalWorkFlowHandlerTest {
     private DigitalWorkflowFirstSendRepeatHandler digitalWorkflowFirstSendRepeatHandler;
     @Mock
     private PnDeliveryPushConfigs.ExternalChannel externalChannel;
+    @Mock
+    private CourtesyMessageUtils courtesyMessageUtils;
+    @Mock
+    private FeatureEnabledUtils featureEnabledUtils;
 
 
     private DigitalWorkFlowHandler handler;
@@ -82,7 +88,7 @@ class DigitalWorkFlowHandlerTest {
         FeatureEnabledUtils featureEnabledUtils = new FeatureEnabledUtils(pnDeliveryPushConfigs);
         handler = new DigitalWorkFlowHandler(sendAndUnscheduleNotification, notificationService,
                 schedulerService, digitalWorkFlowUtils, completionWorkflow, nationalRegistriesService, instantNowSupplier,
-                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, featureEnabledUtils);
+                pnDeliveryPushConfigs, digitalWorkflowFirstSendRepeatHandler, featureEnabledUtils, courtesyMessageUtils);
 
         handlerExtChannel = new DigitalWorkFlowExternalChannelResponseHandler(notificationService, schedulerService, digitalWorkFlowUtils, pnDeliveryPushConfigs, auditLogService, sendAndUnscheduleNotification);
         handlerRetry = new DigitalWorkFlowRetryHandler(notificationService, digitalWorkFlowUtils, sendAndUnscheduleNotification, handlerExtChannel);
@@ -2092,6 +2098,37 @@ class DigitalWorkFlowHandlerTest {
                 digitalAddressFeedback
         );
 
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void startDigitalWorkflow_CourtesyMessageSent() {
+        NotificationInt notification = getNotification();
+        LegalDigitalAddressInt address = LegalDigitalAddressInt.builder().address("test@example.com").build();
+        int recIndex = 0;
+
+        when(pnDeliveryPushConfigs.getSendCourtesyAtChooseDeliveryActivationDate()).thenReturn(notification.getSentAt());
+        Mockito.lenient().when(featureEnabledUtils.isSendCourtesyAtChooseDeliveryEnabled(notification.getSentAt())).thenReturn(true);
+        handler.startDigitalWorkflow(notification, address, DigitalAddressSourceInt.PLATFORM, recIndex);
+
+        verify(courtesyMessageUtils, Mockito.times(1))
+                .checkAddressesAndSendCourtesyMessage(notification, recIndex, DeliveryModeInt.DIGITAL);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void startDigitalWorkflow_CourtesyMessageNotSent() {
+        NotificationInt notification = getNotification();
+        LegalDigitalAddressInt address = LegalDigitalAddressInt.builder().address("test@example.com").build();
+        int recIndex = 0;
+
+        when(pnDeliveryPushConfigs.getSendCourtesyAtChooseDeliveryActivationDate()).thenReturn(notification.getSentAt().plus(Duration.ofDays(1)));
+        Mockito.lenient().when(featureEnabledUtils.isSendCourtesyAtChooseDeliveryEnabled(notification.getSentAt())).thenReturn(false);
+
+        handler.startDigitalWorkflow(notification, address, DigitalAddressSourceInt.PLATFORM, recIndex);
+
+        Mockito.verify(courtesyMessageUtils, Mockito.never())
+                .checkAddressesAndSendCourtesyMessage(Mockito.any(), Mockito.anyInt(), Mockito.any());
     }
 
 

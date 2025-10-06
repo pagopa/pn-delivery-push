@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
@@ -34,12 +35,12 @@ public class IoServiceImpl implements IoService {
     }
 
     @Override
-    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex, Instant schedulingAnalogDate) {
+    public SendMessageResponse.ResultEnum sendIOMessage(NotificationInt notification, int recIndex, Instant schedulingAnalogDate, DeliveryModeInt deliveryMode) {
         log.info("Start send message to App IO - iun={} id={}", notification.getIun(), recIndex);
 
         NotificationRecipientInt recipientInt = notificationUtils.getRecipientFromIndex(notification, recIndex);
 
-        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex, schedulingAnalogDate);
+        SendMessageRequest sendMessageRequest = getSendMessageRequest(notification, recipientInt, recIndex, schedulingAnalogDate, deliveryMode);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_DA_SEND_IO, "sendIOMessage - iun={} id={}", notification.getIun(), recIndex)
@@ -74,7 +75,7 @@ public class IoServiceImpl implements IoService {
     }
 
     @NotNull
-    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex, Instant schedulingAnalogDate) {
+    private SendMessageRequest getSendMessageRequest(NotificationInt notification, NotificationRecipientInt recipientInt, int recIndex, Instant schedulingAnalogDate, DeliveryModeInt deliveryMode) {
         SendMessageRequest sendMessageRequest = new SendMessageRequest();
         sendMessageRequest.setAmount(notification.getAmount());
         sendMessageRequest.setDueDate(notification.getPaymentExpirationDate());
@@ -86,11 +87,15 @@ public class IoServiceImpl implements IoService {
         sendMessageRequest.setRecipientInternalID(recipientInt.getInternalId());
         sendMessageRequest.setSubject(prepareSubjectForIO(notification.getSender().getPaDenomination(), notification.getSubject()));
         sendMessageRequest.setSchedulingAnalogDate(schedulingAnalogDate);
+        sendMessageRequest.setDeliveryMode(mapToDeliveryModeEnum(deliveryMode));
 
         return sendMessageRequest;
     }
 
-
+    private SendMessageRequest.DeliveryModeEnum mapToDeliveryModeEnum(DeliveryModeInt deliveryMode) {
+        if (deliveryMode == null) return null;
+        return SendMessageRequest.DeliveryModeEnum.fromValue(deliveryMode.getValue());
+    }
 
     private String prepareSubjectForIO(String senderDenomination, String subject) {
         // tronca il nome della PA se oltre i 50 caratteri, per lasciare spazio all'oggetto

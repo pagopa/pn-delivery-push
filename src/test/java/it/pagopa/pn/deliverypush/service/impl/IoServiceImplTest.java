@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationPaymentInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.PagoPaInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalregistry.PnExternalRegistryClient;
 import it.pagopa.pn.deliverypush.service.IoService;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalregistry.model.SendMessageRequest;
@@ -74,7 +75,7 @@ class IoServiceImplTest {
         //WHEN
         SendMessageResponse.ResultEnum res = null;
         
-        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now(), DeliveryModeInt.ANALOG);
 
         assertEquals(sentCourtesy, res);
     }
@@ -116,7 +117,7 @@ class IoServiceImplTest {
         //WHEN
         SendMessageResponse.ResultEnum res = null;
 
-        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now(), DeliveryModeInt.ANALOG);
 
         assertEquals(sentCourtesy, res);
     }
@@ -155,7 +156,7 @@ class IoServiceImplTest {
 
         //WHEN
         SendMessageResponse.ResultEnum res = null;
-        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now(), DeliveryModeInt.ANALOG);
         assertEquals(notSentAppioUnavailable, res);
     }
 
@@ -193,7 +194,7 @@ class IoServiceImplTest {
 
         //WHEN
         SendMessageResponse.ResultEnum res = null;
-        res = ioService.sendIOMessage(notificationInt, 0, Instant.now());
+        res = ioService.sendIOMessage(notificationInt, 0, Instant.now(), DeliveryModeInt.ANALOG);
         assertEquals(sentOptin, res);
     }
 
@@ -230,7 +231,7 @@ class IoServiceImplTest {
         //WHEN
         Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnInternalException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate, DeliveryModeInt.ANALOG)
         );
     }
 
@@ -263,7 +264,7 @@ class IoServiceImplTest {
         //WHEN
         Instant schedulingAnalogDate = Instant.now();
         assertThrows(Exception.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate, DeliveryModeInt.ANALOG)
         );
     }
 
@@ -296,7 +297,7 @@ class IoServiceImplTest {
         //WHEN
         Instant schedulingAnalogDate = Instant.now();
         assertThrows(PnHttpResponseException.class, () ->
-                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate)
+                ioService.sendIOMessage(notificationInt, 0, schedulingAnalogDate, DeliveryModeInt.ANALOG)
         );
     }
     

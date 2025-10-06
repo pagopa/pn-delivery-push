@@ -51,12 +51,22 @@ public class TemplatesClientMock implements TemplatesClient {
     }
 
     @Override
-    public String notificationAarForSms(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
+    public String notificationAarForSmsAnalog(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
         return RESULT_STRING;
     }
 
     @Override
-    public String notificationAarForEmail(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
+    public String notificationAarForSmsDigital(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms) {
+        return RESULT_STRING;
+    }
+
+    @Override
+    public String notificationAarForEmailAnalog(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
+        return RESULT_STRING;
+    }
+
+    @Override
+    public String notificationAarForEmailDigital(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail) {
         return RESULT_STRING;
     }
 
