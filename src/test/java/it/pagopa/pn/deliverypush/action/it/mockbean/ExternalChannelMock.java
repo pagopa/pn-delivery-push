@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.DigitalMessageReference;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.externalchannel.model.LegalMessageSentDetails;
@@ -81,7 +82,8 @@ public class ExternalChannelMock implements ExternalChannelSendClient {
                                          CourtesyDigitalAddressInt digitalAddress,
                                          String timelineEventId,
                                          String aarKey,
-                                         String quickAccessToken) {
+                                         String quickAccessToken,
+                                         DeliveryModeInt deliveryMode) {
         //Invio messaggio di cortesia non necessità di risposta da external channel
         //sendDigitalNotification(digitalAddress.getAddress(), notificationInt, timelineEventId, false);
     }

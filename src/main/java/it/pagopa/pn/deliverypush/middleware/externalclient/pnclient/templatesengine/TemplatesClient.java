@@ -102,7 +102,16 @@ public interface TemplatesClient {
      * @param notificationAarForSms The notification AAR for SMS to generate.
      * @return A string representing the generated legal fact.
      */
-    String notificationAarForSms(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms);
+    String notificationAarForSmsAnalog(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms);
+
+    /**
+     * Generates an AAR (Accountability and Receipt) for SMS for a notification in the specified language.
+     *
+     * @param xLanguage The language for the legal fact.
+     * @param notificationAarForSms The notification AAR for SMS to generate.
+     * @return A string representing the generated legal fact.
+     */
+    String notificationAarForSmsDigital(LanguageEnum xLanguage, NotificationAarForSms notificationAarForSms);
 
     /**
      * Generates an AAR (Accountability and Receipt) for email for a notification in the specified language.
@@ -111,7 +120,16 @@ public interface TemplatesClient {
      * @param notificationAarForEmail The notification AAR for email to generate.
      * @return A string representing the generated legal fact.
      */
-    String notificationAarForEmail(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail);
+    String notificationAarForEmailAnalog(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail);
+
+    /**
+     * Generates an AAR (Accountability and Receipt) for email for a notification in the specified language.
+     *
+     * @param xLanguage The language for the legal fact.
+     * @param notificationAarForEmail The notification AAR for email to generate.
+     * @return A string representing the generated legal fact.
+     */
+    String notificationAarForEmailDigital(LanguageEnum xLanguage, NotificationAarForEmail notificationAarForEmail);
 
     /**
      * Generates an AAR (Accountability and Receipt) for PEC for a notification in the specified language.

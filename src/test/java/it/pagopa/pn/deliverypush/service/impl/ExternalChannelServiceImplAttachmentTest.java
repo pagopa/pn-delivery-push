@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarCreationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.legalfacts.AarTemplateType;
 import it.pagopa.pn.deliverypush.legalfacts.StaticAarTemplateChooseStrategy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -393,10 +395,10 @@ class ExternalChannelServiceImplAttachmentTest {
 
 
         //WHEN
-        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
+        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId, DeliveryModeInt.ANALOG);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, notificationRecipientInt,  courtesyDigitalAddress, eventId, FileUtils.getKeyWithStoragePrefix(aarKey), quickAccessToken);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, notificationRecipientInt,  courtesyDigitalAddress, eventId, FileUtils.getKeyWithStoragePrefix(aarKey), quickAccessToken, DeliveryModeInt.ANALOG);
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());

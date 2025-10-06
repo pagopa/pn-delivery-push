@@ -29,4 +29,14 @@ public class FeatureEnabledUtils {
                 .orElse(false);
     }
 
+    public boolean isSendCourtesyAtAARGenerationEnabled(Instant notificationSentAt) {
+        Instant startDate = configs.getSendCourtesyAtChooseDeliveryActivationDate();
+        return startDate != null && notificationSentAt.compareTo(startDate) < 0;
+    }
+
+    public boolean isSendCourtesyAtChooseDeliveryEnabled(Instant notificationSentAt) {
+        Instant startDate = configs.getSendCourtesyAtChooseDeliveryActivationDate();
+        return startDate != null && notificationSentAt.compareTo(startDate) >= 0;
+    }
+
 }

@@ -668,7 +668,8 @@ class AnalogTestIT extends CommonTestConfiguration {
                         Mockito.any(CourtesyDigitalAddressInt.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
-                        Mockito.anyString()
+                        Mockito.anyString(),
+                        Mockito.any()
                 );
 
         //Viene verificata la presenza degli indirizzi per il primo recipient

@@ -155,6 +155,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant timelineClientEnabledStartDate;
 
+    private Instant sendCourtesyAtChooseDeliveryActivationDate;
+
     @Data
     public static class Topics {
 

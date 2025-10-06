@@ -86,14 +86,24 @@ public interface LegalFactGenerator {
     AARInfo generateNotificationAAR(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken) throws IOException;
 
     /**
-     * Generates the body of the AAR notification.
+     * Generates the body of the AAR analog notification.
      *
      * @param notification the notification object containing details about the notification.
      * @param recipient the recipient of the notification.
      * @param quickAccessToken a token for quick access to the AAR.
      * @return a {@link String} representing the body of the AAR notification.
      */
-    String generateNotificationAARBody(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
+    String generateNotificationAARBodyForEmailAnalog(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
+
+    /**
+     * Generates the body of the AAR digital notification.
+     *
+     * @param notification the notification object containing details about the notification.
+     * @param recipient the recipient of the notification.
+     * @param quickAccessToken a token for quick access to the AAR.
+     * @return a {@link String} representing the body of the AAR notification.
+     */
+    String generateNotificationAARBodyForEmailDigital(NotificationInt notification, NotificationRecipientInt recipient, String quickAccessToken);
 
     /**
      * Generates the body of the AAR PEC notification.
@@ -114,10 +124,18 @@ public interface LegalFactGenerator {
     String generateNotificationAARSubject(NotificationInt notification);
 
     /**
-     * Generates the AAR notification for SMS.
+     * Generates the AAR analog notification for SMS.
      *
      * @param notification the notification object containing details about the notification.
      * @return a {@link String} representing the AAR notification for SMS.
      */
-    String generateNotificationAARForSMS(NotificationInt notification);
+    String generateNotificationAARForSMSAnalog(NotificationInt notification);
+
+    /**
+     * Generates the AAR digital notification for SMS.
+     *
+     * @param notification the notification object containing details about the notification.
+     * @return a {@link String} representing the AAR notification for SMS.
+     */
+    String generateNotificationAARForSMSDigital(NotificationInt notification);
 }

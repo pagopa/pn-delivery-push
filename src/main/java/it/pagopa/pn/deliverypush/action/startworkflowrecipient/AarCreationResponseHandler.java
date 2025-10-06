@@ -18,6 +18,8 @@ import it.pagopa.pn.deliverypush.service.SchedulerService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import java.time.Instant;
 import java.util.Optional;
+
+import it.pagopa.pn.deliverypush.utils.FeatureEnabledUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,7 @@ public class AarCreationResponseHandler {
     private final CourtesyMessageUtils courtesyMessageUtils;
     private final SchedulerService schedulerService;
     private final TimelineService timelineService;
+    private final FeatureEnabledUtils featureEnabledUtils;
     
     public void handleAarCreationResponse(String iun, int recIndex, DocumentCreationResponseActionDetails actionDetails) {
         log.info("Start handleAarCreationResponse recipientWorkflow process - iun={} aarKey={}", iun, actionDetails.getKey());
@@ -43,7 +46,9 @@ public class AarCreationResponseHandler {
 
         
         //... Invio messaggio di cortesia ... 
-        courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex);
+        if (featureEnabledUtils.isSendCourtesyAtAARGenerationEnabled(notification.getSentAt())) {
+            courtesyMessageUtils.checkAddressesAndSendCourtesyMessage(notification, recIndex, null);
+        }
 
         //... e viene schedulato il processo di scelta della tipologia di notificazione
         scheduleChooseDeliveryMode(iun, recIndex);

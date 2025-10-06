@@ -24,6 +24,7 @@ import it.pagopa.pn.deliverypush.dto.ext.paperchannel.SendAttachmentMode;
 import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
+import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.externalchannel.ExternalChannelSendClient;
 import it.pagopa.pn.deliverypush.service.AuditLogService;
 import it.pagopa.pn.deliverypush.service.ExternalChannelService;
@@ -883,10 +884,10 @@ class ExternalChannelServiceImplTest {
         String eventId = "eventId";
         
         //WHEN
-        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
+        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId, DeliveryModeInt.ANALOG);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken, DeliveryModeInt.ANALOG);
         Mockito.verify(attachmentUtils, Mockito.never()).retrieveAttachments(any(NotificationInt.class),anyInt(),any(SendAttachmentMode.class), any(F24ResolutionMode.class), anyList(), anyBoolean());
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
@@ -936,10 +937,10 @@ class ExternalChannelServiceImplTest {
         String eventId = "eventId";
 
         //WHEN
-        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId);
+        externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId, DeliveryModeInt.ANALOG);
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken, DeliveryModeInt.ANALOG);
         Mockito.verify( auditLogEvent).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent, Mockito.never()).generateFailure(any());
@@ -985,16 +986,16 @@ class ExternalChannelServiceImplTest {
         when( auditLogService.buildAuditLogEvent(Mockito.anyString(), Mockito.anyInt(), Mockito.eq(PnAuditLogEventType.AUD_DA_SEND_SMS), Mockito.anyString(), Mockito.anyString())).thenReturn(auditLogEvent);
         when(auditLogEvent.generateFailure(Mockito.anyString(), any())).thenReturn(auditLogEvent);
 
-        Mockito.doThrow(new PnInternalException("fake", "fake")).when(externalChannel).sendCourtesyNotification(any(), any(), any(), Mockito.anyString(), any(), Mockito.anyString());
+        Mockito.doThrow(new PnInternalException("fake", "fake")).when(externalChannel).sendCourtesyNotification(any(), any(), any(), Mockito.anyString(), any(), Mockito.anyString(), Mockito.any());
 
         int recIndex = 0;
         String eventId = "eventId";
 
         //WHEN
-        Assertions.assertThrows(PnInternalException.class, () -> externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId));
+        Assertions.assertThrows(PnInternalException.class, () -> externalChannelService.sendCourtesyNotification(notification, courtesyDigitalAddress, recIndex, eventId, DeliveryModeInt.ANALOG));
 
         //THEN
-        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken);
+        Mockito.verify(externalChannel).sendCourtesyNotification(notification, recipient,  courtesyDigitalAddress, eventId, aarKey, quickAccessToken, DeliveryModeInt.ANALOG);
         Mockito.verify( auditLogEvent, Mockito.never()).generateSuccess();
         Mockito.verify( auditLogEvent).log();
         Mockito.verify( auditLogEvent).generateFailure(any(), any());
