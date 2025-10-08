@@ -435,7 +435,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Accepted - Richiesta di rework presa in carico
+          description: Ok
           content:
             application/json:
               schema:
@@ -853,30 +853,46 @@ components:
     ReworkRequest:
       type: object
       properties:
+        reworkId:
+          type: string
         attemptId:
           type: string
-          description: ''
           enum:
             - ATTEMPT_0
             - ATTEMPT_1
+        pcRetry:
+          type: string
+          example: PCRETRY_0 (REGEX)
+        recIndex:
+          type: string
+          example: RECINDEX_0 (REGEX)
+        notificationStatus:
+          type: enum
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReworkError'
       required:
         - attemptId
+        - reworkId
 
     ReworkResponse:
       type: object
       properties:
         reworkId:
           type: string
-        creationDate:
+        requestId:
           type: string
-          format: date-time
-        error:
-          $ref: '#/components/schemas/ReworkError'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReworkError'
 
     ReworkError:
       type: object
       properties:
-        errorType:
+        cause:
           type: string
-        message:
+        description:
           type: string
