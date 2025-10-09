@@ -862,10 +862,12 @@ components:
             - ATTEMPT_1
         pcRetry:
           type: string
-          example: PCRETRY_0 (REGEX)
+          example: PCRETRY_0
+          pattern: PCRETRY_[0-9]+
         recIndex:
           type: string
-          example: RECINDEX_0 (REGEX)
+          example: RECINDEX_0
+          pattern: RECINDEX_[0-9]+
         notificationStatus:
           type: enum
           $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
