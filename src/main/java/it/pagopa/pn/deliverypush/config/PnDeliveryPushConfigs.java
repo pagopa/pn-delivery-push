@@ -76,6 +76,8 @@ public class PnDeliveryPushConfigs {
 
     private DocumentCreationRequestDao documentCreationRequestDao;
 
+    private NotificationReworksDao notificationReworksDao;
+
     private ExternalChannel externalChannel;
 
     private PaperChannel paperChannel;
@@ -255,6 +257,11 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class DocumentCreationRequestDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationReworksDao {
         private String tableName;
     }
 
