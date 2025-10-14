@@ -118,7 +118,7 @@ class NotificationReworkDaoDynamoTestIT {
         Assertions.assertEquals("ATTEMPTID_0", entities.items().get(1).getAttemptId());
         Assertions.assertEquals("RECINDEX_0", entities.items().get(1).getRecIndex());
 
-        NotificationReworksEntity result2 = notificationReworksDaoDynamo.findLatestByIun("IUN").block();
+        NotificationReworksEntity result2 = notificationReworksDaoDynamo.findLatestByIun(iun).block();
         Assertions.assertNotNull(result2);
         Assertions.assertEquals("REWORK_1", result2.getReworkId());
 
