@@ -1,0 +1,115 @@
+openapi: 3.0.1
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-private
+  title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  description: >-
+    API accessibili solo da microservizi interni
+  version: '1.0.0'
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+servers:
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di collaudo UAT
+
+tags:
+  - name: ReworkV1
+
+paths:
+  /v1/notifications/{iun}/rework:
+    put:
+      summary: Richiesta invalidazione timeline
+      description: >-
+        API per richiedere l'invalidazione timeline di una notifica
+      tags:
+        - NotificationRework
+      operationId: notificationRework
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReworkRequest'
+        required: true
+      responses:
+        '200':
+          description: Accepted - Richiesta di invalidazione presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReworkResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Notification found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+components:
+  parameters:
+    pathIun:
+      description: Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+  schemas:
+    ReworkRequest:
+      type: object
+      properties:
+        attemptId:
+          type: string
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+        pcRetry:
+          type: string
+          pattern: '^PCRETRY_[0-9]+$'
+          example: 'PCRETRY_0'
+        recIndex:
+          type: string
+          pattern: '^RECINDEX_[0-9]+$'
+          example: 'RECINDEX_0'
+        expectedStatusCode:
+          type: string
+        expectedDeliveryFailureCause:
+          type: string
+        reason:
+          type: string
+      required:
+        - attemptId
+        - pcRetry
+        - expectedStatusCode
+        - reason
+    ReworkResponse:
+      type: object
+      properties:
+        reworkId:
+          type: string
+        creationDate:
+          type: string
+          format: date-time
