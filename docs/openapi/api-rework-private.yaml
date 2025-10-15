@@ -23,7 +23,7 @@ tags:
   - name: ReworkV1
 
 paths:
-  /v1/notifications/{iun}/rework:
+  '/delivery-push-private/v1/notifications/{iun}/rework':
     put:
       summary: Richiesta invalidazione timeline
       description: >-
