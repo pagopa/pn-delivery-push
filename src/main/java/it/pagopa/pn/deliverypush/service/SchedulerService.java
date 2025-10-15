@@ -14,6 +14,8 @@ public interface SchedulerService {
 
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType);
 
+    void scheduleEventForRework(String iun, ActionType actionType, ActionDetails actionDetails);
+
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineId);
     
     void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails);

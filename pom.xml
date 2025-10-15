@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>it.pagopa.pn</groupId>
 			<artifactId>pn-commons</artifactId>
-			<version>2.14.0</version>
+			<version>2.13.0</version>
 		</dependency>
 
 		
@@ -826,7 +826,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/3b86cf92136ffeb03e473e6fe98bab765cf25012/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/bc606003aba2031ef651df92ff9dcadac3837b9c/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

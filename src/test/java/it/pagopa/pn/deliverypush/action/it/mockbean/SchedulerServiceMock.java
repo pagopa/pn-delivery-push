@@ -75,4 +75,9 @@ public class SchedulerServiceMock implements SchedulerService {
       ActionType actionType) {
     this.scheduleEvent(iun, recIndex, dateToSchedule, actionType, (ActionDetails) null);
   }
+
+  @Override
+  public void scheduleEventForRework(String iun, ActionType actionType, ActionDetails actionDetails) {
+    this.scheduleEvent(iun, null, Instant.now(), actionType, actionDetails);
+  }
 }
