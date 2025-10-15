@@ -145,6 +145,14 @@ Parameters:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
 
+  NotificationReworkUpdaterQueueName:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue name'
+
+  NotificationReworkUpdaterQueueARN:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue ARN'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
