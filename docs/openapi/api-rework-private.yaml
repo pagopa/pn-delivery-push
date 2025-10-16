@@ -24,6 +24,31 @@ tags:
 
 paths:
   '/delivery-push-private/v1/notifications/{iun}/rework':
+    get:
+      summary: Recupera le richieste di invalidazione timeline
+      description: >-
+        Recupera le richieste di invalidazione timeline di una notifica
+      tags:
+        - NotificationRework
+      operationId: retrieveNotificationRework
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryReworkId'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReworkItemsResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+
     put:
       summary: Richiesta invalidazione timeline
       description: >-
@@ -77,6 +102,12 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    queryReworkId:
+      name: reworkId
+      in: query
+      required: false
+      schema:
+        type: string
   schemas:
     ReworkRequest:
       type: object
@@ -113,3 +144,77 @@ components:
         creationDate:
           type: string
           format: date-time
+    ReworkItemsResponse:
+      type: object
+      properties:
+        iun:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReworkItem"
+    ReworkItem:
+      type: object
+      properties:
+        reworkId:
+          type: string
+          description: identificativo univoco della richiesta di rework
+        reason:
+          type: string
+          description: motivo della richiesta di invalidazione
+        invalidatedTimelineElementIds:
+          type: array
+          items:
+            type: string
+            # ASCII printable characters
+            pattern: ^[ -~]*$
+            maxLength: 1024
+          description: lista di timelineElementId invalidati dalla richiesta di rework
+        expectedStatusCodes:
+          description: lista di eventi correttivi attesi
+          type: array
+          items:
+            type: string
+        expectedDeliveryFailureCause:
+          type: string
+          description: causa di mancata consegna attesa
+        expectedFinalStatus:
+          type: string
+          enum:
+            - OK
+            - KO
+          description: stato finale atteso della notifica
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReworkError"
+        createdAt:
+          type: string
+          description: data di creazione della richiesta di rework in formato ISO 8601
+        updatedAt:
+          type: string
+          description: data di aggiornamento della richiesta di rework in formato ISO 8601
+        status:
+          type: string
+          enum:
+            - CREATED
+            - READY
+            - IN_PROGRESS
+            - ERROR
+            - DONE
+          description: stato della richiesta di rework (CREATED = creata, READY = pronta a ricevere gli eventi correttivi dal recapitista, IN_PROGRESS = almeno un evento correttivo è già stato ricevuto, DONE = è stato ricevuto l'evento finale)
+    ReworkError:
+      type: object
+      properties:
+        cause:
+          type: string
+          enum:
+            - INVALID_TIMELINE_ELEMENT
+            - EXPIRED_ATTACHMENT
+            - INVALID_ATTACHMENT
+            - EXPIRED_ADDRESS
+            - INVALID_ADDRESS
+            - INVALID_NOTIFICATION_STATUS
+            - INVALID_EXPECTED_STATUS_CODE
+        description:
+          type: string
