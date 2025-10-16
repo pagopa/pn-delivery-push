@@ -1914,6 +1914,76 @@ Resources:
         FunctionName: !Ref NotificationCancellationActionInsertLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+  ##########################################################################
+  ###         EventBridge pipe TimelineToNotificationReworkUpdater       ###
+  ##########################################################################
+  TimelineToNotificationReworkUpdaterPipe:
+    Type: AWS::Pipes::Pipe
+    Properties:
+      Name: !Sub "${ProjectName}-timeline-to-notification-rework-updater-pipe"
+      RoleArn: !GetAtt TimelineToNotificationReworkUpdaterPipeRole.Arn
+      Source: !Ref CdcKinesisSourceStreamArn
+      SourceParameters:
+        FilterCriteria:
+          Filters:
+            - Pattern: >
+                {
+                  "data": {
+                    "tableName": ["pn-timeline"],
+                    "dynamodb": {
+                      "NewImage": {
+                        "reworkId": { "S": [ { "exists": true } ] },
+                        "category": { "S": ["NOTIFICATION_TIMELINE_REWORKED","SEND_ANALOG_PROGRESS","SEND_ANALOG_FEEDBACK"] }
+                      }
+                    }
+                  }
+                }
+        KinesisStreamParameters:
+          StartingPosition: LATEST
+      Target: !Ref NotificationReworkUpdaterQueueARN
+      TargetParameters:
+        SqsQueueParameters:
+          MessageDeduplicationId: "$.eventID"
+        InputTemplate: |
+          {
+            "iun": <$.dynamodb.NewImage.iun.S>,
+            "reworkId": <$.dynamodb.NewImage.reworkId.S>,
+            "category": <$.dynamodb.NewImage.category.S>,
+            "timelineElementIds": <$.dynamodb.NewImage.details.M.invalidatedTimelineElementIds.L[*].S>,
+            "operationType": "UPDATE"
+          }
+
+  TimelineToNotificationReworkUpdaterPipeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: pipes.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TimelineToNotificationReworkUpdaterPipePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:GetRecords
+                  - kinesis:GetShardIterator
+                  - kinesis:DescribeStream
+                  - kinesis:ListShards
+                Resource: !Ref CdcKinesisSourceStreamArn
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessageBatch
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Resource: !Ref NotificationReworkUpdaterQueueARN
+
   #########################################################
   ###             PaperEventsCostUpdateLambda           ###
   #########################################################
