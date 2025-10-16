@@ -155,6 +155,8 @@ public class PnDeliveryPushConfigs {
 
     private String timelineClientBaseUrl;
 
+    private String paperTrackerClientBaseUrl;
+
     private Instant timelineClientEnabledStartDate;
 
     @Data

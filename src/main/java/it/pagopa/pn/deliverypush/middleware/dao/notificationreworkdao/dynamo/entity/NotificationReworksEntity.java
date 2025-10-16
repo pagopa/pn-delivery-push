@@ -23,6 +23,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_IDX = "idx";
     public static final String FIELD_EXPECTED_STATUS_CODES = "expectedStatusCodes";
     public static final String FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE = "expectedDeliveryFailureCause";
+    public static final String FIELD_EXPECTED_FINAL_STATUS = "expectedFinalStatus";
     public static final String FILED_STATUS = "status";
     public static final String FIELD_ERRORS = "errors";
     public static final String FIELD_CREATED_AT = "createdAt";
@@ -51,6 +52,9 @@ public class NotificationReworksEntity {
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE)}))
     private String expectedDeliveryFailureCause;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_EXPECTED_FINAL_STATUS)}))
+    private String expectedFinalStatus;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FILED_STATUS)}))
     private ReworkRequestStatus status;
