@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
@@ -17,6 +19,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @WebFluxTest(PnNotificationReworkController.class)
@@ -117,5 +120,69 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("RECRN002C", value.getExpectedStatusCode());
         Assertions.assertEquals("M02", value.getExpectedDeliveryFailureCause());
+    }
+
+    @Test
+    void getReworkRequestWithoutReworkId() {
+        ReworkItemsResponse reworkItemsResponse = new ReworkItemsResponse();
+        reworkItemsResponse.setIun("KWKU-JHXN-HJXM-202304-U-1");
+        ReworkItem reworkItem = new ReworkItem();
+        reworkItem.reworkId("REWORK_0_123456789");
+        reworkItemsResponse.setItems(List.of(reworkItem));
+
+        Mockito.when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1",null))
+                .thenReturn(Mono.just(reworkItemsResponse));
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ReworkItemsResponse.class).consumeWith(
+                        elem -> {
+                            ReworkItemsResponse response = elem.getResponseBody();
+                            assert response != null;
+                            Assertions.assertTrue(response.getIun().equalsIgnoreCase("KWKU-JHXN-HJXM-202304-U-1"));
+                            Assertions.assertEquals(1, response.getItems().size());
+                        }
+                );
+    }
+
+
+    @Test
+    void getReworkRequestWithReworkId() {
+        ReworkItemsResponse reworkItemsResponse = new ReworkItemsResponse();
+        reworkItemsResponse.setIun("KWKU-JHXN-HJXM-202304-U-1");
+        ReworkItem reworkItem = new ReworkItem();
+        reworkItem.reworkId("REWORK_0_123456789");
+        reworkItemsResponse.setItems(List.of(reworkItem));
+
+        Mockito.when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1","REWORK_0_123456789"))
+                        .thenReturn(Mono.just(reworkItemsResponse));
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
+                                .queryParam("reworkId","REWORK_0_123456789")
+                                .build())
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ReworkItemsResponse.class).consumeWith(
+                        elem -> {
+                            ReworkItemsResponse response = elem.getResponseBody();
+                            assert response != null;
+                            Assertions.assertTrue(response.getIun().equalsIgnoreCase("KWKU-JHXN-HJXM-202304-U-1"));
+                            Assertions.assertEquals(1, response.getItems().size());
+                        }
+                );
     }
 }

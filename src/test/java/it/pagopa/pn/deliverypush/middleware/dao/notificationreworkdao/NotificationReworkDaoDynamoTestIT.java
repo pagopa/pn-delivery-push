@@ -91,32 +91,32 @@ class NotificationReworkDaoDynamoTestIT {
         notificationReworksDaoDynamo.putIfAbsent(entity).block();
         notificationReworksDaoDynamo.putIfAbsent(entity2).block();
 
-        Mono<Page<NotificationReworksEntity>> result = notificationReworksDaoDynamo.findByIun(iun, new HashMap<>(), 5);
-        Page<NotificationReworksEntity> entities = result.block();
+        Mono<List<NotificationReworksEntity>> result = notificationReworksDaoDynamo.findByIun(iun);
+        List<NotificationReworksEntity> entities = result.block();
 
         Assertions.assertNotNull(entities);
-        Assertions.assertEquals(iun, entities.items().get(0).getIun());
-        Assertions.assertEquals("REWORK_0", entities.items().get(0).getReworkId());
-        Assertions.assertEquals("Reason di prova", entities.items().get(0).getReason());
-        Assertions.assertEquals(ReworkRequestStatus.CREATED, entities.items().get(0).getStatus());
-        Assertions.assertEquals(0, entities.items().get(0).getIdx());
-        Assertions.assertEquals(List.of("RECRN001A", "RECRN001B", "RECRN001C"), entities.items().get(0).getExpectedStatusCodes());
-        Assertions.assertNull(entities.items().get(0).getExpectedDeliveryFailureCause());
-        Assertions.assertEquals("PCRETRY_0", entities.items().get(0).getPcRetry());
-        Assertions.assertEquals("ATTEMPTID_0", entities.items().get(0).getAttemptId());
-        Assertions.assertEquals("RECINDEX_0", entities.items().get(0).getRecIndex());
+        Assertions.assertEquals(iun, entities.get(0).getIun());
+        Assertions.assertEquals("REWORK_0", entities.get(0).getReworkId());
+        Assertions.assertEquals("Reason di prova", entities.get(0).getReason());
+        Assertions.assertEquals(ReworkRequestStatus.CREATED, entities.get(0).getStatus());
+        Assertions.assertEquals(0, entities.get(0).getIdx());
+        Assertions.assertEquals(List.of("RECRN001A", "RECRN001B", "RECRN001C"), entities.get(0).getExpectedStatusCodes());
+        Assertions.assertNull(entities.get(0).getExpectedDeliveryFailureCause());
+        Assertions.assertEquals("PCRETRY_0", entities.get(0).getPcRetry());
+        Assertions.assertEquals("ATTEMPTID_0", entities.get(0).getAttemptId());
+        Assertions.assertEquals("RECINDEX_0", entities.get(0).getRecIndex());
 
 
-        Assertions.assertEquals(iun, entities.items().get(1).getIun());
-        Assertions.assertEquals("REWORK_1", entities.items().get(1).getReworkId());
-        Assertions.assertEquals("Reason di prova", entities.items().get(1).getReason());
-        Assertions.assertEquals(ReworkRequestStatus.CREATED, entities.items().get(1).getStatus());
-        Assertions.assertEquals(0, entities.items().get(1).getIdx());
-        Assertions.assertEquals(List.of("RECRN002A", "RECRN002B", "RECRN002C"), entities.items().get(1).getExpectedStatusCodes());
-        Assertions.assertEquals("M02", entities.items().get(1).getExpectedDeliveryFailureCause());
-        Assertions.assertEquals("PCRETRY_0", entities.items().get(1).getPcRetry());
-        Assertions.assertEquals("ATTEMPTID_0", entities.items().get(1).getAttemptId());
-        Assertions.assertEquals("RECINDEX_0", entities.items().get(1).getRecIndex());
+        Assertions.assertEquals(iun, entities.get(1).getIun());
+        Assertions.assertEquals("REWORK_1", entities.get(1).getReworkId());
+        Assertions.assertEquals("Reason di prova", entities.get(1).getReason());
+        Assertions.assertEquals(ReworkRequestStatus.CREATED, entities.get(1).getStatus());
+        Assertions.assertEquals(0, entities.get(1).getIdx());
+        Assertions.assertEquals(List.of("RECRN002A", "RECRN002B", "RECRN002C"), entities.get(1).getExpectedStatusCodes());
+        Assertions.assertEquals("M02", entities.get(1).getExpectedDeliveryFailureCause());
+        Assertions.assertEquals("PCRETRY_0", entities.get(1).getPcRetry());
+        Assertions.assertEquals("ATTEMPTID_0", entities.get(1).getAttemptId());
+        Assertions.assertEquals("RECINDEX_0", entities.get(1).getRecIndex());
 
         NotificationReworksEntity result2 = notificationReworksDaoDynamo.findLatestByIun(iun).block();
         Assertions.assertNotNull(result2);

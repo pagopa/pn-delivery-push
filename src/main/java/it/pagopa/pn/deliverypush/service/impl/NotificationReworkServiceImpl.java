@@ -8,6 +8,7 @@ import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
@@ -16,11 +17,14 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanage
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker.PaperTrackerClient;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,6 +57,24 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                     reworkResponse.setCreationDate(notificationReworksEntity.getCreatedAt());
                     reworkResponse.setReworkId(notificationReworksEntity.getReworkId());
                     return reworkResponse;
+                });
+    }
+
+    @Override
+    public Mono<ReworkItemsResponse> retrieveNotificationRework(String iun, String reworkId) {
+        ReworkItemsResponse reworkItemsResponse = new ReworkItemsResponse();
+        reworkItemsResponse.setIun(iun);
+        if(StringUtils.hasText(reworkId)){
+           return notificationReworkDao.findByIunAndReworkId(iun, reworkId)
+                    .map(notificationReworksEntity -> {
+                        reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(List.of(notificationReworksEntity)));
+                        return reworkItemsResponse;
+                    });
+        }
+        return notificationReworkDao.findByIun(iun)
+                .map(notificationReworksEntities -> {
+                    reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(notificationReworksEntities));
+                    return reworkItemsResponse;
                 });
     }
 
