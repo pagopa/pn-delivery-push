@@ -1,6 +1,8 @@
 const { updateStatusAndErrors } = require("./dynamo");
 const { processRecord } = require("./processRecord");
 
+const NOTIFICATION_REWORKS_DYNAMO_TABLENAME = process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME;
+
 async function handleEvent(timelineElement) {
   if (!timelineElement.Records) {
     console.warn("[NOTIFICATION_REWORK]", "No Records to process");
@@ -13,15 +15,14 @@ async function handleEvent(timelineElement) {
     let message = JSON.parse(record.body);
 
     if (message.operationType === "ERROR") {
-      found = true;
       const { iun, reworkId, errors } = message;
       if (!iun || !reworkId || !Array.isArray(errors)) {
         console.error("[NOTIFICATION_REWORK] missing field for update ERROR");
         continue;
       }
-
+    found = true;
     await updateStatusAndErrors(
-      "pn-NotificationReworks",
+      NOTIFICATION_REWORKS_DYNAMO_TABLENAME,
       iun,
       reworkId,
       errors
