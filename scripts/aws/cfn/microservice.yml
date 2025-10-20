@@ -1950,6 +1950,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
+          NOTIFICATION_REWORKS_DYNAMO_TABLENAME: !Ref NotificationReworksDynamoTableName
       TracingConfig:
         Mode: Active
       Layers:
@@ -1987,14 +1988,16 @@ Resources:
             Action:
               - "dynamodb:updateItem"
             Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-NotificationReworks
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-NotificationReworks/*"
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - sqs:ChangeMessageVisibility
               - sqs:GetQueueAttributes
               - sqs:GetQueueUrl
               - sqs:SendMessage
+              - sqs:DeleteMessage
+              - sqs:ReceiveMessage
             Resource: !Ref NotificationReworkUpdaterQueueARN
 
   # CDC to  NotificationReworkUpdaterLambda
