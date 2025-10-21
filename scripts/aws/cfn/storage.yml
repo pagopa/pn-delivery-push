@@ -149,7 +149,6 @@ Resources:
         QueueName: !Sub '${ProjectName}-delivery_push_to_notification_rework_updater'
         DelaySeconds: 1
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "true"
         QueueHasAlarm: "true"
 
   # internal queues DLQ
@@ -720,6 +719,14 @@ Outputs:
   NotificationCancellationActionInsertDLQAlarmARN:
     Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery-push-notification-cancellationaction-insert_DLQ alarm ARN
+
+  # Lambda functions
+  NotificationReworkUpdaterLambdaName:
+    Value: !Sub "${ProjectName}-NotificationReworkUpdaterLambda"
+
+  NotificationReworkUpdaterLambdaDQLARN:
+    Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.DeadLetterQueueARN
+    Description: pn-delivery-push_to_notification_rework_updater DLQ queue arn
 
   # Lambda functions
   PaperEventsCostUpdateLambdaName:

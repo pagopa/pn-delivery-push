@@ -6,17 +6,15 @@ import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.Notificati
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
-import java.util.Map;
+import java.util.List;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
@@ -76,20 +74,16 @@ public class NotificationReworkDaoDynamo implements NotificationReworkDao {
     }
 
     @Override
-    public Mono<Page<NotificationReworksEntity>> findByIun(String iun, Map<String, AttributeValue> lastEvaluateKey, int limit) {
+    public Mono<List<NotificationReworksEntity>> findByIun(String iun) {
         Key key = Key.builder().partitionValue(iun).build();
         QueryConditional queryByHashKey = keyEqualTo(key);
 
         QueryEnhancedRequest.Builder queryEnhancedRequest = QueryEnhancedRequest
                 .builder()
-                .limit(limit)
                 .queryConditional(queryByHashKey);
 
-        if (!CollectionUtils.isEmpty(lastEvaluateKey)) {
-            queryEnhancedRequest.exclusiveStartKey(lastEvaluateKey);
-        }
-
-        return Mono.from(notificationReworkTable.query(queryEnhancedRequest.build()));
+        return Mono.from(notificationReworkTable.query(queryEnhancedRequest.build())
+                .map(Page::items));
     }
 }
 

@@ -666,6 +666,19 @@ Parameters:
     Type: String
     Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
 
+  NotificationReworkUpdaterLambdaName:
+    Type: String
+    Description: 'NotificationReworkUpdaterLambda'
+
+  NotificationReworkUpdaterLambdaDLQARN:
+    Type: String
+    Description: 'DQL ARN for NotificationReworkUpdaterLambda'
+
+  NotificationReworkUpdaterLambdaBatchSize:
+    Type: Number
+    Description: "Batch size for sqs to lambda notification rework updater"
+    Default: 10
+
   # CDC
 
   CdcKinesisSourceStreamArn:
@@ -1912,6 +1925,102 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
         FunctionName: !Ref NotificationCancellationActionInsertLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  ##########################################################################
+  ###                  NotificationReworkUpdaterLambda                   ###
+  ##########################################################################
+  NotificationReworkUpdaterLambdaSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${NotificationReworkUpdaterLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  NotificationReworkUpdaterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdaterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationReworkUpdater.zip"
+      Role: !GetAtt NotificationReworkUpdaterLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          NOTIFICATION_REWORKS_DYNAMO_TABLENAME: !Ref NotificationReworksDynamoTableName
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  NotificationReworkUpdaterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationReworkUpdaterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaPolicy
+      Roles:
+        - !Ref NotificationReworkUpdaterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:updateItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+              - sqs:DeleteMessage
+              - sqs:ReceiveMessage
+            Resource: !Ref NotificationReworkUpdaterQueueARN
+
+  # CDC to  NotificationReworkUpdaterLambda
+  NotificationReworkUpdaterLambdaSource:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationReworkUpdaterLambdaPolicy
+    Properties:
+      BatchSize: !Sub ${NotificationReworkUpdaterLambdaBatchSize}
+      EventSourceArn: !Ref NotificationReworkUpdaterQueueARN
+      FunctionName: !Ref NotificationReworkUpdaterLambda
+      MaximumBatchingWindowInSeconds: 60
+      StartingPosition: TRIM_HORIZON # opzionale, non richiesto per SQS
+      Enabled: true
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref NotificationReworkUpdaterLambdaDLQARN
+
+  NotificationReworkUpdaterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref  NotificationReworkUpdaterLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   ##########################################################################

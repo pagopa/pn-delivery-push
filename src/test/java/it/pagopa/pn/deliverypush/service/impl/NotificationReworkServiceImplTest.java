@@ -104,6 +104,50 @@ class NotificationReworkServiceImplTest {
         return entity;
     }
 
+    private NotificationReworksEntity getEntity(String reworkId, Integer idx, ReworkRequestStatus reworkRequestStatus) {
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setReworkId(reworkId);
+        entity.setIun("IUN_1");
+        entity.setReason("reason");
+        entity.setExpectedStatusCodes(List.of("RECRN001A", "RECRN001B", "RECRN001C"));
+        entity.setExpectedDeliveryFailureCause(null);
+        entity.setExpectedFinalStatus("OK");
+        entity.setIdx(idx);
+        entity.setCreatedAt(Instant.now());
+        entity.setAttemptId("ATTEMPT_1");
+        entity.setPcRetry("PCRETRY_0");
+        entity.setRecIndex("RECINDEX_0");
+        entity.setStatus(reworkRequestStatus);
+        return entity;
+    }
+
+    @Test
+    void retrieveSingleItem(){
+        NotificationReworksEntity entity = getEntity("REWORK_0_UUID", 0, ReworkRequestStatus.CREATED);
+        when(notificationReworkDao.findByIunAndReworkId("IUN_1", "REWORK_0_UUID"))
+                .thenReturn(Mono.just(entity));
+
+        StepVerifier.create(service.retrieveNotificationRework("IUN_1", "REWORK_0_UUID"))
+                .expectNextMatches(response -> response.getIun().equals("IUN_1")
+                        && response.getItems().size() == 1
+                        && response.getItems().get(0).getReworkId().equals("REWORK_0_UUID"))
+                .verifyComplete();
+
+    }
+
+    @Test
+    void retrieveMultipleItems(){
+        NotificationReworksEntity entity = getEntity("REWORK_0_UUID", 0, ReworkRequestStatus.CREATED);
+        NotificationReworksEntity entity2 = getEntity("REWORK_1_UUID", 0, ReworkRequestStatus.DONE);
+        when(notificationReworkDao.findByIun("IUN_1"))
+                .thenReturn(Mono.just(List.of(entity, entity2)));
+
+        StepVerifier.create(service.retrieveNotificationRework("IUN_1", null))
+                .expectNextMatches(response -> response.getIun().equals("IUN_1")
+                        && response.getItems().size() == 2)
+                .verifyComplete();
+
+    }
 
     @Test
     void createNotificationReworkRequest_happyPath() {
