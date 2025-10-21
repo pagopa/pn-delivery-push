@@ -162,6 +162,17 @@ components:
         reason:
           type: string
           description: motivo della richiesta di invalidazione
+        attemptId:
+          type: string
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+        pcRetry:
+          type: string
+          example: 'PCRETRY_0'
+        recIndex:
+          type: string
+          example: 'RECINDEX_0'
         invalidatedTimelineElementIds:
           type: array
           items:
