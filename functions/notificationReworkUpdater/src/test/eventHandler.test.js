@@ -2,75 +2,91 @@ const { expect } = require("chai");
 const sinon = require("sinon");
 const proxyquire = require("proxyquire");
 
-describe("eventHandler.js", () => {
-  let updateStatusAndErrorsStub, processRecordStub, handleEvent;
-  const TABLE_NAME = "test-table";
+describe("eventHandler.js (SQS → Lambda)", () => {
+  let updateReworkStub, processRecordStub, handler;
 
   beforeEach(() => {
-    process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME = TABLE_NAME;
-    updateStatusAndErrorsStub = sinon.stub().resolves();
-    processRecordStub = sinon.stub().resolves();
+    updateReworkStub = sinon.stub().resolves({ ok: true });
+    processRecordStub = sinon.stub().resolves({
+      item: { iun: "iu-1", reworkId: "rw-1", status: "READY", category: "X" },
+      expectedStates: ["CREATED"]
+    });
+    process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME='tableName';
 
-    handleEvent = proxyquire("../app/eventHandler.js", {
-      "./dynamo": { updateStatusAndErrors: updateStatusAndErrorsStub },
+    const mod = proxyquire("../app/eventHandler.js", {
+      "./dynamo": { updateRework: updateReworkStub },
       "./processRecord": { processRecord: processRecordStub }
-    }).handleEvent;
+    });
+
+    handler = mod.handler;
   });
 
   afterEach(() => {
     sinon.restore();
-    delete process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME;
   });
 
-  it("Returns message if there are no records", async () => {
-    const res = await handleEvent({});
-    expect(res).to.deep.equal({ message: "no items found to be updated" });
-    expect(updateStatusAndErrorsStub.notCalled).to.be.true;
+  it("ritorna batchItemFailures vuoto se non ci sono records", async () => {
+    const res = await handler({});
+    expect(res).to.deep.equal({ batchItemFailures: [] });
+    expect(updateReworkStub.notCalled).to.be.true;
     expect(processRecordStub.notCalled).to.be.true;
   });
 
-  it("call updateStatusAndErrors for operationType ERROR", async () => {
+  it("operationType=ERROR valido → chiama updateRework e nessun failure", async () => {
     const event = {
       Records: [
         {
+          messageId: "m1",
           body: JSON.stringify({
             operationType: "ERROR",
             iun: "pk1",
             reworkId: "sk1",
-            errors: ["err1", "err2"]
+            errors: ["e1", "e2"]
           })
         }
       ]
     };
-    const res = await handleEvent(event);
-    expect(updateStatusAndErrorsStub.calledOnceWith(
-      TABLE_NAME, "pk1", "sk1", ["err1", "err2"]
+
+    const res = await handler(event);
+
+    expect(updateReworkStub.calledOnceWithExactly(
+      { iun: "pk1", reworkId: "sk1", status: "ERROR", errors: ["e1", "e2"] },
+      null
     )).to.be.true;
-    expect(res).to.deep.equal({ message: "items updated" });
+    expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 
-  it("Don't call updateStatusAndErrors if ERROR fields are missing", async () => {
+  it("operationType=ERROR con campi mancanti → aggiunge failure", async () => {
     const event = {
       Records: [
         {
+          messageId: "m2",
           body: JSON.stringify({
             operationType: "ERROR",
             iun: "pk1",
             reworkId: null,
-            errors: "not-an-array"
+            errors: "not-array"
           })
         }
       ]
     };
-    const res = await handleEvent(event);
-    expect(updateStatusAndErrorsStub.notCalled).to.be.true;
-    expect(res).to.deep.equal({ message: "no items found to be updated" });
+
+    const res = await handler(event);
+
+    expect(updateReworkStub.notCalled).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [{ itemIdentifier: "m2" }] });
   });
 
-  it("call processRecord for operationType UPDATE", async () => {
+  it("operationType=UPDATE → chiama processRecord e poi updateRework", async () => {
+    processRecordStub.resolves({
+      item: { iun: "pkU", reworkId: "skU", status: "IN_PROGRESS", category: "C" },
+      expectedStates: ["READY"]
+    });
+
     const event = {
       Records: [
         {
+          messageId: "m3",
           body: JSON.stringify({
             operationType: "UPDATE",
             foo: "bar"
@@ -78,52 +94,125 @@ describe("eventHandler.js", () => {
         }
       ]
     };
-    const res = await handleEvent(event);
+
+    const res = await handler(event);
+
     expect(processRecordStub.calledOnce).to.be.true;
-    expect(res).to.deep.equal({ message: "items updated" });
+    expect(updateReworkStub.calledOnceWithExactly(
+      { iun: "pkU", reworkId: "skU", status: "IN_PROGRESS", category: "C" },
+      ["READY"]
+    )).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 
-  it("manages multiple records with different types", async () => {
+  it("operationType sconosciuto → aggiunge failure", async () => {
     const event = {
       Records: [
         {
+          messageId: "m4",
+          body: JSON.stringify({ operationType: "WHAT_IS_THIS" })
+        }
+      ]
+    };
+
+    const res = await handler(event);
+
+    expect(processRecordStub.notCalled).to.be.true;
+    expect(updateReworkStub.notCalled).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [{ itemIdentifier: "m4" }] });
+  });
+
+  it("JSON invalido → aggiunge failure", async () => {
+    const event = {
+      Records: [
+        {
+          messageId: "m5",
+          body: "{not-json"
+        }
+      ]
+    };
+
+    const res = await handler(event);
+    expect(res).to.deep.equal({ batchItemFailures: [{ itemIdentifier: "m5" }] });
+    expect(processRecordStub.notCalled).to.be.true;
+    expect(updateReworkStub.notCalled).to.be.true;
+  });
+
+  it("updateRework ritorna CONDITION_FAILED → nessun failure (no retry)", async () => {
+    updateReworkStub.resolves({ ok: false, reason: "CONDITION_FAILED" });
+
+    const event = {
+      Records: [
+        {
+          messageId: "m6",
+          body: JSON.stringify({
+            operationType: "UPDATE",
+            foo: "bar"
+          })
+        }
+      ]
+    };
+
+    const res = await handler(event);
+
+    expect(updateReworkStub.calledOnce).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [] });
+  });
+
+  it("errore fatale durante la gestione record → aggiunge failure", async () => {
+    updateReworkStub.rejects(new Error("boom"));
+
+    const event = {
+      Records: [
+        {
+          messageId: "m7",
+          body: JSON.stringify({
+            operationType: "UPDATE",
+            foo: "bar"
+          })
+        }
+      ]
+    };
+
+    const res = await handler(event);
+
+    expect(updateReworkStub.calledOnce).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [{ itemIdentifier: "m7" }] });
+  });
+
+  it("gestisce più record con esiti misti", async () => {
+    // Prepariamo: primo OK (ERROR valido), secondo JSON invalido, terzo op sconosciuta
+    const event = {
+      Records: [
+        {
+          messageId: "m8",
           body: JSON.stringify({
             operationType: "ERROR",
-            iun: "pk1",
-            reworkId: "sk1",
-            errors: ["err1"]
+            iun: "pk8",
+            reworkId: "sk8",
+            errors: ["e8"]
           })
         },
+        { messageId: "m9", body: "{" }, // invalid JSON
         {
-          body: JSON.stringify({
-            operationType: "UPDATE",
-            foo: "bar"
-          })
+          messageId: "m10",
+          body: JSON.stringify({ operationType: "UNKNOWN" })
         }
       ]
     };
-    const res = await handleEvent(event);
-    expect(updateStatusAndErrorsStub.calledOnce).to.be.true;
-    expect(processRecordStub.calledOnce).to.be.true;
-    expect(res).to.deep.equal({ message: "items updated" });
-  });
 
-  it("Returns message if no valid record", async () => {
-    const event = {
-      Records: [
-        {
-          body: JSON.stringify({
-            operationType: "ERROR",
-            iun: null,
-            reworkId: null,
-            errors: null
-          })
-        }
+    const res = await handler(event);
+
+    expect(updateReworkStub.calledOnceWithExactly(
+      { iun: "pk8", reworkId: "sk8", status: "ERROR", errors: ["e8"] },
+      null
+    )).to.be.true;
+
+    expect(res).to.deep.equal({
+      batchItemFailures: [
+        { itemIdentifier: "m9" },
+        { itemIdentifier: "m10" }
       ]
-    };
-    const res = await handleEvent(event);
-    expect(updateStatusAndErrorsStub.notCalled).to.be.true;
-    expect(processRecordStub.notCalled).to.be.true;
-    expect(res).to.deep.equal({ message: "no items found to be updated" });
+    });
   });
 });

@@ -1,43 +1,51 @@
-const { updateStatusAndErrors } = require("./dynamo");
+const { updateRework } = require("./dynamo");
 const { processRecord } = require("./processRecord");
 
-const NOTIFICATION_REWORKS_DYNAMO_TABLENAME = process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME;
+exports.handler = async (event) => {
+  const failures = [];
 
-async function handleEvent(timelineElement) {
-  if (!timelineElement.Records) {
-    console.warn("[NOTIFICATION_REWORK]", "No Records to process");
-    return { message: "no items found to be updated" };
-  }
+  for (const rec of event.Records ?? []) {
+    const messageId = rec.messageId;
 
-  let found = false;
+    let msg;
+    try {
+      msg = JSON.parse(rec.body);
+    } catch (e) {
+      console.warn("[NOTIFICATION_REWORK] invalid JSON", e);
+      failures.push({ itemIdentifier: messageId });
+      continue;
+    }
 
-  for (const record of timelineElement.Records) {
-    let message = JSON.parse(record.body);
-
-    if (message.operationType === "ERROR") {
-      const { iun, reworkId, errors } = message;
-      if (!iun || !reworkId || !Array.isArray(errors)) {
-        console.error("[NOTIFICATION_REWORK] missing field for update ERROR");
-        continue;
+    try {
+      if (msg.operationType === "ERROR") {
+        const { iun, reworkId, errors } = msg;
+        if (!iun || !reworkId || !Array.isArray(errors)) {
+          console.warn("[NOTIFICATION_REWORK] missing fields for ERROR", { iun, reworkId });
+          failures.push({ itemIdentifier: messageId });
+          continue;
+        }
+        const res = await updateRework({ iun, reworkId, status: "ERROR", errors }, null);
+        if (res?.ok === false && res?.reason === "CONDITION_FAILED") {
+          console.warn("[NOTIFICATION_REWORK] unexpected condition fail on ERROR", { iun, reworkId });
+        }
+      } else if (msg.operationType === "UPDATE") {
+        const { item, expectedStates } = await processRecord(msg);
+        const res = await updateRework(item, expectedStates);
+        if (res?.ok === false && res?.reason === "CONDITION_FAILED") {
+          console.warn(
+            "[NOTIFICATION_REWORK] conditional check failed (no retry)",
+            { iun: item.iun, reworkId: item.reworkId, expectedStates }
+          );
+        }
+      } else {
+        console.warn("[NOTIFICATION_REWORK] unknown operationType", { operationType: msg.operationType });
+        failures.push({ itemIdentifier: messageId });
       }
-    found = true;
-    await updateStatusAndErrors(
-      NOTIFICATION_REWORKS_DYNAMO_TABLENAME,
-      iun,
-      reworkId,
-      errors
-    );
-    } else if (message.operationType === "UPDATE") {
-      found = true;
-    await processRecord(message);
+    } catch (e) {
+      console.error("[NOTIFICATION_REWORK] fatal error on record", e);
+      failures.push({ itemIdentifier: messageId });
     }
   }
 
-  if (!found) {
-    return { message: "no items found to be updated" };
-  }
-
-  return { message: "items updated" };
-}
-
-module.exports = { handleEvent };
+  return { batchItemFailures: failures };
+};
