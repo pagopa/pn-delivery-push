@@ -148,6 +148,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_push_to_notification_rework_updater'
         DelaySeconds: 1
+        MaxReceiveCount: 3
+        VisibilityTimeout: 1800
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         QueueHasAlarm: "true"
 

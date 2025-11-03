@@ -1955,7 +1955,7 @@ Resources:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 300
 
   # Lambda function role
   NotificationReworkUpdaterLambdaRole:
@@ -2011,6 +2011,8 @@ Resources:
       MaximumBatchingWindowInSeconds: 60
       StartingPosition: TRIM_HORIZON # opzionale, non richiesto per SQS
       Enabled: true
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
       DestinationConfig:
         OnFailure:
           Destination: !Ref NotificationReworkUpdaterLambdaDLQARN
