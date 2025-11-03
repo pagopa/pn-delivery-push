@@ -53,6 +53,7 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `NOTIFICATION_TIMELINE_REWORKED` - Rework della timeline per una notifica
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -107,6 +108,7 @@ components:
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - NOTIFICATION_TIMELINE_REWORKED
 
     TimelineElementV27:
       type: object
@@ -1400,3 +1402,32 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
+
+    NotificationTimelineReworkedDetails:
+      x-discriminator-value: "NOTIFICATION_TIMELINE_REWORKED"
+      type: object
+      required:
+        - recIndex
+        - sentAttemptMade
+        - InvalidatedTimelineElementsIds
+        - reason
+        - categoryType
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        InvalidatedTimelineAndStatusHistory:
+          description: elenco degli avanzamenti effettuati dal processo di notifica prima dell'invalidazione
+          type: array
+          items:
+            $ref: "./schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryElementV26"
+        reason:
+          type: string
+          description: motivo dell'invalidazione in formato testuale
+        categoryType:
+          type: string

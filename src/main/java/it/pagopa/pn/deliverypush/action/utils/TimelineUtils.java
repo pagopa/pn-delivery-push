@@ -18,6 +18,7 @@ import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.dto.timeline.*;
 import it.pagopa.pn.deliverypush.dto.timeline.details.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.SendResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.safestorage.PnSafeStorageClient;
 import it.pagopa.pn.deliverypush.service.NotificationProcessCostService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -1540,5 +1541,30 @@ public class TimelineUtils {
         return timelineId.split("\\" + TimelineEventIdBuilder.DELIMITER)[1].replace("IUN_", "");
     }
 
+    public TimelineElementInternal buildNotificationTimelineReworkedTimelineElement(
+            NotificationInt notification,
+            Integer recIndex, Integer sentAttemptMade,
+            List<NotificationStatusHistoryElementV26> invalidatedTimelineAndStatusHistory,
+            String reason, String categoryType
+            ) {
+        log.debug("buildNotificationTimelineReworkedTimelineElement - iun={} and recIndex={}", notification.getIun(), recIndex);
+
+        String elementId = TimelineEventId.NOTIFICATION_TIMELINE_REWORKED.buildEventId(
+                EventId.builder()
+                        .iun(notification.getIun())
+                        .recIndex(recIndex)
+                        .build());
+
+        NotificationTimelineReworkedDetails details = NotificationTimelineReworkedDetails.builder()
+                .recIndex(recIndex)
+                .sentAttemptMade(sentAttemptMade)
+                .invalidatedTimelineAndStatusHistory(invalidatedTimelineAndStatusHistory)
+                .reason(reason)
+                .categoryType(categoryType)
+                .build();
+
+
+        return buildTimeline(notification, TimelineElementCategoryInt.NOTIFICATION_TIMELINE_REWORKED, elementId, details);
+    }
 
 }
