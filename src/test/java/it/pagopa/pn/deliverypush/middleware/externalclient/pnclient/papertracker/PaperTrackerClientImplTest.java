@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracke
 
 
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api.NotificationReworkApi;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,9 @@ class PaperTrackerClientImplTest {
         String failureCause = "M06";
         SequenceResponse expected = new SequenceResponse();
         expected.setFinalStatusCode(SequenceResponse.FinalStatusCodeEnum.KO);
-        expected.setSequence(List.of("RECRN002A", "RECRN002B", "RECRN002C"));
+        SequenceItem sequenceItem = new SequenceItem();
+        sequenceItem.setStatusCode("RECRN001A");
+        expected.setSequence(List.of(sequenceItem));
 
         when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, failureCause))
                 .thenReturn(Mono.just(expected));

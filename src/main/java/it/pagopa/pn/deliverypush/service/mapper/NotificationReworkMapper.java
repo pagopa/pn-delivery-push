@@ -3,9 +3,13 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusCodeItem;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +36,8 @@ public class NotificationReworkMapper {
                 .map(notificationReworksEntity -> {
                     ReworkItem reworkItem = new ReworkItem();
                     reworkItem.setReworkId(notificationReworksEntity.getReworkId());
-                    reworkItem.setExpectedStatusCodes(notificationReworksEntity.getExpectedStatusCodes());
+                    reworkItem.setExpectedStatusCodes(mapToStatusCodeItems(notificationReworksEntity.getExpectedStatusCodes()));
+                    reworkItem.setReceivedStatusCodes(mapToStatusCodeItems(notificationReworksEntity.getReceivedStatusCodes()));
                     reworkItem.setExpectedDeliveryFailureCause(notificationReworksEntity.getExpectedDeliveryFailureCause());
                     reworkItem.setReason(notificationReworksEntity.getReason());
                     reworkItem.setPcRetry(notificationReworksEntity.getPcRetry());
@@ -55,5 +60,19 @@ public class NotificationReworkMapper {
                     }
                     return reworkItem;
                 }).toList();
+    }
+
+    private static List<StatusCodeItem> mapToStatusCodeItems(List<StatusCodeEntity> receivedStatusCodes) {
+        if (CollectionUtils.isEmpty(receivedStatusCodes)) {
+            return Collections.emptyList();
+        }
+        return receivedStatusCodes.stream()
+                .map(statusCodeEntity -> {
+                    StatusCodeItem statusCodeItem = new StatusCodeItem();
+                    statusCodeItem.setStatusCode(statusCodeEntity.getStatusCode());
+                    statusCodeItem.setAttachments(statusCodeEntity.getAttachments());
+                    return statusCodeItem;
+                })
+                .toList();
     }
 }

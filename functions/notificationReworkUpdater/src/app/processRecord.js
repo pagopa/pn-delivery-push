@@ -26,14 +26,11 @@ const processRecord = async (message) => {
       break;
 
     case "SEND_ANALOG_PROGRESS":
-    case "SEND_ANALOG_FEEDBACK":
       expectedStates = ["READY"];
       nextStatus = "IN_PROGRESS";
       break;
 
-    // TODO: aggiungere prepare analog attempt_1 per il done?
-    case "ANALOG_WORKFLOW_RECIPIENT_DECEASED":
-    case "REFINEMENT":
+    case "SEND_ANALOG_FEEDBACK":
       expectedStates = ["READY", "IN_PROGRESS"];
       nextStatus = "DONE";
       break;

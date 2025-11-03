@@ -8,10 +8,12 @@ import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker.PaperTrackerClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -77,7 +79,10 @@ class NotificationReworkServiceImplTest {
 
     private SequenceResponse seqResponse() {
         SequenceResponse s = new SequenceResponse();
-        s.setSequence(List.of("RECRN010", "RECRN011", "RECRN002A", "RECRN002B", "RECRN002C"));
+        SequenceItem sequenceItem = new SequenceItem();
+        sequenceItem.setStatusCode("RECRN002B");
+        sequenceItem.setAttachments(List.of("Plico"));
+        s.setSequence(List.of(sequenceItem));
         s.setFinalStatusCode(SequenceResponse.FinalStatusCodeEnum.OK);
         return s;
     }
@@ -109,7 +114,10 @@ class NotificationReworkServiceImplTest {
         entity.setReworkId(reworkId);
         entity.setIun("IUN_1");
         entity.setReason("reason");
-        entity.setExpectedStatusCodes(List.of("RECRN001A", "RECRN001B", "RECRN001C"));
+        StatusCodeEntity statusCode = new StatusCodeEntity();
+        statusCode.setStatusCode("RECRN001A");
+        statusCode.setAttachments(null);
+        entity.setExpectedStatusCodes(List.of(statusCode));
         entity.setExpectedDeliveryFailureCause(null);
         entity.setExpectedFinalStatus("OK");
         entity.setIdx(idx);
@@ -176,7 +184,9 @@ class NotificationReworkServiceImplTest {
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
         assertThat(saved.getReworkId()).startsWith("REWORK_0_");
-        assertThat(saved.getExpectedStatusCodes()).containsExactly("RECRN010", "RECRN011", "RECRN002A", "RECRN002B", "RECRN002C");
+        assertThat(saved.getExpectedStatusCodes().size() == 1) ;
+        assertThat(saved.getExpectedStatusCodes().get(0).getStatusCode()).isEqualTo("RECRN002B");
+        assertThat(saved.getExpectedStatusCodes().get(0).getAttachments().get(0)).isEqualTo("Plico");
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
 
@@ -240,7 +250,8 @@ class NotificationReworkServiceImplTest {
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
         assertThat(saved.getReworkId()).startsWith("REWORK_1_");
-        assertThat(saved.getExpectedStatusCodes()).containsExactly("RECRN010", "RECRN011", "RECRN002A", "RECRN002B", "RECRN002C");
+        assertThat(saved.getExpectedStatusCodes().size()).isEqualTo(1);
+
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
 
@@ -279,7 +290,7 @@ class NotificationReworkServiceImplTest {
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
         assertThat(saved.getReworkId()).startsWith("REWORK_0_");
-        assertThat(saved.getExpectedStatusCodes()).containsExactly("RECRN010", "RECRN011", "RECRN002A", "RECRN002B", "RECRN002C");
+        assertThat(saved.getExpectedStatusCodes().size()).isEqualTo(1);
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
 

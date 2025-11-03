@@ -29,31 +29,13 @@ describe("processRecord.js", () => {
     expect(item.category).to.equal("SEND_ANALOG_PROGRESS");
   });
 
-  it("SEND_ANALOG_FEEDBACK → READY -> IN_PROGRESS", async () => {
-    const msg = { iun: "pk3", category: "SEND_ANALOG_FEEDBACK", reworkId: "sk3" };
+  it("SEND_ANALOG_FEEDBACK → READY|IN_PROGRESS -> DONE", async () => {
+    const msg = { iun: "pk4", category: "SEND_ANALOG_FEEDBACK", reworkId: "sk4" };
     const { item, expectedStates } = await processRecord(msg);
 
-    expect(expectedStates).to.deep.equal(["READY"]);
-    expect(item.status).to.equal("IN_PROGRESS");
+    expect(expectedStates).to.deep.equal(["READY", "IN_PROGRESS"]);
+    expect(item.status).to.equal("DONE");
     expect(item.category).to.equal("SEND_ANALOG_FEEDBACK");
-  });
-
-  it("REFINEMENT → READY|IN_PROGRESS -> DONE", async () => {
-    const msg = { iun: "pk4", category: "REFINEMENT", reworkId: "sk4" };
-    const { item, expectedStates } = await processRecord(msg);
-
-    expect(expectedStates).to.deep.equal(["READY", "IN_PROGRESS"]);
-    expect(item.status).to.equal("DONE");
-    expect(item.category).to.equal("REFINEMENT");
-  });
-
-  it("ANALOG_WORKFLOW_RECIPIENT_DECEASED → READY|IN_PROGRESS -> DONE", async () => {
-    const msg = { iun: "pk5", category: "ANALOG_WORKFLOW_RECIPIENT_DECEASED", reworkId: "sk5" };
-    const { item, expectedStates } = await processRecord(msg);
-
-    expect(expectedStates).to.deep.equal(["READY", "IN_PROGRESS"]);
-    expect(item.status).to.equal("DONE");
-    expect(item.category).to.equal("ANALOG_WORKFLOW_RECIPIENT_DECEASED");
   });
 
   it("propaga i campi opzionali (timelineElementIds, errors) se presenti", async () => {

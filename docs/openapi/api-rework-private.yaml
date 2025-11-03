@@ -185,7 +185,12 @@ components:
           description: lista di eventi correttivi attesi
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/StatusCodeItem"
+        receivedStatusCodes:
+          description: lista di eventi correttivi attesi
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCodeItem"
         expectedDeliveryFailureCause:
           type: string
           description: causa di mancata consegna attesa
@@ -220,12 +225,24 @@ components:
         cause:
           type: string
           enum:
-            - INVALID_TIMELINE_ELEMENT
-            - EXPIRED_ATTACHMENT
-            - INVALID_ATTACHMENT
-            - EXPIRED_ADDRESS
-            - INVALID_ADDRESS
-            - INVALID_NOTIFICATION_STATUS
+            - EXPIRED_ATTACHMENT,
+            - INVALID_ATTACHMENT,
+            - INVALID_NOTIFICATION_STATUS,
+            - INVALID_TIMELINE_ELEMENT,
+            - EXPIRED_ANALOG_ADDRESS,
+            - INVALID_ANALOG_ADDRESS,
             - INVALID_EXPECTED_STATUS_CODE
         description:
           type: string
+    StatusCodeItem:
+        type: object
+        properties:
+          statusCode:
+            type: string
+          attachments:
+            type: array
+            items:
+              type: string
+          statusTimestamp:
+            description: required only for receivedStatusCode
+            type: string
