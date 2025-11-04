@@ -22,6 +22,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_REASON = "reason";
     public static final String FIELD_IDX = "idx";
     public static final String FIELD_EXPECTED_STATUS_CODES = "expectedStatusCodes";
+    public static final String FIELD_RECEIVED_STATUS_CODES = "receivedStatusCodes";
     public static final String FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE = "expectedDeliveryFailureCause";
     public static final String FIELD_EXPECTED_FINAL_STATUS = "expectedFinalStatus";
     public static final String FILED_STATUS = "status";
@@ -48,7 +49,10 @@ public class NotificationReworksEntity {
     private Integer idx;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_EXPECTED_STATUS_CODES)}))
-    private List<String> expectedStatusCodes;
+    private List<StatusCodeEntity> expectedStatusCodes;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_RECEIVED_STATUS_CODES)}))
+    private List<StatusCodeEntity> receivedStatusCodes;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE)}))
     private String expectedDeliveryFailureCause;

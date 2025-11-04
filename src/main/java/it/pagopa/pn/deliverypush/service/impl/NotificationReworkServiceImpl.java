@@ -7,12 +7,14 @@ import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkReques
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker.PaperTrackerClient;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
@@ -20,10 +22,12 @@ import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -83,7 +87,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setReworkId(reworkId);
         entity.setIun(notificationReworkRequestDto.getIun());
         entity.setReason(notificationReworkRequestDto.getReason());
-        entity.setExpectedStatusCodes(sequenceResponse.getSequence());
+        entity.setExpectedStatusCodes(mapToStatusCodeEntity(sequenceResponse.getSequence()));
         entity.setExpectedDeliveryFailureCause(notificationReworkRequestDto.getExpectedDeliveryFailureCause());
         entity.setExpectedFinalStatus(Objects.nonNull(sequenceResponse.getFinalStatusCode()) ? sequenceResponse.getFinalStatusCode().getValue() : null);
         entity.setIdx(idx);
@@ -93,6 +97,20 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setRecIndex(notificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
         return entity;
+    }
+
+    private List<StatusCodeEntity> mapToStatusCodeEntity(List<SequenceItem> sequence) {
+        if(CollectionUtils.isEmpty(sequence)){
+            return Collections.emptyList();
+        }
+        return sequence.stream()
+                .map(item -> {
+                    StatusCodeEntity statusCodeEntity = new StatusCodeEntity();
+                    statusCodeEntity.setStatusCode(item.getStatusCode());
+                    statusCodeEntity.setAttachments(item.getAttachments());
+                    return statusCodeEntity;
+                })
+                .toList();
     }
 
     private NewAction constructNewAction(NotificationReworksEntity notificationReworksEntity, NotificationReworkRequestInternal notificationReworkRequestDto) {
