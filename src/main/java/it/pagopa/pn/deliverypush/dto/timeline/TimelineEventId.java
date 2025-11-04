@@ -599,17 +599,6 @@ public enum TimelineEventId {
                     .withRecIndex(eventId.getRecIndex())
                     .build();
         }
-    },
-
-    NOTIFICATION_TIMELINE_REWORKED("NOTIFICATION_TIMELINE_REWORKED") {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return new TimelineEventIdBuilder()
-                    .withCategory(this.getValue())
-                    .withIun(eventId.getIun())
-                    .withRecIndex(eventId.getRecIndex())
-                    .build();
-        }
     };
 
     public String buildEventId(EventId eventId) {
