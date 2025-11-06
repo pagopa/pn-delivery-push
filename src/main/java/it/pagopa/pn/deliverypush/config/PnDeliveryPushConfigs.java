@@ -159,6 +159,8 @@ public class PnDeliveryPushConfigs {
 
     private Instant timelineClientEnabledStartDate;
 
+    private boolean notificationReworkEnabled;
+
     @Data
     public static class Topics {
 

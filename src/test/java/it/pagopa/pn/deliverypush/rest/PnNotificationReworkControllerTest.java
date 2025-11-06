@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(PnNotificationReworkController.class)
 public class PnNotificationReworkControllerTest {
@@ -30,6 +34,9 @@ public class PnNotificationReworkControllerTest {
 
     @MockBean
     NotificationReworkService service;
+
+    @MockBean
+    PnDeliveryPushConfigs configs;
 
     private ReworkRequest getRequest() {
         ReworkRequest req = new ReworkRequest();
@@ -54,8 +61,9 @@ public class PnNotificationReworkControllerTest {
         ReworkRequest request = getRequest();
 
         ArgumentCaptor<NotificationReworkRequestInternal> captor = ArgumentCaptor.forClass(NotificationReworkRequestInternal.class);
-        Mockito.when(service.createNotificationReworkRequest(captor.capture()))
+        when(service.createNotificationReworkRequest(captor.capture()))
                 .thenReturn(Mono.just(seqResponse()));
+        when(configs.isNotificationReworkEnabled()).thenReturn(true);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
@@ -92,8 +100,9 @@ public class PnNotificationReworkControllerTest {
         request.setRecIndex("RECINDEX_1");
 
         ArgumentCaptor<NotificationReworkRequestInternal> captor = ArgumentCaptor.forClass(NotificationReworkRequestInternal.class);
-        Mockito.when(service.createNotificationReworkRequest(captor.capture()))
+        when(service.createNotificationReworkRequest(captor.capture()))
                 .thenReturn(Mono.just(seqResponse()));
+        when(configs.isNotificationReworkEnabled()).thenReturn(true);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
@@ -130,8 +139,9 @@ public class PnNotificationReworkControllerTest {
         reworkItem.reworkId("REWORK_0_123456789");
         reworkItemsResponse.setItems(List.of(reworkItem));
 
-        Mockito.when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1",null))
+        when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1",null))
                 .thenReturn(Mono.just(reworkItemsResponse));
+        when(configs.isNotificationReworkEnabled()).thenReturn(true);
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -162,8 +172,9 @@ public class PnNotificationReworkControllerTest {
         reworkItem.reworkId("REWORK_0_123456789");
         reworkItemsResponse.setItems(List.of(reworkItem));
 
-        Mockito.when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1","REWORK_0_123456789"))
+        when(service.retrieveNotificationRework("KWKU-JHXN-HJXM-202304-U-1","REWORK_0_123456789"))
                         .thenReturn(Mono.just(reworkItemsResponse));
+        when(configs.isNotificationReworkEnabled()).thenReturn(true);
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -184,5 +195,24 @@ public class PnNotificationReworkControllerTest {
                             Assertions.assertEquals(1, response.getItems().size());
                         }
                 );
+    }
+
+    @Test
+    void getReworkRequestWithFeatureFlagDisabled() {
+        ReworkRequest request = getRequest();
+
+        ArgumentCaptor<NotificationReworkRequestInternal> captor = ArgumentCaptor.forClass(NotificationReworkRequestInternal.class);
+        when(service.createNotificationReworkRequest(captor.capture()))
+                .thenReturn(Mono.just(seqResponse()));
+        when(configs.isNotificationReworkEnabled()).thenReturn(false);
+
+        webTestClient.put()
+                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), ReworkRequest.class)
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
     }
 }
