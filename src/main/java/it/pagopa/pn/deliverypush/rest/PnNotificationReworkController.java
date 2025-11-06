@@ -7,18 +7,14 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationRew
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
-import it.pagopa.pn.deliverypush.middleware.dao.timelinedao.dynamo.entity.ResponseStatusEntity;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,9 +32,8 @@ public class PnNotificationReworkController implements NotificationReworkApi {
                     if (!configs.isNotificationReworkEnabled()) {
                         return Mono.error(new PnNotImplementedException());
                     }
-                    return Mono.just(request);
+                    return notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun));
                 })
-                .flatMap(request -> notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun)))
                 .map(ResponseEntity::ok);
     }
 

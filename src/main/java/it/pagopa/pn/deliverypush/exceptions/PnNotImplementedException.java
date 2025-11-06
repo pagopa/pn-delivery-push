@@ -9,11 +9,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 public class PnNotImplementedException extends PnRuntimeException {
 
     public PnNotImplementedException() {
-        this(null);
-    }
-
-    public PnNotImplementedException(Throwable ex) {
-        super("This service is not implemented yet.", "This service is not implemented yet.", HttpStatus.NOT_IMPLEMENTED.value(), ERROR_CODE_DELIVERYPUSH_SERVICE_NOT_IMPLEMENTED, null, null, ex);
+        super("This service is not implemented yet.", "This service is not implemented yet.", HttpStatus.NOT_IMPLEMENTED.value(), ERROR_CODE_DELIVERYPUSH_SERVICE_NOT_IMPLEMENTED, null, null, null);
     }
 
 }
