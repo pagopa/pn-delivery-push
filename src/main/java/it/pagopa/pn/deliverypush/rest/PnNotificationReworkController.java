@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
+import it.pagopa.pn.deliverypush.exceptions.PnNotImplementedException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationReworkApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
@@ -19,11 +21,19 @@ import reactor.core.publisher.Mono;
 public class PnNotificationReworkController implements NotificationReworkApi {
 
     private final NotificationReworkService notificationReworkService;
+    private final PnDeliveryPushConfigs configs;
 
     @Override
     public Mono<ResponseEntity<ReworkResponse>> notificationRework(String iun, Mono<ReworkRequest> reworkRequest, final ServerWebExchange exchange) {
         MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, "NOTIFICATION_REWORK_" + iun);
-        return reworkRequest.flatMap(request -> notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun)))
+
+        return reworkRequest
+                .flatMap(request -> {
+                    if (!configs.isNotificationReworkEnabled()) {
+                        return Mono.error(new PnNotImplementedException());
+                    }
+                    return notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun));
+                })
                 .map(ResponseEntity::ok);
     }
 

@@ -134,6 +134,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
         details.setReworkExpectedFinalStatus(finalStatusCode);
+        details.setReason(notificationReworkRequestDto.getReason());
         return details;
     }
 
