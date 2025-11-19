@@ -726,7 +726,7 @@ Outputs:
   NotificationReworkUpdaterLambdaName:
     Value: !Sub "${ProjectName}-NotificationReworkUpdaterLambda"
 
-  NotificationReworkUpdaterLambdaDQLARN:
+  NotificationReworkUpdaterLambdaDLQARN:
     Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.DeadLetterQueueARN
     Description: pn-delivery-push_to_notification_rework_updater DLQ queue arn
 
