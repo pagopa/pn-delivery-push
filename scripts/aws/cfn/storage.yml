@@ -726,10 +726,6 @@ Outputs:
   NotificationReworkUpdaterLambdaName:
     Value: !Sub "${ProjectName}-NotificationReworkUpdaterLambda"
 
-  NotificationReworkUpdaterLambdaDLQARN:
-    Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.DeadLetterQueueARN
-    Description: pn-delivery-push_to_notification_rework_updater DLQ queue arn
-
   # Lambda functions
   PaperEventsCostUpdateLambdaName:
     Value: !Sub "${ProjectName}-paperEventsCostUpdateLambda"

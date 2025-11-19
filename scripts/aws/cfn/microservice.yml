@@ -670,10 +670,6 @@ Parameters:
     Type: String
     Description: 'NotificationReworkUpdaterLambda'
 
-  NotificationReworkUpdaterLambdaDLQARN:
-    Type: String
-    Description: 'DQL ARN for NotificationReworkUpdaterLambda'
-
   NotificationReworkUpdaterLambdaBatchSize:
     Type: Number
     Description: "Batch size for sqs to lambda notification rework updater"
@@ -2011,9 +2007,6 @@ Resources:
       Enabled: true
       FunctionResponseTypes:
         - ReportBatchItemFailures
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref NotificationReworkUpdaterLambdaDLQARN
 
   NotificationReworkUpdaterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
