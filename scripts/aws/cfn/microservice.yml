@@ -2051,8 +2051,6 @@ Resources:
           StartingPosition: LATEST
       Target: !Ref NotificationReworkUpdaterQueueARN
       TargetParameters:
-        SqsQueueParameters:
-          MessageDeduplicationId: "$.eventID"
         InputTemplate: |
           {
             "iun": <$.dynamodb.NewImage.iun.S>,
