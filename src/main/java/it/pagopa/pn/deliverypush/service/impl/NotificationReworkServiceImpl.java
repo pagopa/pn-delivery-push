@@ -120,6 +120,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
             newAction.setActionId(notificationReworksEntity.getReworkId());
             newAction.setIun(notificationReworkRequestDto.getIun());
             newAction.setType(ActionType.NOTIFICATION_REWORK_VALIDATION);
+            newAction.notBefore(Instant.now());
             newAction.setDetails(objectMapper.writeValueAsString(details));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
