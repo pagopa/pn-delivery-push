@@ -2371,6 +2371,7 @@ Resources:
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
+            - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscalingValidator:
