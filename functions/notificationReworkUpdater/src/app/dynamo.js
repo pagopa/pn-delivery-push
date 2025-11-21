@@ -20,7 +20,7 @@ const updateRework = async (item, expectedStates) => {
     throw new Error("timelineElementIds richiede category");
   }
 
-  const Key = { pk: item.iun, sk: item.reworkId };
+  const Key = { iun: item.iun, reworkId: item.reworkId };
 
   const ExpressionAttributeNames = { "#s": "status", "#updatedAt": "updatedAt" };
   const ExpressionAttributeValues = {

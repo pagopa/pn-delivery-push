@@ -58,7 +58,7 @@ describe("updateRework (dynamo.js)", () => {
 
     const sent = UpdateCommandCtorStub.firstCall.args[0];
     expect(sent.TableName).to.equal(TABLE_NAME);
-    expect(sent.Key).to.deep.equal({ pk: "pk1", sk: "sk1" });
+    expect(sent.Key).to.deep.equal({ iun: "pk1", reworkId: "sk1" });
     expect(sent.UpdateExpression).to.include("SET #s = :newStatus");
     expect(sent.UpdateExpression).to.include("#updatedAt = :updatedAt");
 
