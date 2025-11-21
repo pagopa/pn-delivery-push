@@ -1,9 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api.NotificationReworkApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +24,8 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,6 +33,8 @@ class PaperTrackerClientImplTest {
 
     @Mock
     private NotificationReworkApi notificationReworkApi;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private PaperTrackerClientImpl client;
@@ -51,11 +59,10 @@ class PaperTrackerClientImplTest {
     }
 
     @Test
-    void retrieveSequenceAndFinalStatus_mapsWebClientErrorToPnInternalException_withStatus() {
+    void retrieveSequenceAndFinalStatus_mapsWebClientErrorToPnInternalException_withStatus() throws JsonProcessingException {
         // Arrange
         String statusCode = "RECRN002B";
 
-        String errorMsg = "Invalid status code";
         WebClientResponseException webEx = new WebClientResponseException(
                 "Invalid status code",
                 HttpStatus.BAD_REQUEST.value(),
@@ -65,15 +72,22 @@ class PaperTrackerClientImplTest {
                 null
         );
 
+        Problem problem = Problem.builder()
+                .status(400)
+                .title("Bad Request")
+                .detail("statusCode RECRN002B is PROGRESS")
+                .build();
+
+        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(problem);
         when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, null))
                 .thenReturn(Mono.error(webEx));
 
         // Act & Assert
         StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null))
                 .expectErrorSatisfies(throwable -> {
-                    WebClientResponseException ex = (WebClientResponseException) throwable;
-                    assertEquals(400, ex.getStatusCode().value(), "HTTP status should be propagated");
-                    assertTrue(Objects.requireNonNull(ex.getMessage()).contains(errorMsg), "message should contain original WebClient error message");
+                    PnInternalException ex = (PnInternalException) throwable;
+                    assertEquals(400, ex.getProblem().getStatus());
+                    assertEquals("statusCode RECRN002B is PROGRESS", ex.getProblem().getDetail());
                 })
                 .verify();
     }
