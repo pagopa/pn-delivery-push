@@ -1,7 +1,7 @@
 const { updateRework } = require("./dynamo");
 const { processRecord } = require("./processRecord");
 
-exports.handler = async (event) => {
+exports.handleEvent = async (event) => {
   const failures = [];
 
   for (const rec of event.Records ?? []) {

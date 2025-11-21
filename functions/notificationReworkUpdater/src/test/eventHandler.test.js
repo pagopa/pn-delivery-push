@@ -18,7 +18,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
       "./processRecord": { processRecord: processRecordStub }
     });
 
-    handler = mod.handler;
+    handler = mod.handleEvent;
   });
 
   afterEach(() => {
