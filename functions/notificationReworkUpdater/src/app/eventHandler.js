@@ -17,18 +17,18 @@ exports.handleEvent = async (event) => {
     }
 
     try {
-      if (msg.operationType === "ERROR") {
-        const { iun, reworkId, errors } = msg;
-        if (!iun || !reworkId || !Array.isArray(errors)) {
+      if (msg.operation === "ERROR") {
+        const { iun, reworkId, error } = msg;
+        if (!iun || !reworkId || !Array.isArray(error)) {
           console.warn("[NOTIFICATION_REWORK] missing fields for ERROR", { iun, reworkId });
           failures.push({ itemIdentifier: messageId });
           continue;
         }
-        const res = await updateRework({ iun, reworkId, status: "ERROR", errors }, null);
+        const res = await updateRework({ iun, reworkId, status: "ERROR", error }, null);
         if (res?.ok === false && res?.reason === "CONDITION_FAILED") {
           console.warn("[NOTIFICATION_REWORK] unexpected condition fail on ERROR", { iun, reworkId });
         }
-      } else if (msg.operationType === "UPDATE") {
+      } else if (msg.operation === "UPDATE") {
         const { item, expectedStates } = await processRecord(msg);
         const res = await updateRework(item, expectedStates);
         if (res?.ok === false && res?.reason === "CONDITION_FAILED") {
@@ -38,7 +38,7 @@ exports.handleEvent = async (event) => {
           );
         }
       } else {
-        console.warn("[NOTIFICATION_REWORK] unknown operationType", { operationType: msg.operationType });
+        console.warn("[NOTIFICATION_REWORK] unknown operation", { operationType: msg.operation });
         failures.push({ itemIdentifier: messageId });
       }
     } catch (e) {

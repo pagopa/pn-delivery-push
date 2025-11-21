@@ -32,16 +32,16 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     expect(processRecordStub.notCalled).to.be.true;
   });
 
-  it("operationType=ERROR valido → chiama updateRework e nessun failure", async () => {
+  it("operation=ERROR valido → chiama updateRework e nessun failure", async () => {
     const event = {
       Records: [
         {
           messageId: "m1",
           body: JSON.stringify({
-            operationType: "ERROR",
+            operation: "ERROR",
             iun: "pk1",
             reworkId: "sk1",
-            errors: ["e1", "e2"]
+            error: ["e1", "e2"]
           })
         }
       ]
@@ -50,22 +50,22 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     const res = await handler(event);
 
     expect(updateReworkStub.calledOnceWithExactly(
-      { iun: "pk1", reworkId: "sk1", status: "ERROR", errors: ["e1", "e2"] },
+      { iun: "pk1", reworkId: "sk1", status: "ERROR", error: ["e1", "e2"] },
       null
     )).to.be.true;
     expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 
-  it("operationType=ERROR con campi mancanti → aggiunge failure", async () => {
+  it("operation=ERROR con campi mancanti → aggiunge failure", async () => {
     const event = {
       Records: [
         {
           messageId: "m2",
           body: JSON.stringify({
-            operationType: "ERROR",
+            operation: "ERROR",
             iun: "pk1",
             reworkId: null,
-            errors: "not-array"
+            error: "not-array"
           })
         }
       ]
@@ -77,7 +77,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     expect(res).to.deep.equal({ batchItemFailures: [{ itemIdentifier: "m2" }] });
   });
 
-  it("operationType=UPDATE → chiama processRecord e poi updateRework", async () => {
+  it("operation=UPDATE → chiama processRecord e poi updateRework", async () => {
     processRecordStub.resolves({
       item: { iun: "pkU", reworkId: "skU", status: "IN_PROGRESS", category: "C" },
       expectedStates: ["READY"]
@@ -88,7 +88,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
         {
           messageId: "m3",
           body: JSON.stringify({
-            operationType: "UPDATE",
+            operation: "UPDATE",
             foo: "bar"
           })
         }
@@ -105,12 +105,12 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 
-  it("operationType sconosciuto → aggiunge failure", async () => {
+  it("operation sconosciuto → aggiunge failure", async () => {
     const event = {
       Records: [
         {
           messageId: "m4",
-          body: JSON.stringify({ operationType: "WHAT_IS_THIS" })
+          body: JSON.stringify({ operation: "WHAT_IS_THIS" })
         }
       ]
     };
@@ -146,7 +146,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
         {
           messageId: "m6",
           body: JSON.stringify({
-            operationType: "UPDATE",
+            operation: "UPDATE",
             foo: "bar"
           })
         }
@@ -167,7 +167,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
         {
           messageId: "m7",
           body: JSON.stringify({
-            operationType: "UPDATE",
+            operation: "UPDATE",
             foo: "bar"
           })
         }
@@ -187,16 +187,16 @@ describe("eventHandler.js (SQS → Lambda)", () => {
         {
           messageId: "m8",
           body: JSON.stringify({
-            operationType: "ERROR",
+            operation: "ERROR",
             iun: "pk8",
             reworkId: "sk8",
-            errors: ["e8"]
+            error: ["e8"]
           })
         },
         { messageId: "m9", body: "{" }, // invalid JSON
         {
           messageId: "m10",
-          body: JSON.stringify({ operationType: "UNKNOWN" })
+          body: JSON.stringify({ operation: "UNKNOWN" })
         }
       ]
     };
@@ -204,7 +204,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     const res = await handler(event);
 
     expect(updateReworkStub.calledOnceWithExactly(
-      { iun: "pk8", reworkId: "sk8", status: "ERROR", errors: ["e8"] },
+      { iun: "pk8", reworkId: "sk8", status: "ERROR", error: ["e8"] },
       null
     )).to.be.true;
 
