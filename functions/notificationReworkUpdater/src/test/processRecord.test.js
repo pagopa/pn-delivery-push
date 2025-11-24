@@ -38,18 +38,18 @@ describe("processRecord.js", () => {
     expect(item.category).to.equal("SEND_ANALOG_FEEDBACK");
   });
 
-  it("propaga i campi opzionali (timelineElementIds, errors) se presenti", async () => {
+  it("propaga i campi opzionali (timelineElementIds, error) se presenti", async () => {
     const msg = {
       iun: "pk6",
       reworkId: "sk6",
       category: "SEND_ANALOG_PROGRESS",
       timelineElementIds: ["t1", "t2"],
-      errors: ["e1"]
+      error: ["e1"]
     };
     const { item } = await processRecord(msg);
 
     expect(item.timelineElementIds).to.deep.equal(["t1", "t2"]);
-    expect(item.errors).to.deep.equal(["e1"]);
+    expect(item.error).to.deep.equal(["e1"]);
   });
 
   it("lancia se mancano i campi obbligatori", async () => {

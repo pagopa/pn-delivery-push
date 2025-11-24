@@ -43,7 +43,7 @@ const processRecord = async (message) => {
   const item = { iun, reworkId, status: nextStatus, category };
 
   if (message.timelineElementIds !== undefined) item.timelineElementIds = message.timelineElementIds;
-  if (message.errors !== undefined) item.errors = message.errors;
+  if (message.error !== undefined) item.error = message.error;
 
   return { item, expectedStates };
 };
