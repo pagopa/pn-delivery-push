@@ -12,5 +12,6 @@ public class NotificationReworkRequestInternal {
     private String reason;
     private String expectedStatusCode;
     private String expectedDeliveryFailureCause;
+    private String productType;
 
 }
