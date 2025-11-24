@@ -80,7 +80,7 @@ describe("updateRework (dynamo.js)", () => {
       iun: "pk2",
       reworkId: "sk2",
       status: "ERROR",
-      errors: ["e1", "e2"]
+      error: ["e1", "e2"]
     };
 
     const res = await dynamo.updateRework(item, ["CREATED"]);
@@ -89,9 +89,9 @@ describe("updateRework (dynamo.js)", () => {
     const sent = UpdateCommandCtorStub.firstCall.args[0];
     expect(sent.ConditionExpression).to.be.undefined;
     expect(sent.UpdateExpression).to.include("#s = :newStatus");
-    expect(sent.UpdateExpression).to.include("#errors = :errors");
+    expect(sent.UpdateExpression).to.include("#error = :error");
     expect(sent.ExpressionAttributeValues[":newStatus"]).to.equal("ERROR");
-    expect(sent.ExpressionAttributeValues[":errors"]).to.deep.equal(["e1", "e2"]);
+    expect(sent.ExpressionAttributeValues[":error"]).to.deep.equal(["e1", "e2"]);
   });
 
   it("ritorna { ok:false, reason:'CONDITION_FAILED' } su ConditionalCheckFailedException", async () => {
@@ -153,7 +153,7 @@ describe("updateRework (dynamo.js)", () => {
     expect(res).to.deep.equal({ ok: true });
 
     const sent = UpdateCommandCtorStub.firstCall.args[0];
-    expect(sent.UpdateExpression).to.not.include("#errors = :errors");
+    expect(sent.UpdateExpression).to.not.include("#error = :error");
     expect(sent.UpdateExpression).to.not.include("#category = :category");
     expect(sent.UpdateExpression).to.not.include("#timelineElementIds = :timelineElementIds");
   });

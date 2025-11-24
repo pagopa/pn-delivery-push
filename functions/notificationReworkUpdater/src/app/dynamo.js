@@ -31,7 +31,7 @@ const updateRework = async (item, expectedStates) => {
   const setClauses = ["#s = :newStatus", "#updatedAt = :updatedAt"];
 
   const OPTIONAL_FIELDS = [
-    "errors",
+    "error",
     "category",
     "timelineElementIds"
   ];
