@@ -1,0 +1,248 @@
+openapi: 3.0.1
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-private
+  title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  description: >-
+    API accessibili solo da microservizi interni
+  version: '1.0.0'
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+servers:
+  - url: https://api.notifichedigitali.it
+    description: Ambiente di produzione
+  - url: https://api.uat.notifichedigitali.it
+    description: Ambiente di collaudo UAT
+
+tags:
+  - name: ReworkV1
+
+paths:
+  '/delivery-push-private/v1/notifications/{iun}/rework':
+    get:
+      summary: Recupera le richieste di invalidazione timeline
+      description: >-
+        Recupera le richieste di invalidazione timeline di una notifica
+      tags:
+        - NotificationRework
+      operationId: retrieveNotificationRework
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryReworkId'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReworkItemsResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+
+    put:
+      summary: Richiesta invalidazione timeline
+      description: >-
+        API per richiedere l'invalidazione timeline di una notifica
+      tags:
+        - NotificationRework
+      operationId: notificationRework
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReworkRequest'
+        required: true
+      responses:
+        '200':
+          description: Accepted - Richiesta di invalidazione presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReworkResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Notification found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+components:
+  parameters:
+    pathIun:
+      description: Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    queryReworkId:
+      name: reworkId
+      in: query
+      required: false
+      schema:
+        type: string
+  schemas:
+    ReworkRequest:
+      type: object
+      properties:
+        attemptId:
+          type: string
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+        pcRetry:
+          type: string
+          pattern: '^PCRETRY_([1-9][0-9]?|0)$'
+          example: 'PCRETRY_0'
+        recIndex:
+          type: string
+          pattern: '^RECINDEX_([1-9][0-9]?|0)$'
+          example: 'RECINDEX_0'
+        expectedStatusCode:
+          type: string
+        expectedDeliveryFailureCause:
+          type: string
+        reason:
+          type: string
+      required:
+        - attemptId
+        - pcRetry
+        - expectedStatusCode
+        - reason
+    ReworkResponse:
+      type: object
+      properties:
+        reworkId:
+          type: string
+        creationDate:
+          type: string
+          format: date-time
+    ReworkItemsResponse:
+      type: object
+      properties:
+        iun:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReworkItem"
+    ReworkItem:
+      type: object
+      properties:
+        reworkId:
+          type: string
+          description: identificativo univoco della richiesta di rework
+        reason:
+          type: string
+          description: motivo della richiesta di invalidazione
+        attemptId:
+          type: string
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+        pcRetry:
+          type: string
+          example: 'PCRETRY_0'
+        recIndex:
+          type: string
+          example: 'RECINDEX_0'
+        invalidatedTimelineElementIds:
+          type: array
+          items:
+            type: string
+            # ASCII printable characters
+            pattern: ^[ -~]*$
+            maxLength: 1024
+          description: lista di timelineElementId invalidati dalla richiesta di rework
+        expectedStatusCodes:
+          description: lista di eventi correttivi attesi
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCodeItem"
+        receivedStatusCodes:
+          description: lista di eventi correttivi attesi
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCodeItem"
+        expectedDeliveryFailureCause:
+          type: string
+          description: causa di mancata consegna attesa
+        expectedFinalStatus:
+          type: string
+          enum:
+            - OK
+            - KO
+          description: stato finale atteso della notifica
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReworkError"
+        createdAt:
+          type: string
+          description: data di creazione della richiesta di rework in formato ISO 8601
+        updatedAt:
+          type: string
+          description: data di aggiornamento della richiesta di rework in formato ISO 8601
+        status:
+          type: string
+          enum:
+            - CREATED
+            - READY
+            - IN_PROGRESS
+            - ERROR
+            - DONE
+          description: stato della richiesta di rework (CREATED = creata, READY = pronta a ricevere gli eventi correttivi dal recapitista, IN_PROGRESS = almeno un evento correttivo è già stato ricevuto, DONE = è stato ricevuto l'evento finale)
+    ReworkError:
+      type: object
+      properties:
+        cause:
+          type: string
+          enum:
+            - EXPIRED_ATTACHMENT,
+            - INVALID_ATTACHMENT,
+            - INVALID_NOTIFICATION_STATUS,
+            - INVALID_TIMELINE_ELEMENT,
+            - EXPIRED_ANALOG_ADDRESS,
+            - INVALID_ANALOG_ADDRESS,
+            - INVALID_EXPECTED_STATUS_CODE
+        description:
+          type: string
+    StatusCodeItem:
+        type: object
+        properties:
+          statusCode:
+            type: string
+          attachments:
+            type: array
+            items:
+              type: string
+          statusTimestamp:
+            description: required only for receivedStatusCode
+            type: string

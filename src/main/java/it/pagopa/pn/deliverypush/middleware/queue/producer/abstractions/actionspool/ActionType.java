@@ -3,6 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actions
 import it.pagopa.pn.deliverypush.action.details.*;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public enum ActionType {
 
@@ -157,6 +159,24 @@ public enum ActionType {
 
       return String.format("send_analog_final_status_response_feedback-timeline-id_%s",
               action.getTimelineId());
+    }
+  },
+
+  NOTIFICATION_REWORK_REQUESTED(NotificationReworkRequestedDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+
+      return String.format("notification_rework_requested_%s",
+              UUID.randomUUID());
+    }
+  },
+
+  NOTIFICATION_REWORK_VALIDATION(NotificationReworkValidationDetails.class) {
+    @Override
+    public String buildActionId(Action action) {
+
+      return String.format("notification_rework_validation_%s",
+              UUID.randomUUID());
     }
   };
 

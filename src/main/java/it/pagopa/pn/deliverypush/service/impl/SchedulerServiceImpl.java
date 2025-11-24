@@ -49,35 +49,36 @@ public class SchedulerServiceImpl implements SchedulerService {
     }
 
     @Override
-    public void scheduleEvent(
-            String iun,
-            Integer recIndex,
-            Instant dateToSchedule,
-            ActionType actionType,
-            String timelineEventId,
-            ActionDetails actionDetails
-    ) {
+    public void scheduleEventForRework(String iun, ActionType actionType, ActionDetails actionDetails) {
+        this.schedule(iun, null, Instant.now(), actionType, null, actionDetails);
+    }
+
+    @Override
+    public void scheduleEvent(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails) {
         log.info("Schedule {} in schedulingDate={} - iun={}", actionType, dateToSchedule, iun);
-
         if (!timelineUtils.checkIsNotificationCancellationRequested(iun) || checkIsDocumentForNotificationCancelled(actionDetails)) {
-            Action action = Action.builder()
-                    .iun(iun)
-                    .recipientIndex(recIndex)
-                    .notBefore(dateToSchedule)
-                    .type(actionType)
-                    .timelineId(timelineEventId)
-                    .details(actionDetails)
-                    .build();
-
-            action = action.toBuilder()
-                    .actionId(action.getType().buildActionId(action))
-                    .build();
-
-            log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={} actionId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId, action.getActionId());
-            actionsPool.addOnlyAction(action);
+            schedule(iun, recIndex, dateToSchedule, actionType, timelineEventId, actionDetails);
         } else {
             log.info("Notification is cancelled, the action {} will not be scheduled - iun={}", actionType, iun);
         }
+    }
+
+    public void schedule(String iun, Integer recIndex, Instant dateToSchedule, ActionType actionType, String timelineEventId, ActionDetails actionDetails){
+        Action action = Action.builder()
+                .iun(iun)
+                .recipientIndex(recIndex)
+                .notBefore(dateToSchedule)
+                .type(actionType)
+                .timelineId(timelineEventId)
+                .details(actionDetails)
+                .build();
+
+        action = action.toBuilder()
+                .actionId(action.getType().buildActionId(action))
+                .build();
+
+        log.debug("ScheduleEvent iun={} recIndex={} dateToSchedule={} actionType={} timelineEventId={} actionId={}", iun, recIndex, dateToSchedule, actionType, timelineEventId, action.getActionId());
+        actionsPool.addOnlyAction(action);
     }
 
     private boolean checkIsDocumentForNotificationCancelled(ActionDetails actionDetails) {

@@ -76,6 +76,8 @@ public class PnDeliveryPushConfigs {
 
     private DocumentCreationRequestDao documentCreationRequestDao;
 
+    private NotificationReworksDao notificationReworksDao;
+
     private ExternalChannel externalChannel;
 
     private PaperChannel paperChannel;
@@ -153,7 +155,11 @@ public class PnDeliveryPushConfigs {
 
     private String timelineClientBaseUrl;
 
+    private String paperTrackerClientBaseUrl;
+
     private Instant timelineClientEnabledStartDate;
+
+    private boolean notificationReworkEnabled;
 
     @Data
     public static class Topics {
@@ -255,6 +261,11 @@ public class PnDeliveryPushConfigs {
 
     @Data
     public static class DocumentCreationRequestDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationReworksDao {
         private String tableName;
     }
 

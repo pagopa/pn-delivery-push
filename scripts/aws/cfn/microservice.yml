@@ -145,6 +145,14 @@ Parameters:
     Type: String
     Description: 'Send done actions to this queue read by webhook'
 
+  NotificationReworkUpdaterQueueName:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue name'
+
+  NotificationReworkUpdaterQueueARN:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue ARN'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -658,6 +666,15 @@ Parameters:
     Type: String
     Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
 
+  NotificationReworkUpdaterLambdaName:
+    Type: String
+    Description: 'NotificationReworkUpdaterLambda'
+
+  NotificationReworkUpdaterLambdaBatchSize:
+    Type: Number
+    Description: "Batch size for sqs to lambda notification rework updater"
+    Default: 10
+
   # CDC
 
   CdcKinesisSourceStreamArn:
@@ -799,6 +816,15 @@ Parameters:
       - "false"
     Description: "Enable or disable WorkflowChannels Consumer"
 
+  NotificationReworksDynamoTableName:
+    Type: String
+    Description: "NotificationRefusedVerification Dynamo table name"
+
+  NotificationReworksDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing notification refused verification"
+
+
 Conditions:
   UseExternalChannelMock: !Equals [ !Ref ExternalChannelBaseUrl, "Mock" ]
   AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
@@ -860,6 +886,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST='
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
@@ -912,14 +939,13 @@ Resources:
         #ContainerEnvEntry82: !Sub 'PN_DELIVERYPUSH_ADDITIONALLANGSENABLED=${AdditionalLangsEnabled}'
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
-        #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry89: !Sub ['PN_DELIVERYPUSH_STARTWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 2, !Ref WebhookFeatureFlags ]} ]
         ContainerEnvEntry90: !Sub ['PN_DELIVERYPUSH_STOPWRITEBUSINESSTIMESTAMP=${SelectedEnv}', { SelectedEnv: !Select [ 3, !Ref WebhookFeatureFlags ]} ]
-        #ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_TIMELINELOCKDURATION=${TimelineLockDuration}'
         ContainerEnvEntry91: !Sub 'PN_DELIVERYPUSH_ENDACTIONIMPLWITHDAOEPOCH=${ActionLambdasEnabledEnd}'
         ContainerEnvEntry92: !Sub 'PN_DELIVERYPUSH_ACTIONTTLDAYS=${ActionTtlDays}'
         ContainerEnvEntry93: !Sub 'PN_DELIVERYPUSH_EMDINTEGRATIONBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
@@ -994,6 +1020,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushValidationInputsQueueName},${ScheduledValidationActionsQueueName},${SafeStorageToDeliveryPushQueueName},${AddressManagerToDeliveryPushQueueName},${F24ToDeliveryPushQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
@@ -1051,6 +1078,7 @@ Resources:
         ContainerEnvEntry83: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
@@ -1138,6 +1166,7 @@ Resources:
         ContainerEnvEntry26: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry27: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry28: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         #ContainerEnvEntry29: !Sub 'SPRING_CLOUD_FUNCTIONROUTER_QUEUES_LIST=${DeliveryPushInputsQueueName},${ExternalChannelsOutputsQueueName},${ScheduledActionsQueueName},${NationalRegistries2DeliveryPushQueueName},${DoneActionsQueueName}'
         ContainerEnvEntry30: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERYPUSH_TIMELINEDAO_TABLENAME=${TimelinesDynamoTableName}'
@@ -1196,6 +1225,7 @@ Resources:
         #ContainerEnvEntry84: !Sub 'PN_DELIVERYPUSH_ACTIVATIONDECEASEDWORKFLOWDATE=${ActivationDeceasedWorkflowDate}'
         #ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_ENABLETEMPLATESENGINE=${EnableTemplatesEngine}'
         #ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_FEATUREUNREACHABLEREFINEMENTPOSTAARSTARTDATE=${FeatureUnreachableRefinementPostAARStartDate}'
+        ContainerEnvEntry85: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
         ContainerEnvEntry86: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry87: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTART=${SelectedEnv}', { SelectedEnv: !Select [ 0, !Ref pfNewWorkflowFeatureFlag ]} ]
         ContainerEnvEntry88: !Sub ['PN_DELIVERYPUSH_PFNEWWORKFLOWSTOP=${SelectedEnv}', { SelectedEnv: !Select [ 1, !Ref pfNewWorkflowFeatureFlag ]} ]
@@ -1259,6 +1289,15 @@ Resources:
               - !Ref NationalRegistries2DeliveryPushQueueARN
               - !Ref AddressManagerToDeliveryPushQueueARN
               - !Ref F24ToDeliveryPushQueueARN
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:PutItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
+
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -1887,6 +1926,168 @@ Resources:
         FunctionName: !Ref NotificationCancellationActionInsertLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
+  ##########################################################################
+  ###                  NotificationReworkUpdaterLambda                   ###
+  ##########################################################################
+  NotificationReworkUpdaterLambdaSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${NotificationReworkUpdaterLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  NotificationReworkUpdaterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdaterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationReworkUpdater.zip"
+      Role: !GetAtt NotificationReworkUpdaterLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          NOTIFICATION_REWORKS_DYNAMO_TABLENAME: !Ref NotificationReworksDynamoTableName
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 300
+
+  # Lambda function role
+  NotificationReworkUpdaterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationReworkUpdaterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaPolicy
+      Roles:
+        - !Ref NotificationReworkUpdaterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:updateItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+              - sqs:DeleteMessage
+              - sqs:ReceiveMessage
+            Resource: !Ref NotificationReworkUpdaterQueueARN
+
+  # CDC to  NotificationReworkUpdaterLambda
+  NotificationReworkUpdaterLambdaSource:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationReworkUpdaterLambdaPolicy
+    Properties:
+      BatchSize: !Sub ${NotificationReworkUpdaterLambdaBatchSize}
+      EventSourceArn: !Ref NotificationReworkUpdaterQueueARN
+      FunctionName: !Ref NotificationReworkUpdaterLambda
+      MaximumBatchingWindowInSeconds: 60
+      Enabled: true
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
+  NotificationReworkUpdaterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref  NotificationReworkUpdaterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  ##########################################################################
+  ###         EventBridge pipe TimelineToNotificationReworkUpdater       ###
+  ##########################################################################
+  TimelineToNotificationReworkUpdaterPipe:
+    Type: AWS::Pipes::Pipe
+    Properties:
+      Name: !Sub "${ProjectName}-timeline-to-notification-rework-updater-pipe"
+      RoleArn: !GetAtt TimelineToNotificationReworkUpdaterPipeRole.Arn
+      Source: !Ref CdcKinesisSourceStreamArn
+      SourceParameters:
+        FilterCriteria:
+          Filters:
+            - Pattern: >
+                {
+                  "data": {
+                    "tableName": ["pn-timeline"],
+                    "dynamodb": {
+                      "NewImage": {
+                        "reworkId": { "S": [ { "exists": true } ] },
+                        "category": { "S": ["NOTIFICATION_TIMELINE_REWORKED","SEND_ANALOG_PROGRESS","SEND_ANALOG_FEEDBACK"] }
+                      }
+                    }
+                  }
+                }
+        KinesisStreamParameters:
+          StartingPosition: LATEST
+      Target: !Ref NotificationReworkUpdaterQueueARN
+      TargetParameters:
+        InputTemplate: |
+          {
+            "iun": <$.dynamodb.NewImage.iun.S>,
+            "reworkId": <$.dynamodb.NewImage.reworkId.S>,
+            "category": <$.dynamodb.NewImage.category.S>,
+            "timelineElementIds": <$.dynamodb.NewImage.details.M.invalidatedTimelineElementIds.L[*].S>,
+            "operationType": "UPDATE"
+          }
+
+  TimelineToNotificationReworkUpdaterPipeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: pipes.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TimelineToNotificationReworkUpdaterPipePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:GetRecords
+                  - kinesis:GetShardIterator
+                  - kinesis:DescribeStream
+                  - kinesis:ListShards
+                Resource: !Ref CdcKinesisSourceStreamArn
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessageBatch
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Resource: !Ref NotificationReworkUpdaterQueueARN
+
   #########################################################
   ###             PaperEventsCostUpdateLambda           ###
   #########################################################
@@ -2111,7 +2312,8 @@ Resources:
             - !Ref ActionDynamoTableName
             - !Ref FutureActionDynamoTableName
             - !Ref PnDeliveryPushShedLockDynamoTableName
-            - !Ref DocumentCreationRequestTableName 
+            - !Ref DocumentCreationRequestTableName
+            - !Ref NotificationReworksDynamoTableName
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -2174,6 +2376,7 @@ Resources:
             - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
             - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
+            - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscalingValidator:

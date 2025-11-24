@@ -258,6 +258,43 @@
 							</configOptions>
 						</configuration>
 					</execution>
+
+					<!-- OPEN API REWORK PRIVATE PN-DELIVERY-PUSH-->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>pn-internal-delivery-push-rework-private</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<typeMappings>
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+							</typeMappings>
+							<inputSpec>${project.basedir}/docs/openapi/api-rework-private.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<library>spring-boot</library>
+							<modelNameSuffix />
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
+							<configOptions>
+								<basePackage>${project.groupId}.deliverypush.generated.openapi.server.v1</basePackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.dto</modelPackage>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.api</apiPackage>
+								<configPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.config</configPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<additionalModelTypeAnnotations>@lombok.Builder(toBuilder = true); @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
 					
 					<!-- OPEN API PN-DELIVERY-PUSH  -->
 					<execution>
@@ -570,6 +607,38 @@
 						</configuration>
 					</execution>
 
+					<!-- OPEN API CLIENT PN-PAPER-TRACKER -->
+					<execution>
+						<phase>generate-resources</phase>
+						<id>generate-client-pn-papertracker</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-paper-tracker/984506ea290281aa9506f327250021c66b1cd0fd/docs/openapi/api-internal-v1.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>webclient</library>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<typeMappings><typeMapping>OffsetDateTime=Instant</typeMapping></typeMappings>
+							<importMappings><importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping></importMappings>
+							<templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
+							<configOptions>
+								<apiPackage>${project.groupId}.deliverypush.generated.openapi.msclient.papertracker.api</apiPackage>
+								<modelPackage>${project.groupId}.deliverypush.generated.openapi.msclient.papertracker.model</modelPackage>
+								<dateLibrary>java8</dateLibrary>
+								<delegatePattern>true</delegatePattern>
+								<interfaceOnly>true</interfaceOnly>
+								<annotationLibrary>none</annotationLibrary>
+								<documentationProvider>source</documentationProvider>
+								<openApiNullable>false</openApiNullable>
+								<reactive>true</reactive>
+								<skipDefaultInterface>false</skipDefaultInterface>
+								<useTags>true</useTags>
+							</configOptions>
+						</configuration>
+					</execution>
+					
 					<!-- OPEN API CLIENT PN-MANDATE -->
 					<execution>
 						<phase>generate-resources</phase>
@@ -789,7 +858,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/3b86cf92136ffeb03e473e6fe98bab765cf25012/docs/openapi/api-private.yaml</inputSpec>
+							<inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/bc606003aba2031ef651df92ff9dcadac3837b9c/docs/openapi/api-private.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<library>resttemplate</library>
 							<generateApiTests>false</generateApiTests>

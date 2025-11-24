@@ -1,6 +1,8 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.action.details.DocumentCreationResponseActionDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationReworkRequestedDetails;
+import it.pagopa.pn.deliverypush.action.details.NotificationReworkValidationDetails;
 import it.pagopa.pn.deliverypush.action.details.SendDigitalFinalStatusResponseDetails;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressInfoSentAttempt;
@@ -20,6 +22,7 @@ import java.time.Clock;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(SpringExtension.class)
 class SchedulerServiceImplTest {
@@ -58,9 +61,31 @@ class SchedulerServiceImplTest {
                                 .build()
                 )
                 .build());
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
     
+    @Test
+    void scheduleEventForReworkValidation() {
+        NotificationReworkValidationDetails notificationReworkValidationDetails = new NotificationReworkValidationDetails();
+        notificationReworkValidationDetails.setReworkId("reworkId");
+        schedulerService.scheduleEventForRework("01", ActionType.NOTIFICATION_REWORK_VALIDATION, notificationReworkValidationDetails);
+        Mockito.verify(timelineUtils, times(0)).checkIsNotificationCancellationRequested("01");
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
+    }
+
+
+    @Test
+    void scheduleEventForReworkRequested() {
+        NotificationReworkRequestedDetails notificationReworkRequestedDetails = new NotificationReworkRequestedDetails();
+        notificationReworkRequestedDetails.setReworkId("reworkId");
+        notificationReworkRequestedDetails.setReworkRequestId("requestId");
+
+        schedulerService.scheduleEventForRework("01",  ActionType.NOTIFICATION_REWORK_REQUESTED, notificationReworkRequestedDetails);
+        Mockito.verify(timelineUtils, times(0)).checkIsNotificationCancellationRequested("01");
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
+    }
+
+
     @Test
     void scheduleEvent() {
         Action action = buildAction(ActionType.ANALOG_WORKFLOW);
@@ -71,7 +96,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.ANALOG_WORKFLOW);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
 
     @Test
@@ -81,7 +106,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.unscheduleEvent("01", 3, ActionType.ANALOG_WORKFLOW, "timelineEventId");
 
-        Mockito.verify(actionsPool, Mockito.times(1)).unscheduleFutureAction(actionId);
+        Mockito.verify(actionsPool, times(1)).unscheduleFutureAction(actionId);
     }
 
     @Test
@@ -99,7 +124,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,actionDetails);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
     @Test
     void scheduleEvent4(){
@@ -116,7 +141,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,actionDetails);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
     @Test
     void scheduleEvent8(){
@@ -129,7 +154,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", 3, instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION,"timelineEventId");
 
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
 
     @Test
@@ -142,7 +167,7 @@ class SchedulerServiceImplTest {
 
         schedulerService.scheduleEvent("01", instant, ActionType.DIGITAL_WORKFLOW_NEXT_ACTION);
 
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
 
     @Test
@@ -178,7 +203,7 @@ class SchedulerServiceImplTest {
         schedulerService.scheduleEvent("01", 3, instant, ActionType.NOTIFICATION_CANCELLATION, "timelineId", details);
 
         //THEN
-        Mockito.verify(actionsPool, Mockito.times(1)).addOnlyAction(any(Action.class));
+        Mockito.verify(actionsPool, times(1)).addOnlyAction(any(Action.class));
     }
 
     private Action buildAction(ActionType type) {
