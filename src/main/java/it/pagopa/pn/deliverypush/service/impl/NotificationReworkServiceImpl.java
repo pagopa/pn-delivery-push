@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -80,18 +81,19 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     public Mono<ReworkItemsResponse> retrieveNotificationRework(String iun, String reworkId) {
         ReworkItemsResponse reworkItemsResponse = new ReworkItemsResponse();
         reworkItemsResponse.setIun(iun);
+        reworkItemsResponse.setItems(new ArrayList<>());
         if(StringUtils.hasText(reworkId)){
            return notificationReworkDao.findByIunAndReworkId(iun, reworkId)
-                    .map(notificationReworksEntity -> {
+                    .doOnNext(notificationReworksEntity -> {
                         reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(List.of(notificationReworksEntity)));
-                        return reworkItemsResponse;
-                    });
+                    })
+                   .thenReturn(reworkItemsResponse);
         }
         return notificationReworkDao.findByIun(iun)
-                .map(notificationReworksEntities -> {
+                .doOnNext(notificationReworksEntities -> {
                     reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(notificationReworksEntities));
-                    return reworkItemsResponse;
-                });
+                })
+                .thenReturn(reworkItemsResponse);
     }
 
     private NotificationReworksEntity constructNewEntity(String reworkId, NotificationReworkRequestInternal notificationReworkRequestDto, SequenceResponse sequenceResponse) {
