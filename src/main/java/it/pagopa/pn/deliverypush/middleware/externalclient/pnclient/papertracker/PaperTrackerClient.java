@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface PaperTrackerClient {
 
-    Mono<SequenceResponse> retrieveSequenceAndFinalStatus(String statusCode, String deliveryFailureCause);
+    Mono<SequenceResponse> retrieveSequenceAndFinalStatus(String statusCode, String deliveryFailureCause, String productType);
 }

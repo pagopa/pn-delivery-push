@@ -23,8 +23,8 @@ public class PaperTrackerClientImpl implements PaperTrackerClient{
     private final ObjectMapper objectMapper;
 
     @Override
-    public Mono<SequenceResponse> retrieveSequenceAndFinalStatus(String statusCode, String deliveryFailureCause) {
-        return notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, deliveryFailureCause)
+    public Mono<SequenceResponse> retrieveSequenceAndFinalStatus(String statusCode, String deliveryFailureCause, String productType) {
+        return notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, productType, deliveryFailureCause)
                 .onErrorResume(WebClientResponseException.class, ex -> {
                     try {
                         Problem problem = objectMapper.readValue(ex.getResponseBodyAsString(), Problem.class);

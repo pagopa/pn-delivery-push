@@ -49,11 +49,11 @@ class PaperTrackerClientImplTest {
         sequenceItem.setStatusCode("RECRN001A");
         expected.setSequence(List.of(sequenceItem));
 
-        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, failureCause))
+        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, "AR", failureCause ))
                 .thenReturn(Mono.just(expected));
 
         // Act & Assert
-        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, failureCause))
+        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, failureCause, "AR"))
                 .expectNext(expected)
                 .verifyComplete();
     }
@@ -79,11 +79,11 @@ class PaperTrackerClientImplTest {
                 .build();
 
         when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(problem);
-        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, null))
+        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode,  "AR",null))
                 .thenReturn(Mono.error(webEx));
 
         // Act & Assert
-        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null))
+        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null, "AR"))
                 .expectErrorSatisfies(throwable -> {
                     PnInternalException ex = (PnInternalException) throwable;
                     assertEquals(400, ex.getProblem().getStatus());
@@ -98,11 +98,11 @@ class PaperTrackerClientImplTest {
         String statusCode = "RECRN001C";
         String originalMsg = "error";
 
-        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, null))
+        when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode, "AR", null))
                 .thenReturn(Mono.error(new RuntimeException(originalMsg)));
 
         // Act & Assert
-        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null))
+        StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode,null,"AR"))
                 .expectErrorSatisfies(throwable -> assertTrue(Objects.requireNonNull(throwable.getMessage()).contains(originalMsg), "message should contain original error message"))
                 .verify();
     }
