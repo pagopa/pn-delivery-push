@@ -2035,7 +2035,7 @@ Resources:
             - Pattern: >
                 {
                   "data": {
-                    "tableName": ["pn-timeline"],
+                    "tableName": ["pn-Timelines"],
                     "dynamodb": {
                       "NewImage": {
                         "reworkId": { "S": [ { "exists": true } ] },
