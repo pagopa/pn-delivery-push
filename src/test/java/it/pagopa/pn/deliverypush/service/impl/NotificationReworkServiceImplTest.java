@@ -196,7 +196,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("REWORK_0.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -262,7 +262,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("REWORK_1.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_1.TRY_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -302,7 +302,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("REWORK_0.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
