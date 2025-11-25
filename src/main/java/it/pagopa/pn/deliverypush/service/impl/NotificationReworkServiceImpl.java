@@ -129,7 +129,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         NewAction newAction = new NewAction();
         try {
             NotificationReworkValidationDetails details = getNotificationReworkValidationDetails(notificationReworksEntity.getReworkId(), notificationReworkRequestDto, notificationReworksEntity.getExpectedFinalStatus());
-            newAction.setActionId(notificationReworksEntity.getReworkId());
+            newAction.setActionId(notificationReworksEntity.getIun() + "_" + notificationReworksEntity.getReworkId());
             newAction.setIun(notificationReworkRequestDto.getIun());
             newAction.setType(ActionType.NOTIFICATION_REWORK_VALIDATION);
             newAction.notBefore(Instant.now());
