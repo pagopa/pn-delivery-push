@@ -622,6 +622,9 @@ Outputs:
   NotificationReworkUpdaterQueueARN:
     Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.QueueARN
     Description: pn-deliveryPushtoNotificationReworkUpdater queue ARN
+  NotificationReworkUpdaterQueueURL:
+    Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.QueueURL
+    Description: pn-deliveryPushtoNotificationReworkUpdater queue URL
 
   # Dynamo tables
   TimelinesDynamoTableName:

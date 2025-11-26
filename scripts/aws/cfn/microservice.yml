@@ -153,6 +153,10 @@ Parameters:
     Type: String
     Description: 'delivery-push to notification rework updater queue ARN'
 
+  NotificationReworkUpdaterQueueURL:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue URL'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -2011,6 +2015,23 @@ Resources:
       Enabled: true
       FunctionResponseTypes:
         - ReportBatchItemFailures
+
+  NotificationReworkUpdaterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref NotificationReworkUpdaterQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref NotificationReworkUpdaterQueueARN
 
   NotificationReworkUpdaterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
