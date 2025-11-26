@@ -153,6 +153,10 @@ Parameters:
     Type: String
     Description: 'delivery-push to notification rework updater queue ARN'
 
+  NotificationReworkUpdaterQueueURL:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue URL'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -2012,6 +2016,23 @@ Resources:
       FunctionResponseTypes:
         - ReportBatchItemFailures
 
+  NotificationReworkUpdaterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref NotificationReworkUpdaterQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref NotificationReworkUpdaterQueueARN
+
   NotificationReworkUpdaterLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -2050,11 +2071,11 @@ Resources:
       TargetParameters:
         InputTemplate: |
           {
-            "iun": <$.dynamodb.NewImage.iun.S>,
-            "reworkId": <$.dynamodb.NewImage.reworkId.S>,
-            "category": <$.dynamodb.NewImage.category.S>,
-            "timelineElementIds": <$.dynamodb.NewImage.details.M.invalidatedTimelineElementIds.L[*].S>,
-            "operationType": "UPDATE"
+            "iun": <$.data.dynamodb.NewImage.iun.S>,
+            "reworkId": <$.data.dynamodb.NewImage.reworkId.S>,
+            "category": <$.data.dynamodb.NewImage.category.S>,
+            "timelineElementIds": <$.data.dynamodb.NewImage.details.M.invalidatedTimelineAndStatusHistory.L[*].M>,
+            "operation": "UPDATE"
           }
 
   TimelineToNotificationReworkUpdaterPipeRole:
@@ -2087,6 +2108,10 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:SendMessage
                 Resource: !Ref NotificationReworkUpdaterQueueARN
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: !Ref CdcKinesisSourceStreamKeyArn
 
   #########################################################
   ###             PaperEventsCostUpdateLambda           ###
