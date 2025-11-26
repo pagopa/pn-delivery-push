@@ -2071,11 +2071,11 @@ Resources:
       TargetParameters:
         InputTemplate: |
           {
-            "iun": <$.dynamodb.NewImage.iun.S>,
-            "reworkId": <$.dynamodb.NewImage.reworkId.S>,
-            "category": <$.dynamodb.NewImage.category.S>,
-            "timelineElementIds": <$.dynamodb.NewImage.details.M.invalidatedTimelineElementIds.L[*].S>,
-            "operationType": "UPDATE"
+            "iun": <$.data.dynamodb.NewImage.iun.S>,
+            "reworkId": <$.data.dynamodb.NewImage.reworkId.S>,
+            "category": <$.data.dynamodb.NewImage.category.S>,
+            "timelineElementIds": <$.data.dynamodb.NewImage.details.M.invalidatedTimelineAndStatusHistory.L[*].M>,
+            "operation": "UPDATE"
           }
 
   TimelineToNotificationReworkUpdaterPipeRole:
@@ -2108,6 +2108,10 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:SendMessage
                 Resource: !Ref NotificationReworkUpdaterQueueARN
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: !Ref CdcKinesisSourceStreamKeyArn
 
   #########################################################
   ###             PaperEventsCostUpdateLambda           ###

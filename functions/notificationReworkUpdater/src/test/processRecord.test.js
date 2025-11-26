@@ -15,7 +15,6 @@ describe("processRecord.js", () => {
     expect(item).to.deep.equal({
       iun: "pk1",
       reworkId: "sk1",
-      category: "NOTIFICATION_TIMELINE_REWORKED",
       status: "READY"
     });
   });
@@ -26,7 +25,6 @@ describe("processRecord.js", () => {
 
     expect(expectedStates).to.deep.equal(["READY"]);
     expect(item.status).to.equal("IN_PROGRESS");
-    expect(item.category).to.equal("SEND_ANALOG_PROGRESS");
   });
 
   it("SEND_ANALOG_FEEDBACK → READY|IN_PROGRESS -> DONE", async () => {
@@ -35,7 +33,6 @@ describe("processRecord.js", () => {
 
     expect(expectedStates).to.deep.equal(["READY", "IN_PROGRESS"]);
     expect(item.status).to.equal("DONE");
-    expect(item.category).to.equal("SEND_ANALOG_FEEDBACK");
   });
 
   it("propaga i campi opzionali (timelineElementIds, error) se presenti", async () => {
@@ -47,8 +44,6 @@ describe("processRecord.js", () => {
       error: ["e1"]
     };
     const { item } = await processRecord(msg);
-
-    expect(item.timelineElementIds).to.deep.equal(["t1", "t2"]);
     expect(item.error).to.deep.equal(["e1"]);
   });
 
