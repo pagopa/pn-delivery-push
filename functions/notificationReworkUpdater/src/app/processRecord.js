@@ -40,9 +40,8 @@ const processRecord = async (message) => {
       throw new Error(`Unknown category: ${category}`);
   }
 
-  const item = { iun, reworkId, status: nextStatus, category };
+  const item = { iun, reworkId, status: nextStatus };
 
-  if (message.timelineElementIds !== undefined) item.timelineElementIds = message.timelineElementIds;
   if (message.error !== undefined) item.error = message.error;
 
   return { item, expectedStates };
