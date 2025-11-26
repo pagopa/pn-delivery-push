@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity.PaperNotificationFailedEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.DtoToEntityNotificationFailedMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.EntityToDtoNotificationFailedMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +20,6 @@ class PaperNotificationFailedDaoDynamoTest {
     private PaperNotificationFailedEntityDao dao;
 
     @Mock
-    private DtoToEntityNotificationFailedMapper dtoToEntity;
-
-    @Mock
     private EntityToDtoNotificationFailedMapper entityToDto;
 
     private PaperNotificationFailedDaoDynamo dynamo;
@@ -31,22 +27,10 @@ class PaperNotificationFailedDaoDynamoTest {
     @BeforeEach
     void setUp() {
         dao = Mockito.mock(PaperNotificationFailedEntityDao.class);
-        dtoToEntity = Mockito.mock(DtoToEntityNotificationFailedMapper.class);
         entityToDto = Mockito.mock(EntityToDtoNotificationFailedMapper.class);
-        dynamo = new PaperNotificationFailedDaoDynamo(dao, dtoToEntity, entityToDto);
+        dynamo = new PaperNotificationFailedDaoDynamo(dao, entityToDto);
     }
 
-    @Test
-    void addPaperNotificationFailed() {
-        PaperNotificationFailed dto = buildPaperNotificationFailed();
-        PaperNotificationFailedEntity entity = buildPaperNotificationFailedEntity();
-
-        Mockito.when(dtoToEntity.dto2Entity(dto)).thenReturn(entity);
-
-        dynamo.addPaperNotificationFailed(dto);
-
-        Mockito.verify(dao, Mockito.times(1)).put(entity);
-    }
 
     @Test
     void getPaperNotificationFailedByRecipientId() {

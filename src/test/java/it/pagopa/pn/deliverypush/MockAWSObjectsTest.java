@@ -8,7 +8,7 @@ import org.springframework.cloud.function.context.config.ContextFunctionCatalogA
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @EnableAutoConfiguration(exclude= {SqsAutoConfiguration.class, ContextFunctionCatalogAutoConfiguration.class})
-public abstract class MockAWSObjectsTest extends MockActionPoolTest {
+public abstract class MockAWSObjectsTest {
 
     @MockBean
     private AmazonSQSAsync amazonSQS;

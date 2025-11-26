@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.dto.ext.paperchannel;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.paperchannel.model.ResultFilterEnum;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

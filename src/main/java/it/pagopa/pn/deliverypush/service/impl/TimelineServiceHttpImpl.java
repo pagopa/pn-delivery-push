@@ -43,25 +43,10 @@ public class TimelineServiceHttpImpl implements TimelineService {
     }
 
     @Override
-    public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
-        log.debug("retrieveAndIncrementCounterForTimelineEvent - timelineId={}", timelineId);
-
-        return timelineClient.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-    }
-
-    @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("getTimelineElement - IUN={} and timelineId={}", iun, timelineId);
 
         TimelineElement timelineElement = timelineClient.getTimelineElement(iun, timelineId, false);
-        return Optional.ofNullable(TimelineServiceMapper.toTimelineElementInternal(timelineElement));
-    }
-
-    @Override
-    public Optional<TimelineElementInternal> getTimelineElementStrongly(String iun, String timelineId) {
-        log.debug("getTimelineElementStrongly - IUN={} and timelineId={}", iun, timelineId);
-
-        TimelineElement timelineElement = timelineClient.getTimelineElement(iun, timelineId, true);
         return Optional.ofNullable(TimelineServiceMapper.toTimelineElementInternal(timelineElement));
     }
 
@@ -91,29 +76,10 @@ public class TimelineServiceHttpImpl implements TimelineService {
     }
 
     @Override
-    public Optional<TimelineElementInternal> getTimelineElementForSpecificRecipient(String iun, int recIndex, TimelineElementCategoryInt category) {
-        log.debug("getTimelineElementForSpecificRecipient - IUN={}, recIndex={}, category={}", iun, recIndex, category);
-
-        TimelineElement timelineElement = timelineClient.getTimelineElementForSpecificRecipient(iun, recIndex, TimelineCategory.fromValue(category.getValue()));
-        return Optional.ofNullable(TimelineServiceMapper.toTimelineElementInternal(timelineElement));
-    }
-
-    @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("getTimeline - IUN={} and confidentialInfoRequired={}", iun, confidentialInfoRequired);
 
         return Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, false, null))
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(TimelineServiceMapper::toTimelineElementInternal)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<TimelineElementInternal> getTimelineStrongly(String iun, boolean confidentialInfoRequired) {
-        log.debug("getTimelineStrongly - IUN={} and confidentialInfoRequired={}", iun, confidentialInfoRequired);
-
-        return Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, true, null))
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(TimelineServiceMapper::toTimelineElementInternal)

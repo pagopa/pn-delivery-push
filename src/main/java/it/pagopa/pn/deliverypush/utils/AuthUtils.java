@@ -66,7 +66,7 @@ public class AuthUtils {
         String paId = notification.getSender().getPaId();
         String iun = notification.getIun();
 
-        String realRecipientId = null;
+        String realRecipientId;
         log.info("Start CheckUserPaAndMandateAuthorization - iun={} senderRecipientId={} paId={} mandateId={}", iun, senderRecipientId, paId, mandateId);
 
         if (StringUtils.hasText(mandateId)) {

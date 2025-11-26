@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.action.notificationview;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -15,11 +14,11 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotifica
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.PaperNotificationFailedService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
-import it.pagopa.pn.deliverypush.utils.StatusUtils;
-import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -28,7 +27,6 @@ public class NotificationViewedRequestHandler {
     private final TimelineService timelineService;
     private final NotificationService notificationService;
     private final TimelineUtils timelineUtils;
-    private final StatusUtils statusUtils;
     private final NotificationUtils notificationUtils;
     private final ViewNotification viewNotification;
     private final PaperNotificationFailedService paperNotificationFailedService;
@@ -37,24 +35,15 @@ public class NotificationViewedRequestHandler {
     public NotificationViewedRequestHandler(TimelineService timelineService,
                                             NotificationService notificationService,
                                             TimelineUtils timelineUtils,
-                                            StatusUtils statusUtils,
                                             NotificationUtils notificationUtils,
                                             ViewNotification viewNotification,
                                             PaperNotificationFailedService paperNotificationFailedService) {
         this.timelineService = timelineService;
         this.notificationService = notificationService;
         this.timelineUtils = timelineUtils;
-        this.statusUtils = statusUtils;
         this.notificationUtils = notificationUtils;
         this.viewNotification = viewNotification;
         this.paperNotificationFailedService = paperNotificationFailedService;
-    }
-    
-    //La richiesta proviene da delivery (La visualizzazione potrebbe essere da parte del delegato o da parte del destinatario)
-    public void handleViewNotificationDelivery(NotificationViewedInt notificationViewedInt) {
-        MDCUtils.addMDCToContextAndExecute(
-                handleViewNotification(notificationViewedInt)
-        ).block();
     }
 
     //La richiesta proviene da RADD, visualizzazione da parte del destinatario

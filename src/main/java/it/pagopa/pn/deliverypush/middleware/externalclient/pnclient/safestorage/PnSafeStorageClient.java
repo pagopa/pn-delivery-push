@@ -16,10 +16,6 @@ public interface PnSafeStorageClient {
     String UPLOAD_FILE_CONTENT = "UPLOAD FILE CONTENT";
 
     String SAFE_STORAGE_URL_PREFIX = "safestorage://";
-
-    String SAFE_STORAGE_DOCUMENT_TYPE_AAR = "PN_AAR";
-
-    String SAFE_STORAGE_DOCUMENT_TYPE_LEGAL_FACT = "PN_LEGAL_FACTS";
     
     Mono<FileDownloadResponse> getFile(String fileKey, Boolean metadataOnly);
 

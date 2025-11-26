@@ -11,8 +11,6 @@ import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Map;
-
 class PnDeliveryClientImplTest {
 
     @Mock
@@ -38,16 +36,5 @@ class PnDeliveryClientImplTest {
         Assertions.assertEquals("001", res.getIun());
 
     }
-    
-    @Test
-    @ExtendWith(SpringExtension.class)
-    void getQuickAccessLinkTokensPrivate() {
-       Map<String, String> expected = Map.of("internalId","token");
-        
-        Mockito.when(pnDeliveryApi.getQuickAccessLinkTokensPrivateWithHttpInfo("001")).thenReturn(ResponseEntity.ok(expected));
 
-        Map<String, String> res = client.getQuickAccessLinkTokensPrivate("001");
-
-        Assertions.assertEquals(expected, res);
-    }
 }
