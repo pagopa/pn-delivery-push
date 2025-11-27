@@ -33,8 +33,6 @@ class PaperTrackerClientImplTest {
 
     @Mock
     private NotificationReworkApi notificationReworkApi;
-    @Mock
-    private ObjectMapper objectMapper;
 
     @InjectMocks
     private PaperTrackerClientImpl client;
@@ -59,35 +57,28 @@ class PaperTrackerClientImplTest {
     }
 
     @Test
-    void retrieveSequenceAndFinalStatus_mapsWebClientErrorToPnInternalException_withStatus() throws JsonProcessingException {
+    void retrieveSequenceAndFinalStatus_mapsWebClientErrorToPnInternalException_withStatus() {
         // Arrange
         String statusCode = "RECRN002B";
 
         WebClientResponseException webEx = new WebClientResponseException(
                 "Invalid status code",
                 HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "statusCode RECRN002B is PROGRESS",
                 new HttpHeaders(),
                 new byte[0],
                 null
         );
 
-        Problem problem = Problem.builder()
-                .status(400)
-                .title("Bad Request")
-                .detail("statusCode RECRN002B is PROGRESS")
-                .build();
-
-        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(problem);
         when(notificationReworkApi.retrieveSequenceAndFinalStatus(statusCode,  "AR",null))
                 .thenReturn(Mono.error(webEx));
 
         // Act & Assert
         StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null, "AR"))
                 .expectErrorSatisfies(throwable -> {
-                    PnInternalException ex = (PnInternalException) throwable;
-                    assertEquals(400, ex.getProblem().getStatus());
-                    assertEquals("statusCode RECRN002B is PROGRESS", ex.getProblem().getDetail());
+                    WebClientResponseException ex = (WebClientResponseException) throwable;
+                    assertEquals(400, ex.getStatusCode().value());
+                    assertEquals("statusCode RECRN002B is PROGRESS", ex.getStatusText());
                 })
                 .verify();
     }
