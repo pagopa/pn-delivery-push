@@ -16,7 +16,7 @@ import java.util.List;
 @DynamoDbBean
 public class StatusCodeEntity {
     public static final String FIELD_STATUS_CODE = "statusCode";
-    public static final String FIELD_ATTACHMENTS = "description";
+    public static final String FIELD_ATTACHMENTS = "attachments";
     public static final String FIELD_STATUS_TIMESTAMP = "statusTimestamp";
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_STATUS_CODE)}))
