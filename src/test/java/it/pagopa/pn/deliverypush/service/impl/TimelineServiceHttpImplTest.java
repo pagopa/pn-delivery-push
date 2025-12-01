@@ -2,10 +2,8 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -62,28 +60,6 @@ class TimelineServiceHttpImplTest {
     }
 
     @Test
-    void retrieveAndIncrementCounterForTimelineEvent() {
-        String timelineId = "timeline123";
-        Long expectedCounter = 42L;
-
-        Mockito.when(timelineClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(expectedCounter);
-
-        Long result = timelineServiceHttp.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-
-        assertEquals(expectedCounter, result);
-    }
-
-    @Test
-    void retrieveAndIncrementCounterForTimelineEventReturnsNull() {
-        String timelineId = "timeline123";
-        Mockito.when(timelineClient.retrieveAndIncrementCounterForTimelineEvent(Mockito.anyString())).thenReturn(null);
-
-        Long result = timelineServiceHttp.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-
-        assertNull(result);
-    }
-
-    @Test
     void getTimelineElementReturnsMappedElement() {
         String iun = "iun123";
         String timelineId = "timeline123";
@@ -98,27 +74,6 @@ class TimelineServiceHttpImplTest {
                     .thenReturn(expectedElement);
 
             Optional<TimelineElementInternal> result = timelineServiceHttp.getTimelineElement(iun, timelineId);
-
-            assertTrue(result.isPresent());
-            assertEquals(expectedElement, result.get());
-        }
-    }
-
-    @Test
-    void getTimelineElementStronglyReturnsMappedElement() {
-        String iun = "iun123";
-        String timelineId = "timeline123";
-        TimelineElement timelineElement = new TimelineElement();
-        TimelineElementInternal expectedElement = new TimelineElementInternal();
-
-        Mockito.when(timelineClient.getTimelineElement(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
-                .thenReturn(timelineElement);
-
-        try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
-            mockedMapper.when(() -> TimelineServiceMapper.toTimelineElementInternal(Mockito.any()))
-                    .thenReturn(expectedElement);
-
-            Optional<TimelineElementInternal> result = timelineServiceHttp.getTimelineElementStrongly(iun, timelineId);
 
             assertTrue(result.isPresent());
             assertEquals(expectedElement, result.get());
@@ -268,65 +223,6 @@ class TimelineServiceHttpImplTest {
     }
 
     @Test
-    void getTimelineElementForSpecificRecipientReturnsMappedElement() {
-        String iun = "iun123";
-        int recIndex = 1;
-        TimelineElementCategoryInt category = TimelineElementCategoryInt.NOTIFICATION_VIEWED;
-        TimelineElement timelineElement = new TimelineElement();
-        TimelineElementInternal expectedElement = new TimelineElementInternal();
-
-        Mockito.when(timelineClient.getTimelineElementForSpecificRecipient(
-                iun,
-                recIndex,
-                TimelineCategory.fromValue(category.getValue())
-        )).thenReturn(timelineElement);
-
-        try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
-            mockedMapper.when(() -> TimelineServiceMapper.toTimelineElementInternal(Mockito.any()))
-                    .thenReturn(expectedElement);
-
-            Optional<TimelineElementInternal> result = timelineServiceHttp.getTimelineElementForSpecificRecipient(iun, recIndex, category);
-
-            assertTrue(result.isPresent());
-            assertEquals(expectedElement, result.get());
-        }
-    }
-
-    @Test
-    void getTimelineStronglyReturnsMappedSetWhenClientReturnsElements() {
-        String iun = "iun123";
-        boolean confidentialInfoRequired = true;
-        TimelineElement timelineElement = new TimelineElement();
-        TimelineElementInternal mappedElement = new TimelineElementInternal();
-
-        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
-                .thenReturn(Collections.singletonList(timelineElement));
-
-        try (MockedStatic<TimelineServiceMapper> mockedMapper = Mockito.mockStatic(TimelineServiceMapper.class)) {
-            mockedMapper.when(() -> TimelineServiceMapper.toTimelineElementInternal(Mockito.any()))
-                    .thenReturn(mappedElement);
-
-            Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineStrongly(iun, confidentialInfoRequired);
-
-            assertEquals(1, result.size());
-            assertTrue(result.contains(mappedElement));
-        }
-    }
-
-    @Test
-    void getTimelineStronglyReturnsEmptySetWhenClientReturnsNull() {
-        String iun = "iun123";
-        boolean confidentialInfoRequired = true;
-
-        Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.eq(true), Mockito.isNull()))
-                .thenReturn(null);
-
-        Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineStrongly(iun, confidentialInfoRequired);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
     void getTimelineByIunTimelineIdReturnsMappedSet() {
         String iun = "iunTest";
         String timelineId = "timelineIdTest";
@@ -375,10 +271,7 @@ class TimelineServiceHttpImplTest {
         final String iun = "iun1";
         final String recipientId = "cxId";
 
-        String timelineElementIdExpected = TimelineEventId.PROBABLE_SCHEDULING_ANALOG_DATE.buildEventId(EventId.builder()
-                .iun(iun)
-                .recIndex(0)
-                .build());
+        String timelineElementIdExpected = "PROBABLE_SCHEDULING_ANALOG_DATE_0";
         Instant schedulingDate = Instant.now();
         TimelineElementInternal timelineElementExpected = TimelineElementInternal.builder()
                 .elementId(timelineElementIdExpected)

@@ -4,8 +4,6 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractCachedSsmParameterConsumer
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
-import it.pagopa.pn.deliverypush.MockActionPoolTest;
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionsPool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,7 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-class ActivatorTestIT extends MockActionPoolTest{
+class ActivatorTestIT {
     @Autowired
     private AwsConfigs awsConfigs;
     @Autowired
