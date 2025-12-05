@@ -35,12 +35,12 @@
             "generateBundle": true
         },
         {
-            "intendedUsage": "PRIVATE",
-            "openapiFiles": [
+          "intendedUsage": "PRIVATE",
+          "openapiFiles": [
                 "schemas-pn-timeline-internal.yaml"
             ],
             "servicePath": "delivery-push",
-            "generateBundle": true
+            "generateBundle": false
         }
     ],
     "openapiBundlePresenceCheck": [

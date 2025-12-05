@@ -195,7 +195,7 @@ components:
         - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
         - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
-        - "$ref": "#/components/schemas/ValidateNormalizeAddressDetails"
+        - "$ref": "#/components/schemas/ValidateNormalizeAddressDetails" # NO EXTERNAL
       discriminator:  # NO EXTERNAL
         propertyName: "categoryType" # NO EXTERNAL
 
