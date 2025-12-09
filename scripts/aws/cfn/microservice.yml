@@ -808,8 +808,6 @@ Resources:
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
             - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
-            - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
-
 
   #### Alarm for custom metric Autoscaling
   AlarmCustomAutoscalingValidator:
