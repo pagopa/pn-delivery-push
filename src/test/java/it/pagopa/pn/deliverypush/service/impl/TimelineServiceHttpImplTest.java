@@ -85,6 +85,7 @@ class TimelineServiceHttpImplTest {
         String iun = "iun123";
         boolean confidentialInfoRequired = true;
         TimelineElement timelineElement = new TimelineElement();
+        timelineElement.setCategory(TimelineCategory.NOTIFICATION_CANCELLATION_REQUEST);
         TimelineElementInternal mappedElement = new TimelineElementInternal();
 
         Mockito.when(timelineClient.getTimeline(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.any()))

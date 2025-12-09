@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -92,10 +91,7 @@ class GetLegalFactServiceImplTest {
 
         Set<TimelineElementInternal> timelineElementsResult = Collections.singleton(TimelineElementInternal.builder()
                 .iun(IUN)
-                .details(GetAddressInfoDetailsInt.builder()
-                        .recIndex(0)
-                        .build())
-                .category(TimelineElementCategoryInt.GET_ADDRESS)
+                .category(TimelineElementCategoryInt.REQUEST_ACCEPTED)
                 .elementId("element_id")
                 .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
                         .key(KEY)
@@ -166,9 +162,6 @@ class GetLegalFactServiceImplTest {
                 ).build(),
                 TimelineElementInternal.builder()
                         .iun(IUN)
-                        .details(GetAddressInfoDetailsInt.builder()
-                                .recIndex(1)
-                                .build())
                         .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                         .elementId("element_id")
                         .timestamp(Instant.EPOCH.plusMillis(10))
@@ -266,9 +259,6 @@ class GetLegalFactServiceImplTest {
                         ).build(),
                 TimelineElementInternal.builder()
                         .iun(IUN)
-                        .details(GetAddressInfoDetailsInt.builder()
-                                .recIndex(1)
-                                .build())
                         .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                         .elementId("element_id")
                         .timestamp(Instant.EPOCH.plusMillis(10))

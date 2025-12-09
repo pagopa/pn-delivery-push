@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import lombok.CustomLog;
@@ -74,7 +75,10 @@ public class TimelineClientImpl implements TimelineClient {
     public List<TimelineElement> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE);
 
-        return timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId);
+        return timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId)
+                .stream()
+                .filter(element -> TimelineElementCategoryInt.isKnownCategory(element.getCategory().getValue()))
+                .toList();
     }
 
     @Override
