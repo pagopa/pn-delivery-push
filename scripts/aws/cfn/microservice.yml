@@ -8,14 +8,6 @@ Parameters:
     Type: String
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
       experimental environments without crash official development environment'
-    
-  ActionQueueMap:
-    Type: String
-    Description: 'Define relation from actionType to sqs queue name'
-  
-  QueueUrlMap:
-    Type: String
-    Description: 'Define relation from queue name to sqs queue url'
 
   ApiDnsName:
     Type: String
@@ -48,59 +40,6 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
-  
-    
-  ScheduledActionsQueueARN:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-
-  ScheduledValidationActionsQueueName:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
-
-  ScheduledValidationActionsQueueARN:
-    Type: String
-    Description: 'Send and pull ready-to-do actions th this queue'
- 
-  ActionRouterDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionEnqueuerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-  
-  ActionTimeoutErrorDLQARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionRouterDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-    
-  ActionEnqueuerDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionEnqueuer lambda'
-  
-  ActionTimeoutErrorDLQAlarmARN:
-    Type: String
-    Description: 'DLQ ARN for ActionRouter lambda'
-
-  ActionTimeoutErrorDLQURL:
-    Type: String
-    Description: 'DLQ URL for ActionRouter lambda'
-  
-  DoneActionsQueueName:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
-
-  DoneActionsQueueURL:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
-
-  DoneActionsQueueARN:
-    Type: String
-    Description: 'Send done actions to this queue read by webhook'
 
   NotificationReworkUpdaterQueueName:
     Type: String
@@ -142,6 +81,7 @@ Parameters:
     Type: String
     Description: 'Network load balancer link for API-GW'
 
+  #DynamoDb Tables
   PaperNotificationFailedDynamoTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -150,21 +90,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
 
-
-  ActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-
-  FutureActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-
-
-  LastPollForFutureActionDynamoTableArn:
-    Type: String
-    Description: 'ARN of dynamodb table containing'
-    
   DocumentCreationRequestTableName:
     Type: String
     Description: 'Name of dynamodb table containing unreacheble notifications recipients'
@@ -177,7 +102,7 @@ Parameters:
     Type: String
     Description: 'ARN of alarm topic'
 
-    
+
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
@@ -189,14 +114,6 @@ Parameters:
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
-  
-  CdcPnActionArn:
-    Type: String
-    Description: 'Kinesis stream for pn-action'
-
-  CdcPnFutureActionArn:
-    Type: String
-    Description: 'Kinesis stream for pn-futureAction'
 
   PagoPaNotificationFee:
     Type: String
@@ -207,22 +124,6 @@ Parameters:
     Type: String
     Description: 'PagoPa notification vat per le notifiche create PRIMA della v2.1. Per le successive, il default viene impostato da pn-delivery e arriva nella notifica.'
     Default: '22'
-    
-  DoneActionsQueueAlarmARN:
-    Type: String
-    Description: delivery push actions queue dlq alarm ARN
-
-  DoneActionsQueueAgeAlarmARN:
-    Type: String
-    Description: delivery push actions queue age alarm ARN
-
-  ScheduledActionsQueueAlarmARN:
-    Type: String
-    Description: delivery push actions done queue dlq alarm ARN
-
-  ScheduledActionsQueueAgeAlarmARN:
-    Type: String
-    Description: delivery push actions done queue age alarm ARN
 
   AlbSecurityGroup:
     Type: String
@@ -238,14 +139,6 @@ Parameters:
     Type: String
     Default: ''
     Description: 'Base key of the microservice in the s3 bucket'
-  
-  DeliveryPushToExternalRegistriesQueueURL: # defined in pn-infra
-    Type: String
-    Description: 'delivery-push to external-registries queue URL'
-  
-  DeliveryPushToExternalRegistriesQueueARN: # defined in pn-infra
-    Type: String
-    Description: 'delivery-push to external-registries queue ARN'
 
   # Log group parameters
   EcsLogGroup:
@@ -331,7 +224,7 @@ Parameters:
   LogAlarmStrategy:
     Type: String
     Default: 'FATAL'
-    
+
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
     Default: ''
@@ -341,6 +234,7 @@ Parameters:
     Type: String
     Default: ''
 
+  #Lambda
   VersioningGetNotificationLegalFactsLambdaName:
     Type: String
     Description: 'VersioningGetNotificationLegalFactsLambda'
@@ -350,72 +244,7 @@ Parameters:
     Description: 'VersioningGetNotificationLegalFactsLambdaProvisionedConcurrency'
     Default: 1
 
-  ActionRouterKinesisBatchSize:
-    Type: Number
-    Description: "Batch size for kinesis to lambda action router"
-    
-  ActionRouterLambdaName:
-    Type: String
-
-  ActionEnqueuerKinesisBatchSize:
-    Type: Number
-    Description: "Batch size for kinesis to lambda action router"
-    Default: 10
-    
-  ActionEnqueuerLambdaName:
-    Type: String
-
-  ActionRemoverLambdaName:
-    Type: String
-
-  PaperEventsCostUpdateLambdaName:
-    Type: String
-
-  PaperEventsCostUpdateDLQARN:
-    Type: String
-    Description: 'DLQ ARN for PaperEventsCostUpdateLambda'
-
-  PaperEventsCostUpdateDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for PaperEventsCostUpdateLambda'
-
-  # Lambda parameters
-
-  NotificationCancellationActionInsertLambdaName:
-    Type: String
-
-  NotificationCancellationActionInsertDLQARN:
-    Type: String
-    Description: 'DLQ ARN for NotificationCancellationActionInsertLambda'
-
-  NotificationCancellationActionInsertDLQAlarmARN:
-    Type: String
-    Description: 'DLQ Alarm ARN for NotificationCancellationActionInsertLambda'
-
-  ActionTtlDays:
-    Default: 365
-    Type: Number
-    Description: TTL in days for pn-Action table rows
-
-  ActionLambdasEnabledStart:
-    Type: String
-    Description: 'Start date in EPOCH millis format (important!) for action lambdas enabled'
-
-  ActionLambdasEnabledEnd:
-    Type: String
-    Description: 'End date in EPOCH millis format (important!) for action lambdas enabled'
-
-  NotificationReworkUpdaterLambdaName:
-    Type: String
-    Description: 'NotificationReworkUpdaterLambda'
-
-  NotificationReworkUpdaterLambdaBatchSize:
-    Type: Number
-    Description: "Batch size for sqs to lambda notification rework updater"
-    Default: 10
-
   # CDC
-
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
@@ -423,29 +252,6 @@ Parameters:
   CdcKinesisSourceStreamKeyArn:
     Description: "Kinesis source CDC stream crypto key ARN"
     Type: String
-
-
-  #Webhook event manager lambda parameters
-  NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "60"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  NotificationCancellationActionInsertLambdaBatchSize:
-    Type: String
-    Default: "20"
-    Description: 'BatchSize asseveration event source mapping'
-
-  # Paper Cost Notification lambda parameters
-  PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds:
-    Type: String
-    Default: "20"
-    Description: 'MaximumBatchingWindow asseveration event source mapping'
-
-  PaperEventsCostUpdateLambdaBatchSize:
-    Type: String
-    Default: "60"
-    Description: 'BatchSize asseveration event source mapping'
 
   EnhancedWebSecurityEnabled:
     Type: String
@@ -491,11 +297,6 @@ Parameters:
       - "true"
       - "false"
 
-  FutureActionTtlExtraDays:
-    Default: 365
-    Type: Number
-    Description: TTL in days days to add to the futureAction start date
-
   AttemptTimeoutSec:
     Type: Number
     Description: 'Timeout in seconds for each retry attempt for each idempotent versioning lambda'
@@ -506,26 +307,19 @@ Parameters:
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
 
-  OldWorkflowLambdasEnabledStart:
+  NotificationReworkUpdaterLambdaName:
     Type: String
-    Description: 'Start date in EPOCH millis format (important!) for lambdas enabled'
+    Description: 'NotificationReworkUpdaterLambda'
 
-  OldWorkflowLambdasEnabledEnd:
-    Type: String
-    Description: 'End date in EPOCH millis format (important!) for lambdas enabled'
+  NotificationReworkUpdaterLambdaBatchSize:
+    Type: Number
+    Description: "Batch size for sqs to lambda notification rework updater"
+    Default: 10
 
   ApplicativeEnvFileChecksum:
     Type: String
     Default: ''
     Description: 'Applicative environment variable file checksum'
-
-  EnableVpcForNotificationCancellationActionInsertLambda:
-    Type: String
-    Default: 'false'
-    Description: 'Enable or disable VPC association for NotificationCancellationActionInsertLambda'
-    AllowedValues:
-      - 'true'
-      - 'false'
 
   NotificationReworksDynamoTableName:
     Type: String
@@ -534,10 +328,6 @@ Parameters:
   NotificationReworksDynamoTableArn:
     Type: String
     Description: "ARN of dynamodb table containing notification refused verification"
-
-
-Conditions:
-  AttachNotificationCancellationActionInsertLambdaToVpc: !Equals [ !Ref EnableVpcForNotificationCancellationActionInsertLambda, "true" ]
 
 Resources:
   # PN-Delivery-push microservice
@@ -566,21 +356,21 @@ Resources:
         WireTapLogActivation: !Ref WireTapLogActivation
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
-        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry6: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry29: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry7: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
-        ContainerEnvEntry14: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
-        ContainerEnvEntry15: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
-        ContainerEnvEntry17: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
-        ContainerEnvEntry18: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry19: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry23: !Sub 'PN_DELIVERYPUSH_ACTIONMANAGERBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry2: !Sub 'PN_DELIVERYPUSH_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERYPUSH_DELIVERYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry4: !Sub 'PN_DELIVERYPUSH_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERYPUSH_EXTERNALREGISTRYBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry6: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
+        ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
+        ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
+        ContainerEnvEntry9: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry10: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
+        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -679,376 +469,6 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryProgressMicroserviceB2BPGAPI.Outputs.APIGatewayARN
         Limit: 600000
 
-  # CDC to Lambda action router
-  ActionRouterKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Ref ActionRouterKinesisBatchSize
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnActionArn
-      FunctionName: !GetAtt ActionRouterLambda.Outputs.FunctionName
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref ActionRouterDLQARN
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{"data":{"eventName":["INSERT"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref ActionLambdasEnabledStart
-                - ', "<", '
-                - !Ref ActionLambdasEnabledEnd
-                - ']}]}}}'
-      MaximumBatchingWindowInSeconds: 300
-      MaximumRetryAttempts: 5
-      StartingPosition: TRIM_HORIZON
-
-
-  ActionRouterLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionRouterLambda-libs-layer
-
-  ActionRouterLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionRouterLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/pn-action-router_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionRouterLambdaRole.Arn
-        Layer1: !Ref ActionRouterLambdaLibrariesLayer
-        EnvVariables:
-          !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###FUTURE_ACTION_TTL_EXTRA_DAYS=${FutureActionTtlExtraDays}###ACTION_TIMEOUT_ERROR_DLQ_URL=${ActionTimeoutErrorDLQURL}",
-            {
-              actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap,
-              FutureActionTtlExtraDays: !Ref FutureActionTtlExtraDays,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
-            },
-          ]
-    
-  # Lambda function role
-  ActionRouterLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionRouterLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-  
-  # Lambda function IAM policy
-  ActionRouterLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionRouterLambdaPolicy
-      Roles:
-        - !Ref ActionRouterLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcPnActionArn
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow 
-            Action:
-              - sqs:SendMessage
-            Resource:
-              - !Ref ScheduledActionsQueueARN
-              - !Ref ScheduledValidationActionsQueueARN
-              - !Ref ActionRouterDLQARN
-              - !Ref ActionTimeoutErrorDLQARN
-          - Effect: Allow
-            Action:
-              - "dynamodb:PutItem"
-              - "dynamodb:BatchWriteItem"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-
-  # CDC To ActionEnqueuer
-  ActionEnqueuerKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Ref ActionEnqueuerKinesisBatchSize
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcPnFutureActionArn
-      FunctionName: !GetAtt ActionEnqueuerLambda.Outputs.FunctionName
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref ActionEnqueuerDLQARN
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{"data":{"eventName":["REMOVE"], "dynamodb": {"ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref ActionLambdasEnabledStart
-                - ', "<", '
-                - !Ref ActionLambdasEnabledEnd
-                - ']}]}}}'
-      MaximumBatchingWindowInSeconds: 300
-      MaximumRetryAttempts: 5
-      StartingPosition: TRIM_HORIZON
-
-  ActionEnqueuerLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionEnqueuer-libs-layer    
-
-  ActionEnqueuerLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionEnqueuerLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/action-enqueuer_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionEnqueuerLambdaRole.Arn
-        Layer1: !Ref ActionEnqueuerLambdaLibrariesLayer
-        EnvVariables:
-          !Sub [
-            "ACTION_QUEUE_MAP=${actionQueueMap}###QUEUE_URL_MAP=${QueueUrlMap}###TIMEOUT_DLQ=${ActionTimeoutErrorDLQURL}",
-            {
-              actionQueueMap: !Ref ActionQueueMap,
-              QueueUrlMap: !Ref QueueUrlMap,
-              ActionTimeoutErrorDLQURL: !Ref ActionTimeoutErrorDLQURL
-            },
-          ]
-    
-  # Lambda function role
-  ActionEnqueuerLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionEnqueuerLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  ActionEnqueuerLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionEnqueuerLambdaPolicy
-      Roles:
-        - !Ref ActionEnqueuerLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcPnFutureActionArn
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow 
-            Action:
-              - sqs:SendMessage
-            Resource:
-              - !Ref ScheduledActionsQueueARN
-              - !Ref ScheduledValidationActionsQueueARN
-              - !Ref ActionEnqueuerDLQARN
-              - !Ref ActionTimeoutErrorDLQARN
-          - Effect: Allow
-            Action:
-              - "dynamodb:PutItem"
-              - "dynamodb:BatchWriteItem"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-
-  ActionRemoverLambdaLibrariesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - nodejs22.x
-      Content:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_libs.zip"
-      Description: NodeJs Libs layer
-      LayerName: actionRemover-libs-layer 
-
-  # Future Action Remover
-  ActionRemoverLambda:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda.yaml"
-      Parameters:
-        FunctionName: !Ref ActionRemoverLambdaName
-        Handler: "index.handler"
-        FunctionBucketName: !Ref MicroserviceBucketName
-        FunctionBucketKey: !Sub "${MicroserviceBucketBaseKey}/functions_zip/future-action-remover_code.zip"
-        MemorySize: 512
-        Timeout: 10
-        Runtime: nodejs22.x
-        TracingConfigMode: "Active"
-        RoleArn: !GetAtt ActionRemoverLambdaRole.Arn
-        Layer1: !Ref ActionRemoverLambdaLibrariesLayer 
-        EnvVariables: !Sub [
-          "LAST_WORKED_KEY=2###LAMBDA_ENABLED_START=${actionLambdasEnabledStart}###LAMBDA_ENABLED_END=${actionLambdasEnabledEnd}",
-          {
-            actionLambdasEnabledStart: !Ref ActionLambdasEnabledStart,
-            actionLambdasEnabledEnd: !Ref ActionLambdasEnabledEnd
-          }
-        ]
-    
-  # Lambda function role
-  ActionRemoverLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-actionRemoverLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  ActionRemoverLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-ActionRemoverLambdaPolicy
-      Roles:
-        - !Ref ActionRemoverLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: "Allow"
-            Action:
-              - "logs:CreateLogGroup"
-              - "logs:CreateLogStream"
-              - "logs:PutLogEvents"
-            Resource: "*"
-          - Effect: Allow
-            Action:
-              - "dynamodb:GetItem"
-              - "dynamodb:DeleteItem"
-              - "dynamodb:BatchWriteItem"
-              - "dynamodb:Query"
-            Resource:
-              - !Ref FutureActionDynamoTableArn
-          - Effect: Allow
-            Action:
-              - "dynamodb:GetItem"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Ref LastPollForFutureActionDynamoTableArn   
-
-  # Action Remover scheduler BEGIN
-  ActionRemoverSchedulerRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: scheduler.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/"
-      Policies:
-        - PolicyName: LambdScheduleExecutionPolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource:
-                  - !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-
-  ActionRemoverScheduler:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      Description: "Schedule Action Remover every minute"
-      FlexibleTimeWindow:
-        Mode: "OFF"
-      Name: "ActionRemoverShedule"
-      ScheduleExpression: "rate(1 minutes)"
-      State: ENABLED
-      Target:
-        Arn: !GetAtt ActionRemoverLambda.Outputs.FunctionArn
-        RoleArn: !GetAtt ActionRemoverSchedulerRole.Arn
-  # Action Remover scheduler END
-
-  
-
   # Expose PN-Delivery-push microservice public API with API-GW for IO usage
   DeliveryPushMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
@@ -1077,143 +497,6 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disabled IP based rate limit rule
         AllowedCidrs: !Ref IOBackendCidrs
-
-  ##########################################################################
-  ###              notificationCancellationActionInsertLambda            ###
-  ##########################################################################
-  NotificationCancellationActionInsertSecGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub '${NotificationCancellationActionInsertLambdaName}-sec-group'
-      VpcId: !Ref VpcId
-
-  # Lambda function
-  NotificationCancellationActionInsertLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref NotificationCancellationActionInsertLambdaName
-      Runtime: nodejs22.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationCancellationActionInsert.zip"
-      Role: !GetAtt NotificationCancellationActionInsertLambdaRole.Arn
-      VpcConfig: !If 
-        - AttachNotificationCancellationActionInsertLambdaToVpc
-        - SecurityGroupIds:
-            - !GetAtt NotificationCancellationActionInsertSecGroup.GroupId
-          SubnetIds: !Ref SubnetsIds
-        - !Ref "AWS::NoValue"
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          ACTION_TTL_DAYS: !Ref ActionTtlDays
-          ACTION_LAMBDA_ENABLED_START: !Ref ActionLambdasEnabledStart
-          ACTION_LAMBDA_ENABLED_END: !Ref ActionLambdasEnabledEnd
-          ACTION_MANAGER_BASE_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080"
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  NotificationCancellationActionInsertLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-notificationCancellationActionInsertLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-
-  # Lambda function IAM policy
-  NotificationCancellationActionInsertLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-NotificationCancellationActionInsertLambdaPolicy
-      Roles:
-        - !Ref NotificationCancellationActionInsertLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - "dynamodb:TransactWriteItems"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-Action/*"
-          - Effect: Allow
-            Action:
-              - "dynamodb:TransactWriteItems"
-              - "dynamodb:PutItem"
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/pn-FutureAction/*"
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource: !Ref NotificationCancellationActionInsertDLQARN
-
-  # CDC to NotificationCancellationActionInsert
-  NotificationCancellationActionInsertLambdaSource:
-    Type: AWS::Lambda::EventSourceMapping
-    DependsOn: NotificationCancellationActionInsertLambdaPolicy
-    Properties:
-      BatchSize: !Sub ${NotificationCancellationActionInsertLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref NotificationCancellationActionInsertLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref OldWorkflowLambdasEnabledStart
-                - ', "<", '
-                - !Ref OldWorkflowLambdasEnabledEnd
-                - ']}] } } }'
-      MaximumBatchingWindowInSeconds: !Sub ${NotificationCancellationActionInsertLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref NotificationCancellationActionInsertDLQARN
-
-  NotificationCancellationActionInsertLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref NotificationCancellationActionInsertLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
   ##########################################################################
   ###                  NotificationReworkUpdaterLambda                   ###
   ##########################################################################
@@ -1397,120 +680,6 @@ Resources:
                   - kms:Decrypt
                 Resource: !Ref CdcKinesisSourceStreamKeyArn
 
-  #########################################################
-  ###             PaperEventsCostUpdateLambda           ###
-  #########################################################
-
-  # Lambda function
-  PaperEventsCostUpdateLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: !Ref PaperEventsCostUpdateLambdaName
-      Runtime: nodejs22.x
-      Handler: "index.handler"
-      Code:
-        S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/paperEventsCostUpdate.zip"
-      Role: !GetAtt PaperEventsCostUpdateLambdaRole.Arn
-      Environment:
-        Variables:
-          REGION: !Sub ${AWS::Region}
-          QUEUE_URL: !Ref DeliveryPushToExternalRegistriesQueueURL
-      TracingConfig:
-        Mode: Active
-      Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
-
-  # Lambda function role
-  PaperEventsCostUpdateLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-paperEventsCostUpdateLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  # Lambda function IAM policy
-  PaperEventsCostUpdateLambdaPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub ${ProjectName}-PaperEventsCostUpdateLambdaPolicy
-      Roles:
-        - !Ref PaperEventsCostUpdateLambdaRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - kinesis:DescribeStream
-              - kinesis:DescribeStreamSummary
-              - kinesis:GetShardIterator
-              - kinesis:GetRecords
-              - kinesis:ListShards
-              - kinesis:ListStreams
-              - kinesis:SubscribeToShard
-            Resource: !Ref CdcKinesisSourceStreamArn
-          - Action: kms:Decrypt
-            Effect: Allow
-            Resource: !Ref CdcKinesisSourceStreamKeyArn
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref DeliveryPushToExternalRegistriesQueueARN
-          - Effect: Allow
-            Action:
-              - sqs:ChangeMessageVisibility
-              - sqs:GetQueueAttributes
-              - sqs:GetQueueUrl
-              - sqs:SendMessage
-            Resource:
-              !Ref PaperEventsCostUpdateDLQARN
-
-    # CDC to Paper Events Cost Update
-  PaperEventsCostUpdateLambdaKinesisSource:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      BatchSize: !Sub ${PaperEventsCostUpdateLambdaBatchSize}
-      BisectBatchOnFunctionError: true
-      EventSourceArn: !Ref CdcKinesisSourceStreamArn
-      FunctionName: !Ref PaperEventsCostUpdateLambda
-      FunctionResponseTypes:
-        - ReportBatchItemFailures
-      FilterCriteria:
-        Filters:
-          - Pattern: !Join
-              - ''
-              - - '{ "data" : { "tableName" : [ "pn-Timelines" ], "eventName": [ "INSERT" ], "dynamodb": { "ApproximateCreationDateTime": [{ "numeric": [ ">=", '
-                - !Ref OldWorkflowLambdasEnabledStart
-                - ', "<", '
-                - !Ref OldWorkflowLambdasEnabledEnd
-                - ']}] } } }'
-      MaximumBatchingWindowInSeconds: !Sub ${PaperEventsCostUpdateLambdaMaximumBatchingWindowInSeconds}
-      StartingPosition: TRIM_HORIZON
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref PaperEventsCostUpdateDLQARN
-
-  PaperEventsCostUpdateLambdaAlarms:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
-      Parameters:
-        FunctionName: !Ref PaperEventsCostUpdateLambda
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   VersioningGetNotificationLegalFactsSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -1605,7 +774,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
 
-
   ## Dashboard
   DeliveryPushMicroserviceCloudWatchDashboard:
     Type: AWS::CloudFormation::Stack
@@ -1614,7 +782,7 @@ Resources:
       Parameters:
         DashboardName: !Sub "${ProjectName}-delivery-push"
         DynamoDBTableNames: !Join 
-          - ',' 
+          - ','
           - - !Ref PaperNotificationFailedDynamoTableName
             - !Ref DocumentCreationRequestTableName
             - !Ref NotificationReworksDynamoTableName
@@ -1631,33 +799,192 @@ Resources:
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservice.Outputs.FatalLogsMetricAlarmArn
-            - !Ref DoneActionsQueueAlarmARN
-            - !Ref DoneActionsQueueAgeAlarmARN
-            - !Ref ScheduledActionsQueueAlarmARN
-            - !Ref ScheduledActionsQueueAgeAlarmARN
-            - !Ref NotificationCancellationActionInsertDLQAlarmARN
-            - !GetAtt NotificationCancellationActionInsertLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
-            - !Ref PaperEventsCostUpdateDLQAlarmARN
-            - !Ref ActionRouterDLQAlarmARN
-            - !Ref ActionEnqueuerDLQAlarmARN
-            - !Ref ActionTimeoutErrorDLQAlarmARN
-            - !GetAtt PaperEventsCostUpdateLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningGetNotificationLegalFactsLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         LambdaArns: !Join
           - ","
-          - - !GetAtt NotificationCancellationActionInsertLambda.Arn
-            - !GetAtt PaperEventsCostUpdateLambda.Arn
-            - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
+          - - !GetAtt VersioningGetNotificationLegalFactsLambda.Arn
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
-            - !Sub '/aws/lambda/${NotificationCancellationActionInsertLambdaName}'
-            - !Sub '/aws/lambda/${PaperEventsCostUpdateLambdaName}'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
             - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
+            - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
+
+
+  #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscalingValidator:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-validator-autoscaling-custom-validator"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointValidatorN
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushValidationInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledValidationActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "F24ToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m6
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushValidatorMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m6==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-validator-custom-metric"
+          ReturnData: False
+        - Id: e1
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-validator-custom-metric"
+      EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
+      Threshold: 60
+      AlarmActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleDownPolicy
+
+  #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscalingWorkflow:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom-workflow"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointWorkflowN
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ExternalChannelsOutputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "NationalRegistries2DeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushWorkflowMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m5==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinuteWorkflow} * m5) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-workflow-custom-metric"
+          ReturnData: False
+        - Id: e1
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-workflow-custom-metric"
+
+      EvaluationPeriods: !Ref AutoscalingDataPointWorkflowM
+      Threshold: 60
+      AlarmActions:
+        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleDownPolicy
+
 Outputs:
 
   # 
   Version:
     Value: !Ref Version
-

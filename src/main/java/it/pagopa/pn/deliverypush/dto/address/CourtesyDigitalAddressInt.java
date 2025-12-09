@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder( toBuilder = true )
 public class CourtesyDigitalAddressInt extends DigitalAddressInt{
 
+    @Getter
     public enum COURTESY_DIGITAL_ADDRESS_TYPE_INT {
         EMAIL("EMAIL"),
         SMS("SMS"),
@@ -21,10 +22,6 @@ public class CourtesyDigitalAddressInt extends DigitalAddressInt{
 
         COURTESY_DIGITAL_ADDRESS_TYPE_INT(String value) {
             this.value = value;
-        }
-
-        public String getValue() {
-            return value;
         }
 
         @Override
