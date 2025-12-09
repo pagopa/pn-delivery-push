@@ -112,4 +112,19 @@ public enum TimelineElementCategoryInt {
         }
     }
 
+    /**
+     * Checks if the given category is a known TimelineElementCategoryInt.
+     *
+     * @param category the category to check
+     * @return true if the category is known, false otherwise
+     */
+    public static boolean isKnownCategory(String category) {
+        try {
+            TimelineElementCategoryInt.valueOf(category);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
 }
