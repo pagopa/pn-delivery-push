@@ -4,8 +4,6 @@ import static java.lang.Boolean.TRUE;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ContactPhaseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.DeliveryModeInt;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
@@ -80,18 +78,6 @@ public class TimelineEventIdBuilder {
         // se passo un progressindex negativo, è perchè non voglio che venga inserito nell'eventid. Usato per cercare con l'inizia per
         if(progressIndex != null && progressIndex >= 0)
             this.progressIndex = DELIMITER.concat("IDX_").concat(progressIndex + "");
-        return this;
-    }
-
-    public TimelineEventIdBuilder withDeliveryMode(@Nullable DeliveryModeInt deliveryMode) {
-        if(deliveryMode != null)
-            this.deliveryMode = DELIMITER.concat("DELIVERYMODE_").concat(deliveryMode.getValue());
-        return this;
-    }
-
-    public TimelineEventIdBuilder withContactPhase(@Nullable ContactPhaseInt contactPhase) {
-        if(contactPhase != null)
-            this.contactPhase = DELIMITER.concat("CONTACTPHASE_").concat(contactPhase.getValue());
         return this;
     }
 

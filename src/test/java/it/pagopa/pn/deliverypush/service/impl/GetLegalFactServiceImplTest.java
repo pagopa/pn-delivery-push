@@ -11,7 +11,6 @@ import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactCategoryInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.GetAddressInfoDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRequestAcceptedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
@@ -85,21 +84,21 @@ class GetLegalFactServiceImplTest {
                 .taxId(TAX_ID)
                 .legalFactsId(LegalFactsIdV20.builder()
                         .key(KEY)
-                        .category(LegalFactCategoryV20.SENDER_ACK)
+                        .category(LegalFactCategoryV20.RECIPIENT_ACCESS)
                         .build()
                 ).build()
         );
 
         Set<TimelineElementInternal> timelineElementsResult = Collections.singleton(TimelineElementInternal.builder()
                 .iun(IUN)
-                .details(GetAddressInfoDetailsInt.builder()
+                .details(NotificationViewedDetailsInt.builder()
                         .recIndex(0)
                         .build())
-                .category(TimelineElementCategoryInt.GET_ADDRESS)
+                .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                 .elementId("element_id")
                 .legalFactsIds(Collections.singletonList(LegalFactsIdInt.builder()
                         .key(KEY)
-                        .category(LegalFactCategoryInt.SENDER_ACK)
+                        .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
                         .build())
                 ).build()
         );
@@ -166,7 +165,7 @@ class GetLegalFactServiceImplTest {
                 ).build(),
                 TimelineElementInternal.builder()
                         .iun(IUN)
-                        .details(GetAddressInfoDetailsInt.builder()
+                        .details(NotificationViewedDetailsInt.builder()
                                 .recIndex(1)
                                 .build())
                         .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
@@ -266,8 +265,8 @@ class GetLegalFactServiceImplTest {
                         ).build(),
                 TimelineElementInternal.builder()
                         .iun(IUN)
-                        .details(GetAddressInfoDetailsInt.builder()
-                                .recIndex(1)
+                        .details(NotificationViewedDetailsInt.builder()
+                                .recIndex(0)
                                 .build())
                         .category(TimelineElementCategoryInt.NOTIFICATION_VIEWED)
                         .elementId("element_id")

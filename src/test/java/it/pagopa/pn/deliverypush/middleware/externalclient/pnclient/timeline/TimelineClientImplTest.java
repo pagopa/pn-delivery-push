@@ -179,6 +179,7 @@ class TimelineClientImplTest {
         Boolean strongly = false;
         String timelineId = "timeline123";
         TimelineElement expectedElement = new TimelineElement();
+        expectedElement.setCategory(TimelineCategory.NOTIFICATION_CANCELLATION_REQUEST);
 
         Mockito.when(timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId))
                 .thenReturn(List.of(expectedElement));

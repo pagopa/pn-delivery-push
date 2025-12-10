@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElement
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
@@ -22,21 +21,6 @@ public class SmartMapper {
     private static ModelMapper modelMapper;
     private static BiFunction postMappingTransformer;
 
-    static PropertyMap<NormalizedAddressDetailsInt, TimelineElementDetailsV27> addressDetailPropertyMap = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            skip(destination.getNewAddress());
-            skip(destination.getPhysicalAddress());
-        }
-    };
-
-
-    static PropertyMap<PrepareAnalogDomicileFailureDetailsInt, TimelineElementDetailsV27> prepareAnalogDomicileFailureDetailsInt = new PropertyMap<>() {
-        @Override
-        protected void configure() {
-            skip(destination.getPhysicalAddress());
-        }
-    };
     static Converter<TimelineElementInternal, TimelineElementInternal> timelineElementInternalTimestampConverter =
             ctx -> {
                 // se il detail estende l'interfaccia e l'elementTimestamp non è nullo, lo sovrascrivo nel source originale
@@ -54,8 +38,6 @@ public class SmartMapper {
     static{
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.addMappings(addressDetailPropertyMap);
-        modelMapper.addMappings(prepareAnalogDomicileFailureDetailsInt);
 
         modelMapper.createTypeMap(TimelineElementInternal.class, TimelineElementInternal.class).setPostConverter(timelineElementInternalTimestampConverter);
 
@@ -63,9 +45,6 @@ public class SmartMapper {
         postMappingTransformers.add( (source, result)-> {
             if (source instanceof TimelineElementDetailsInt && !(source instanceof NotificationCancelledDetailsInt) && result instanceof TimelineElementDetailsV27 resultCast){
                 resultCast.setNotRefinedRecipientIndexes(null);
-            }
-            if (source instanceof TimelineElementDetailsInt && !(source instanceof PublicRegistryValidationCallDetailsInt) && result instanceof TimelineElementDetailsV27 resultCast){
-                resultCast.setRecIndexes(null);
             }
 
             /*
