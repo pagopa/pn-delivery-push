@@ -41,6 +41,18 @@ Parameters:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
 
+  NotificationReworkUpdaterQueueName:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue name'
+
+  NotificationReworkUpdaterQueueARN:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue ARN'
+
+  NotificationReworkUpdaterQueueURL:
+    Type: String
+    Description: 'delivery-push to notification rework updater queue URL'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -85,12 +97,12 @@ Parameters:
   DocumentCreationRequestTableArn:
     Type: String
     Description: 'ARN of dynamodb table containing unreacheble notifications recipients'
-  ##
-
+      
   AlarmSNSTopicArn:
     Type: String
     Description: 'ARN of alarm topic'
-    
+
+
   SandboxSafeStorageBaseUrl:
     Type: String
     Description: 'Safe storage base url'
@@ -212,7 +224,7 @@ Parameters:
   LogAlarmStrategy:
     Type: String
     Default: 'FATAL'
-    
+
   ApplicationLoadBalancerMetricsDimensionName:
     Type: String
     Default: ''
@@ -295,10 +307,27 @@ Parameters:
     Description: 'Number of retries for each idempotent versioning lambda'
     Default: 3
 
+  NotificationReworkUpdaterLambdaName:
+    Type: String
+    Description: 'NotificationReworkUpdaterLambda'
+
+  NotificationReworkUpdaterLambdaBatchSize:
+    Type: Number
+    Description: "Batch size for sqs to lambda notification rework updater"
+    Default: 10
+
   ApplicativeEnvFileChecksum:
     Type: String
     Default: ''
     Description: 'Applicative environment variable file checksum'
+
+  NotificationReworksDynamoTableName:
+    Type: String
+    Description: "NotificationRefusedVerification Dynamo table name"
+
+  NotificationReworksDynamoTableArn:
+    Type: String
+    Description: "ARN of dynamodb table containing notification refused verification"
 
 Resources:
   # PN-Delivery-push microservice
@@ -334,13 +363,14 @@ Resources:
         ContainerEnvEntry6: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry7: !Sub 'PN_DELIVERYPUSH_FAILEDNOTIFICATIONDAO_TABLENAME=${PaperNotificationFailedDynamoTableName}'
         ContainerEnvEntry8: !Sub 'PN_DELIVERYPUSH_DOCUMENTCREATIONREQUESTDAO_TABLENAME=${DocumentCreationRequestTableName}'
-        ContainerEnvEntry9: !Sub 'PN_DELIVERYPUSH_TIMELINECOUNTERDAO_TABLENAME=${TimelinesCounterTableName}'
-        ContainerEnvEntry10: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
-        ContainerEnvEntry11: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
-        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry9: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry10: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONFEE=${PagoPaNotificationFee}'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERYPUSH_PAGOPANOTIFICATIONVAT=${PagoPaNotificationVat}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERYPUSH_TEMPLATESENGINEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERYPUSH_TIMELINECLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERYPUSH_NOTIFICATIONREWORKSDAO_TABLENAME=${NotificationReworksDynamoTableName}'
+        ContainerEnvEntry16: !Sub 'PN_DELIVERYPUSH_PAPERTRACKERCLIENTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
@@ -364,6 +394,14 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:GetItem"
+              - "dynamodb:Query"
+              - "dynamodb:PutItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -459,6 +497,189 @@ Resources:
         APIGatewayARNs: !GetAtt DeliveryPushMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disabled IP based rate limit rule
         AllowedCidrs: !Ref IOBackendCidrs
+  ##########################################################################
+  ###                  NotificationReworkUpdaterLambda                   ###
+  ##########################################################################
+  NotificationReworkUpdaterLambdaSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${NotificationReworkUpdaterLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  NotificationReworkUpdaterLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref NotificationReworkUpdaterLambdaName
+      Runtime: nodejs22.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/notificationReworkUpdater.zip"
+      Role: !GetAtt NotificationReworkUpdaterLambdaRole.Arn
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          NOTIFICATION_REWORKS_DYNAMO_TABLENAME: !Ref NotificationReworksDynamoTableName
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 300
+
+  # Lambda function role
+  NotificationReworkUpdaterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda function IAM policy
+  NotificationReworkUpdaterLambdaPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-NotificationReworkUpdaterLambdaPolicy
+      Roles:
+        - !Ref NotificationReworkUpdaterLambdaRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "dynamodb:updateItem"
+            Resource:
+              - !Sub "${NotificationReworksDynamoTableArn}"
+              - !Sub "${NotificationReworksDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:SendMessage
+              - sqs:DeleteMessage
+              - sqs:ReceiveMessage
+            Resource: !Ref NotificationReworkUpdaterQueueARN
+
+  # CDC to  NotificationReworkUpdaterLambda
+  NotificationReworkUpdaterLambdaSource:
+    Type: AWS::Lambda::EventSourceMapping
+    DependsOn: NotificationReworkUpdaterLambdaPolicy
+    Properties:
+      BatchSize: !Sub ${NotificationReworkUpdaterLambdaBatchSize}
+      EventSourceArn: !Ref NotificationReworkUpdaterQueueARN
+      FunctionName: !Ref NotificationReworkUpdaterLambda
+      MaximumBatchingWindowInSeconds: 60
+      Enabled: true
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
+  NotificationReworkUpdaterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref NotificationReworkUpdaterQueueURL
+      PolicyDocument:
+        Statement:
+          - Sid: "SendEventsToDLQ"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource:
+              - !Ref NotificationReworkUpdaterQueueARN
+
+  NotificationReworkUpdaterLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref  NotificationReworkUpdaterLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  ##########################################################################
+  ###         EventBridge pipe TimelineToNotificationReworkUpdater       ###
+  ##########################################################################
+  TimelineToNotificationReworkUpdaterPipe:
+    Type: AWS::Pipes::Pipe
+    Properties:
+      Name: !Sub "${ProjectName}-timeline-to-notification-rework-updater-pipe"
+      RoleArn: !GetAtt TimelineToNotificationReworkUpdaterPipeRole.Arn
+      Source: !Ref CdcKinesisSourceStreamArn
+      SourceParameters:
+        FilterCriteria:
+          Filters:
+            - Pattern: >
+                {
+                  "data": {
+                    "tableName": ["pn-Timelines"],
+                    "dynamodb": {
+                      "NewImage": {
+                        "reworkId": { "S": [ { "exists": true } ] },
+                        "category": { "S": ["NOTIFICATION_TIMELINE_REWORKED","SEND_ANALOG_PROGRESS","SEND_ANALOG_FEEDBACK"] }
+                      }
+                    }
+                  }
+                }
+        KinesisStreamParameters:
+          StartingPosition: LATEST
+      Target: !Ref NotificationReworkUpdaterQueueARN
+      TargetParameters:
+        InputTemplate: |
+          {
+            "iun": <$.data.dynamodb.NewImage.iun.S>,
+            "reworkId": <$.data.dynamodb.NewImage.reworkId.S>,
+            "category": <$.data.dynamodb.NewImage.category.S>,
+            "timelineElementIds": <$.data.dynamodb.NewImage.details.M.invalidatedTimelineAndStatusHistory.L[*].M>,
+            "operation": "UPDATE"
+          }
+
+  TimelineToNotificationReworkUpdaterPipeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: pipes.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TimelineToNotificationReworkUpdaterPipePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:GetRecords
+                  - kinesis:GetShardIterator
+                  - kinesis:DescribeStream
+                  - kinesis:ListShards
+                Resource: !Ref CdcKinesisSourceStreamArn
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessageBatch
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Resource: !Ref NotificationReworkUpdaterQueueARN
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: !Ref CdcKinesisSourceStreamKeyArn
+
 
   VersioningGetNotificationLegalFactsSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -564,6 +785,7 @@ Resources:
           - ','
           - - !Ref PaperNotificationFailedDynamoTableName
             - !Ref DocumentCreationRequestTableName
+            - !Ref NotificationReworksDynamoTableName
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryPushMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -585,6 +807,179 @@ Resources:
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery-push'
             - !Sub '/aws/lambda/${VersioningGetNotificationLegalFactsLambdaName}'
+            - !Sub '/aws/lambda/${NotificationReworkUpdaterLambdaName}'
+
+  #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscalingValidator:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-validator-autoscaling-custom-validator"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointValidatorN
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushValidationInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledValidationActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "SafeStorageToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "AddressManagerToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "F24ToDeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m6
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushValidatorMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m6==0, 101, (100*(m1+m2+m3+m4+m5)) / (${ConsumedQueueMessagePerMinuteValidator} * m6) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-validator-custom-metric"
+          ReturnData: False
+        - Id: e1
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-validator-custom-metric"
+      EvaluationPeriods: !Ref AutoscalingDataPointValidatorM
+      Threshold: 60
+      AlarmActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushValidatorMicroservice.Outputs.ScaleDownPolicy
+
+  #### Alarm for custom metric Autoscaling
+  AlarmCustomAutoscalingWorkflow:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Sub "${ProjectName}-delivery-push-autoscaling-custom-workflow"
+      AlarmDescription: "Trigger scaling based on custom metric"
+      DatapointsToAlarm: !Ref AutoscalingDataPointWorkflowN
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      Metrics:
+        - Id: m1
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "DeliveryPushInputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m2
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ExternalChannelsOutputsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m3
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "NationalRegistries2DeliveryPushQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m4
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref "ScheduledActionsQueueName"
+              Namespace: "AWS/SQS"
+              MetricName: "ApproximateNumberOfMessagesVisible"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: m5
+          MetricStat:
+            Metric:
+              Dimensions:
+                - Name: TargetGroup
+                  Value: !GetAtt DeliveryPushWorkflowMicroservice.Outputs.TargetGroupName
+                - Name: LoadBalancer
+                  Value: !Ref ApplicationLoadBalancerMetricsDimensionName
+              Namespace: "AWS/ApplicationELB"
+              MetricName: "HealthyHostCount"
+            Period: !Ref AutoscalingCheckPeriod
+            Stat: Average
+          ReturnData: False
+        - Id: code
+          Expression: !Sub "IF(m5==0, 101, (100*(m1+m2+m3+m4)) / (${ConsumedQueueMessagePerMinuteWorkflow} * m5) )"
+          Label: !Sub "${ProjectName}-delivery-push-queue-workflow-custom-metric"
+          ReturnData: False
+        - Id: e1
+          Expression: "code"
+          Label: !Sub "${ProjectName}-delivery-push-autoscale-workflow-custom-metric"
+
+      EvaluationPeriods: !Ref AutoscalingDataPointWorkflowM
+      Threshold: 60
+      AlarmActions:
+        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleUpPolicy
+      OKActions:
+        - !GetAtt DeliveryPushWorkflowMicroservice.Outputs.ScaleDownPolicy
 
 Outputs:
 
