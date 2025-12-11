@@ -10,10 +10,11 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
+
 import reactor.core.publisher.Mono;
 
 import java.security.MessageDigest;
+import java.util.Base64;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
 
@@ -136,6 +137,6 @@ public class SafeStorageServiceImpl implements SafeStorageService {
     }
 
     private static String bytesToBase64(byte[] hash) {
-        return Base64Utils.encodeToString( hash );
+        return Base64.getEncoder().encodeToString( hash );
     }
 }

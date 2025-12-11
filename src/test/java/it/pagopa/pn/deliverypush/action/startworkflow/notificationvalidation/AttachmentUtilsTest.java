@@ -18,10 +18,10 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -116,7 +116,7 @@ class AttachmentUtilsTest {
                                                         .key("keyPagoPaForm")
                                                         .build())
                                                 .digests(NotificationDocumentInt.Digests.builder()
-                                                        .sha256(Base64Utils.encodeToString("keyPagoPaForm".getBytes()))
+                                                        .sha256( Base64.getEncoder().encodeToString("keyPagoPaForm".getBytes()))
                                                         .build())
                                                 .build())
                                         .build())

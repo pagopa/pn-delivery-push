@@ -4,8 +4,9 @@ import static java.lang.Boolean.TRUE;
 
 import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
+
 
 /**
  * Classe builder che permette di costruire un timelineEventId

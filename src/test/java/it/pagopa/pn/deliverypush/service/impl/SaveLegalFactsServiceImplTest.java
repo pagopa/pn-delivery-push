@@ -16,12 +16,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collections;
 
 class SaveLegalFactsServiceImplTest {
@@ -123,7 +123,7 @@ class SaveLegalFactsServiceImplTest {
                                                 .build()
                                         )
                                         .digests(NotificationDocumentInt.Digests.builder()
-                                                .sha256((Base64Utils.encodeToString("sha256_doc01".getBytes())))
+                                                .sha256((Base64.getEncoder().encodeToString("sha256_doc01".getBytes())))
                                                 .build()
                                         )
                                         .build()

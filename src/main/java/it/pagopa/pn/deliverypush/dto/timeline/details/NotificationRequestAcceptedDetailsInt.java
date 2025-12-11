@@ -1,15 +1,16 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
-@EqualsAndHashCode
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class NotificationRequestAcceptedDetailsInt implements TimelineElementDetailsInt{
+public class NotificationRequestAcceptedDetailsInt extends CategoryTypeTimelineElementDetailsInt implements TimelineElementDetailsInt{
     private String notificationRequestId;
     private String paProtocolNumber;
     private String idempotenceToken;

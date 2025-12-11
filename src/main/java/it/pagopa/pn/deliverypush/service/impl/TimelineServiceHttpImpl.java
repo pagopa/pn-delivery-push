@@ -4,12 +4,12 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
@@ -33,68 +33,58 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
     private final TimelineClient timelineClient;
     private final NotificationService notificationService;
+    private final TimelineServiceMapper timelineServiceMapper;
 
     @Override
     public boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         log.info("addTimelineElement - IUN={} and timelineId={}", element.getIun(), element.getElementId());
-
-        NewTimelineElement newTimelineElement = TimelineServiceMapper.getNewTimelineElement(element, notification);
-        return timelineClient.addTimelineElement(newTimelineElement);
+        return timelineClient.addTimelineElement(element, notification);
     }
 
     @Override
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("getTimelineElement - IUN={} and timelineId={}", iun, timelineId);
-
-        TimelineElement timelineElement = timelineClient.getTimelineElement(iun, timelineId, false);
-        return Optional.ofNullable(TimelineServiceMapper.toTimelineElementInternal(timelineElement));
+        return Optional.ofNullable(timelineClient.getTimelineElement(iun, timelineId, false));
     }
 
     @Override
     public <T> Optional<T> getTimelineElementDetails(String iun, String timelineId, Class<T> timelineDetailsClass) {
         log.debug("getTimelineElementDetails - IUN={} and timelineId={}", iun, timelineId);
 
-        TimelineElementDetails timelineElementDetails = timelineClient.getTimelineElementDetails(iun, timelineId);
+        TimelineElementDetailsInt timelineElementDetailsInt = timelineClient.getTimelineElementDetails(iun, timelineId);
 
-        return getTimelineElementDetailsInt(timelineDetailsClass, timelineElementDetails);
+        return castInternalDetails(timelineDetailsClass, timelineElementDetailsInt);
     }
 
-    private static <T> @NotNull Optional<T> getTimelineElementDetailsInt(Class<T> timelineDetailsClass, TimelineElementDetails timelineElementDetails) {
-        if( timelineElementDetails == null) {
+    private <T> @NotNull Optional<T> castInternalDetails(Class<T> timelineDetailsClass, TimelineElementDetailsInt timelineElementDetailsInt) {
+        if( timelineElementDetailsInt == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(timelineDetailsClass.cast(TimelineServiceMapper.toTimelineElementDetailsInt(
-                timelineElementDetails, TimelineElementCategoryInt.valueOf(timelineElementDetails.getCategoryType()))));
+        return Optional.of(timelineDetailsClass.cast(timelineElementDetailsInt));
     }
 
     @Override
     public <T> Optional<T> getTimelineElementDetailForSpecificRecipient(String iun, int recIndex, boolean confidentialInfoRequired, TimelineElementCategoryInt category, Class<T> timelineDetailsClass) {
         log.debug("getTimelineElementDetailForSpecificRecipient - IUN={}, recIndex={}, confidentialInfoRequired={}, category={}", iun, recIndex, confidentialInfoRequired, category);
 
-        TimelineElementDetails timelineElementDetails = timelineClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.getValue()));
-        return getTimelineElementDetailsInt(timelineDetailsClass,timelineElementDetails);
+        TimelineElementDetailsInt timelineElementDetailsInt = timelineClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
+        return castInternalDetails(timelineDetailsClass, timelineElementDetailsInt);
     }
 
     @Override
     public Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired) {
         log.debug("getTimeline - IUN={} and confidentialInfoRequired={}", iun, confidentialInfoRequired);
 
-        return Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, false, null))
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(TimelineServiceMapper::toTimelineElementInternal)
-                .collect(Collectors.toSet());
+        return new HashSet<>(Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, false, null))
+                .orElseGet(Collections::emptyList));
     }
 
     @Override
     public Set<TimelineElementInternal> getTimelineByIunTimelineId(String iun, String timelineId, boolean confidentialInfoRequired) {
         log.debug("getTimelineByIunTimelineId - IUN={}, timelineId={}, confidentialInfoRequired={}", iun, timelineId, confidentialInfoRequired);
 
-        return Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, false, timelineId))
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(TimelineServiceMapper::toTimelineElementInternal)
-                .collect(Collectors.toSet());
+        return new HashSet<>(Optional.ofNullable(timelineClient.getTimeline(iun, confidentialInfoRequired, false, timelineId))
+                .orElseGet(Collections::emptyList));
     }
 
     @Override
@@ -104,7 +94,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
         removeDiagnosticElements(notificationHistoryResponse);
-        return TimelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
+        return timelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
     }
 
     private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse) {

@@ -1,12 +1,13 @@
 package it.pagopa.pn.deliverypush.config;
 
 import it.pagopa.pn.commons.conf.SharedAutoConfiguration;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
+
 
 
 @Configuration

@@ -10,9 +10,9 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class BaseRegisteredLetterDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
+public class BaseRegisteredLetterDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
     protected int recIndex;
     protected PhysicalAddressInt physicalAddress;
     protected String foreignState;
