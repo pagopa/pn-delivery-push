@@ -1,7 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

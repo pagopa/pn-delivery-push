@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * Classe builder che permette di costruire un timelineEventId
- *
  * Il formato dello della stringa di input dovrà essere:
  * <CATEGORY_VALUE>;IUN_<IUN_VALUE>;RECINDEX_<RECINDEX_VALUE>...
  * tutti i value sono facoltativi, tranne il campo category.
