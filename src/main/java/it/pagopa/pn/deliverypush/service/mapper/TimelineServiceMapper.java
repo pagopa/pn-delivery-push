@@ -181,7 +181,7 @@ public class TimelineServiceMapper {
     }
 
     private TimelineElementDetailsV27 toTimelineElementDetailsV27(TimelineElementDetails details) {
-        return smartMapper.mapToClassWithObjectMapper(details, TimelineElementDetailsV27.class);
+        return smartMapper.mapToClass(details, TimelineElementDetailsV27.class);
     }
 
     private StatusInfoInternal toStatusInfoInternal(StatusInfo statusInfo) {

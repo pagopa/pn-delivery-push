@@ -33,14 +33,6 @@
             ],
             "servicePath": "delivery-push",
             "generateBundle": true
-        },
-        {
-            "intendedUsage": "PRIVATE",
-            "openapiFiles": [
-                "schemas-pn-timeline-internal.yaml"
-            ],
-            "servicePath": "delivery-push",
-            "generateBundle": false
         }
     ],
     "openapiBundlePresenceCheck": [

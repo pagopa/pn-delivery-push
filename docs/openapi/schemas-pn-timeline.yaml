@@ -53,15 +53,15 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
-#  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
-#   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
-#   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
-#   * `GENERATE_F24_REQUEST` - Invio della richiesta di generazione degli F24 presenti nella richiesta di notifica con costo base # NO EXTERNAL
-#   * `GENERATED_F24` - F24 generati # NO EXTERNAL
-#   * `SEND_ANALOG_TIMEOUT_CREATION_REQUEST` - Richiesta di creazione atto opponibile per notifiche sprovviste di esito di consegna cartacea nell' intervallo temporale stabilito  # NO EXTERNAL
-#   * `SEND_ANALOG_TIMEOUT` - Mancata ricezione di un esito per il tentativo di consegna analogico nell'intervallo temporale stabilito  # NO EXTERNAL
-#   * `ANALOG_FAILURE_WORKFLOW_TIMEOUT` - Completato con fallimento il workflow di invio cartaceo per l'assenza di esiti per ogni tentativo di spedizione nell'intervallo temporale stabilito  # NO EXTERNAL
-#   * `NOTIFICATION_TIMELINE_REWORKED` - Rework della timeline per una notifica # NO EXTERNAL
+      #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
+      #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
+      #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
+      #   * `GENERATE_F24_REQUEST` - Invio della richiesta di generazione degli F24 presenti nella richiesta di notifica con costo base # NO EXTERNAL
+      #   * `GENERATED_F24` - F24 generati # NO EXTERNAL
+      #   * `SEND_ANALOG_TIMEOUT_CREATION_REQUEST` - Richiesta di creazione atto opponibile per notifiche sprovviste di esito di consegna cartacea nell' intervallo temporale stabilito  # NO EXTERNAL
+      #   * `SEND_ANALOG_TIMEOUT` - Mancata ricezione di un esito per il tentativo di consegna analogico nell'intervallo temporale stabilito  # NO EXTERNAL
+      #   * `ANALOG_FAILURE_WORKFLOW_TIMEOUT` - Completato con fallimento il workflow di invio cartaceo per l'assenza di esiti per ogni tentativo di spedizione nell'intervallo temporale stabilito  # NO EXTERNAL
+      #   * `NOTIFICATION_TIMELINE_REWORKED` - Rework della timeline per una notifica # NO EXTERNAL
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -195,27 +195,10 @@ components:
         - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
         - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
-        - "$ref": "#/components/schemas/ValidateNormalizeAddressDetails" # NO EXTERNAL
-      discriminator:  # NO EXTERNAL
-        propertyName: "categoryType" # NO EXTERNAL
-
-    ValidateNormalizeAddressDetails:  # NO EXTERNAL
-      x-discriminator-value: "VALIDATE_NORMALIZE_ADDRESSES_REQUEST"  # NO EXTERNAL
-      type: object  # NO EXTERNAL
-      required:  # NO EXTERNAL
-        - categoryType  # NO EXTERNAL
-      properties:  # NO EXTERNAL
-        categoryType:  # NO EXTERNAL
-          type: string # NO EXTERNAL
 
     NotificationRequestAcceptedDetailsV27:
-      x-discriminator-value: "REQUEST_ACCEPTED" # NO EXTERNAL
       type: object
-      required: # NO EXTERNAL
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -241,14 +224,10 @@ components:
           maxLength: 256
 
     AnalogFailureWorkflowDetails:
-      x-discriminator-value: "ANALOG_FAILURE_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -260,14 +239,10 @@ components:
 
 
     CompletelyUnreachableCreationRequestDetails:
-      x-discriminator-value: "COMPLETELY_UNREACHABLE_CREATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -284,15 +259,11 @@ components:
           format: date-time
 
     AnalogSuccessWorkflowDetails:
-      x-discriminator-value: "ANALOG_SUCCESS_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -301,29 +272,21 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     DigitalFailureWorkflowDetails:
-      x-discriminator-value: "DIGITAL_FAILURE_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
 
     DigitalDeliveryCreationRequestDetails:
-      x-discriminator-value: "DIGITAL_DELIVERY_CREATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -342,15 +305,11 @@ components:
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
 
     DigitalSuccessWorkflowDetails:
-      x-discriminator-value: "DIGITAL_SUCCESS_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -359,14 +318,10 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
 
     CompletelyUnreachableDetails:
-      x-discriminator-value: "COMPLETELY_UNREACHABLE" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -377,17 +332,13 @@ components:
           format: date-time
 
     GetAddressInfoDetails:
-      x-discriminator-value: "GET_ADDRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddressSource
         - isAvailable
         - attemptDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -403,14 +354,10 @@ components:
           format: date-time
 
     NotificationViewedCreationRequestDetailsV23:
-      x-discriminator-value: "NOTIFICATION_VIEWED_CREATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -431,17 +378,13 @@ components:
           $ref: '#/components/schemas/DelegateInfo'
 
     NotificationRADDRetrievedDetails:
-      x-discriminator-value: "NOTIFICATION_RADD_RETRIEVED" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - raddType
         - raddTransactionId
         - eventTimestamp
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -456,14 +399,10 @@ components:
           format: date-time
 
     NotificationViewedDetailsV23:
-      x-discriminator-value: "NOTIFICATION_VIEWED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -485,7 +424,6 @@ components:
           format: date-time
 
     PublicRegistryCallDetails:
-      x-discriminator-value: "PUBLIC_REGISTRY_CALL" # NO EXTERNAL
       type: object
       required:
         - recIndex
@@ -493,10 +431,7 @@ components:
         - contactPhase
         - sentAttemptMade
         - sendDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -515,14 +450,10 @@ components:
           format: date-time
 
     PublicRegistryResponseDetails:
-      x-discriminator-value: "PUBLIC_REGISTRY_RESPONSE" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -533,14 +464,10 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     RefinementDetailsV23:
-      x-discriminator-value: "REFINEMENT" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -556,13 +483,8 @@ components:
           format: date-time
 
     RequestRefusedDetailsV27:
-      x-discriminator-value: "REQUEST_REFUSED" # NO EXTERNAL
       type: object
-      required: # NO EXTERNAL
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
@@ -589,14 +511,10 @@ components:
           maxLength: 256
 
     ScheduleAnalogWorkflowDetailsV23:
-      x-discriminator-value: "SCHEDULE_ANALOG_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -607,17 +525,13 @@ components:
           format: date-time
 
     ScheduleDigitalWorkflowDetailsV23:
-      x-discriminator-value: "SCHEDULE_DIGITAL_WORKFLOW" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddressSource
         - sentAttemptMade
         - lastAttemptDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -638,14 +552,10 @@ components:
           format: date-time
 
     ScheduleRefinementDetails:
-      x-discriminator-value: "SCHEDULE_REFINEMENT" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -655,16 +565,12 @@ components:
           format: date-time
 
     SendCourtesyMessageDetails:
-      x-discriminator-value: "SEND_COURTESY_MESSAGE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
         - sendDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -679,16 +585,12 @@ components:
           $ref: '#/components/schemas/IoSendMessageResult'
 
     PrepareDigitalDetails:
-      x-discriminator-value: "PREPARE_DIGITAL_DOMICILE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddressSource
         - retryNumber
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -717,17 +619,13 @@ components:
           format: date-time
 
     SendDigitalDetails:
-      x-discriminator-value: "SEND_DIGITAL_DOMICILE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
         - digitalAddressSource
         - retryNumber
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -742,13 +640,8 @@ components:
           format: int32
 
     SendDigitalProgressDetailsV23:
-      x-discriminator-value: "SEND_DIGITAL_PROGRESS" # NO EXTERNAL
       type: object
-      required: # NO EXTERNAL
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -784,17 +677,13 @@ components:
           format: date-time
 
     SendDigitalFeedbackDetails:
-      x-discriminator-value: "SEND_DIGITAL_FEEDBACK" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
         - responseStatus
         - notificationDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -833,17 +722,13 @@ components:
             $ref: '#/components/schemas/SendingReceipt'
 
     BaseAnalogDetails:
-      x-discriminator-value: "PREPARE_ANALOG_DOMICILE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
         - serviceLevel
         - sentAttemptMade
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -862,17 +747,13 @@ components:
           maxLength: 512
 
     SendAnalogDetails:
-      x-discriminator-value: "SEND_ANALOG_DOMICILE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
         - serviceLevel
         - sentAttemptMade
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -915,7 +796,6 @@ components:
           maxLength: 512
 
     SendAnalogFeedbackDetailsV25:
-      x-discriminator-value: "SEND_ANALOG_FEEDBACK" # NO EXTERNAL
       type: object
       required:
         - recIndex
@@ -923,10 +803,7 @@ components:
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1014,15 +891,11 @@ components:
 
 
     BaseRegisteredLetterDetails:
-      x-discriminator-value: "PREPARE_SIMPLE_REGISTERED_LETTER" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1032,15 +905,11 @@ components:
 
 
     SimpleRegisteredLetterDetails:
-      x-discriminator-value: "SEND_SIMPLE_REGISTERED_LETTER" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1072,16 +941,12 @@ components:
           maxLength: 512
 
     AarCreationRequestDetails:
-      x-discriminator-value: "AAR_CREATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - aarKey
         - numberOfPages
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1096,16 +961,12 @@ components:
           format: int32
 
     AarGenerationDetails:
-      x-discriminator-value: "AAR_GENERATION" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - generatedAarUrl
         - numberOfPages
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1120,16 +981,12 @@ components:
           format: int32
 
     NotHandledDetails:
-      x-discriminator-value: "NOT_HANDLED" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - reasonCode
         - reason
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1144,16 +1001,12 @@ components:
           maxLength: 2048
 
     NotificationPaidDetailsV23:
-      x-discriminator-value: "PAYMENT" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - recipientType
         - paymentSourceChannel
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
@@ -1186,14 +1039,10 @@ components:
           format: date-time
 
     SendAnalogProgressDetailsV23:
-      x-discriminator-value: "SEND_ANALOG_PROGRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
@@ -1226,14 +1075,10 @@ components:
 
 
     SimpleRegisteredLetterProgressDetails:
-      x-discriminator-value: "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
@@ -1263,15 +1108,11 @@ components:
           maxLength: 128
 
     ProbableDateAnalogWorkflowDetails:
-      x-discriminator-value: "PROBABLE_SCHEDULING_ANALOG_DATE" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - schedulingAnalogDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
@@ -1282,13 +1123,8 @@ components:
           description: Data probabile di inizio del flusso analogico
 
     SenderAckCreationRequestDetails:
-      x-discriminator-value: "SENDER_ACK_CREATION_REQUEST" # NO EXTERNAL
       type: object
-      required: # NO EXTERNAL
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         legalFactId:
           type: string
           maxLength: 128
@@ -1296,16 +1132,12 @@ components:
             Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
 
     NormalizedAddressDetails:
-      x-discriminator-value: "NORMALIZED_ADDRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - oldAddress
         - normalizedAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1316,29 +1148,21 @@ components:
           $ref: "./schemas-addresses.yaml#/components/schemas/PhysicalAddress"
 
     NotificationCancellationRequestDetails:
-      x-discriminator-value: "NOTIFICATION_CANCELLATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - cancellationRequestId
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         cancellationRequestId:
           type: string
           description: Id della richiesta
           maxLength: 512
 
     NotificationCancelledDetails:
-      x-discriminator-value: "NOTIFICATION_CANCELLED" # NO EXTERNAL
       type: object
       required:
         - notificationCost
         - notRefinedRecipientIndexes
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         notificationCost:
           description: costo notifica in euro cents, vale 100 * numero di recipient not refined
           example: 1220
@@ -1352,14 +1176,10 @@ components:
             format: int32
 
     PrepareAnalogDomicileFailureDetails:
-      x-discriminator-value: "PREPARE_ANALOG_DOMICILE_FAILURE" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1531,15 +1351,11 @@ components:
           format: int32
 
     AnalogWorkflowRecipientDeceasedDetailsV26:
-      x-discriminator-value: "ANALOG_WORKFLOW_RECIPIENT_DECEASED" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - physicalAddress
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1553,16 +1369,12 @@ components:
           format: int64
 
     PublicRegistryValidationCallDetails:
-      x-discriminator-value: "PUBLIC_REGISTRY_VALIDATION_CALL" # NO EXTERNAL
       type: object
       required:
         - recIndexes
         - deliveryMode
         - sendDate
-        - categoryType # NO EXTERNAL
       properties:
-        categoryType: # NO EXTERNAL
-          type: string # NO EXTERNAL
         recIndexes:
           description: Lista destinatari notifica
           type: array
@@ -1577,15 +1389,10 @@ components:
           format: date-time
 
     PublicRegistryValidationResponseDetails:
-      x-discriminator-value: "PUBLIC_REGISTRY_VALIDATION_RESPONSE" # NO EXTERNAL
       allOf:
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - type: object
-          required: # NO EXTERNAL
-              - categoryType # NO EXTERNAL
           properties:
-            categoryType: # NO EXTERNAL
-              type: string # NO EXTERNAL
             registry:
               type: string
               description: >

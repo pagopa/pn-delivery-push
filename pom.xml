@@ -243,6 +243,7 @@
                                 <configPackage>${project.groupId}.deliverypush.generated.openapi.server.v1.config</configPackage>
                                 <documentationProvider>source</documentationProvider>
                                 <openApiNullable>false</openApiNullable>
+                                <useOneOfInterfaces>false</useOneOfInterfaces>
                                 <additionalModelTypeAnnotations>
                                     @lombok.Builder(toBuilder = true);
                                     @lombok.NoArgsConstructor;
