@@ -4,7 +4,7 @@ components:
     TimelineElementId:
       type: string
     
-    TimelineElementCategoryV27:
+    TimelineElementCategoryV28:
       type: string
       description: >
         stato di avanzamento del processo di notifica:`
@@ -53,6 +53,7 @@ components:
           * `ANALOG_WORKFLOW_RECIPIENT_DECEASED` - Destinatario deceduto
           * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
           * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `NOTIFICATION_TIMELINE_REWORKED` - Invio richiesta di Rework della timeline per una notifica
 #  categorie di diagnostica da non mostrare all'esterno: # NO EXTERNAL
 #   * `VALIDATE_F24_REQUEST` - Invio della richiesta di validazione degli F24 presenti nella richiesta di notifica # NO EXTERNAL
 #   * `VALIDATED_F24` - F24 validato # NO EXTERNAL
@@ -108,8 +109,9 @@ components:
         - ANALOG_WORKFLOW_RECIPIENT_DECEASED
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - NOTIFICATION_TIMELINE_REWORKED
 
-    TimelineElementV27:
+    TimelineElementV28:
       type: object
       additionalProperties: false
       properties:
@@ -144,11 +146,11 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV27'
+          $ref: '#/components/schemas/TimelineElementCategoryV28'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV27'
+          $ref: '#/components/schemas/TimelineElementDetailsV28'
 
-    TimelineElementDetailsV27:
+    TimelineElementDetailsV28:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - "$ref": "#/components/schemas/SenderAckCreationRequestDetails"
@@ -195,6 +197,8 @@ components:
         - "$ref": "#/components/schemas/AnalogWorkflowRecipientDeceasedDetailsV26"
         - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
         - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
+        - "$ref": "#/components/schemas/NotificationTimelineReworkedDetails"
+
 
     NotificationRequestAcceptedDetailsV27:
       type: object
@@ -1401,3 +1405,48 @@ components:
                   - ANPR
                   - REGISTRO_IMPRESE
               maxLength: 128
+
+    NotificationStatusHistoryInvalidatedElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: "./schemas-pn-status.yaml#/components/schemas/NotificationStatusV26"
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: "#/components/schemas/TimelineElementV28"
+
+    NotificationTimelineReworkedDetails:
+      x-discriminator-value: "NOTIFICATION_TIMELINE_REWORKED"
+      type: object
+      required:
+        - recIndex
+        - sentAttemptMade
+        - invalidatedTimelineAndStatusHistory
+        - categoryType
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        invalidatedTimelineAndStatusHistory:
+          description: elenco degli avanzamenti effettuati dal processo di notifica prima dell'invalidazione
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationStatusHistoryInvalidatedElement"
+        categoryType:
+          type: string

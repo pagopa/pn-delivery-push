@@ -797,7 +797,7 @@ class TimeLineServiceImplTest {
         Assertions.assertEquals(deliveringElement.getActiveFrom(), secondElement.getActiveFrom());
 
         //Verifica timeline
-        List<TimelineElementV27> timelineElementList = notificationHistoryResponse.getTimeline();
+        List<TimelineElementV28> timelineElementList = notificationHistoryResponse.getTimeline();
 
         //Mi aspetto che sia rimosso l'elemento di timeline di diagnostica. (Con category VALIDATE_REQUEST_F24)
         Assertions.assertEquals(2, timelineElementList.size());
@@ -812,7 +812,7 @@ class TimeLineServiceImplTest {
 
     }
 
-    private boolean timelineElementContainsElementId(List<TimelineElementV27> timelineElements, String elementId) {
+    private boolean timelineElementContainsElementId(List<TimelineElementV28> timelineElements, String elementId) {
         return timelineElements.stream()
                 .anyMatch(timelineElement -> timelineElement.getElementId().equalsIgnoreCase(elementId));
     }

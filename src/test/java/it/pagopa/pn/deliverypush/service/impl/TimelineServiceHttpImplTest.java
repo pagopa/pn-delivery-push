@@ -184,8 +184,8 @@ class TimelineServiceHttpImplTest {
 
         it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse mappedResponse =
                 new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse();
-        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27 publicElementDto =
-                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27();
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV28 publicElementDto =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV28();
         publicElementDto.setElementId("publicId");
         mappedResponse.setTimeline(Collections.singletonList(publicElementDto));
         it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusHistoryElementV26 statusHistoryDto =
