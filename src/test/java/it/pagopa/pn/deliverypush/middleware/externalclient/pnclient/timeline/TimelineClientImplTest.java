@@ -179,6 +179,7 @@ class TimelineClientImplTest {
         Boolean strongly = false;
         String timelineId = "timeline123";
         TimelineElement expectedElement = new TimelineElement();
+        expectedElement.setCategory(TimelineCategory.NOTIFICATION_CANCELLATION_REQUEST); // Known category
 
         Mockito.when(timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId))
                 .thenReturn(List.of(expectedElement));
@@ -187,6 +188,24 @@ class TimelineClientImplTest {
 
         assertEquals(1, result.size());
         assertEquals(expectedElement, result.get(0));
+        Mockito.verify(timelineControllerApi).getTimeline(iun, confidentialInfoRequired, strongly, timelineId);
+    }
+
+    @Test
+    void getTimeline_FiltersUnknownCategories() {
+        String iun = "iun123";
+        Boolean confidentialInfoRequired = true;
+        Boolean strongly = false;
+        String timelineId = "timeline123";
+        TimelineElement expectedElement = new TimelineElement();
+        expectedElement.setCategory(TimelineCategory.SEND_ANALOG_TIMEOUT_CREATION_REQUEST); // Unknown category
+
+        Mockito.when(timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId))
+                .thenReturn(List.of(expectedElement));
+
+        List<TimelineElement> result = timelineServiceClient.getTimeline(iun, confidentialInfoRequired, strongly, timelineId);
+
+        assertEquals(0, result.size());
         Mockito.verify(timelineControllerApi).getTimeline(iun, confidentialInfoRequired, strongly, timelineId);
     }
 
