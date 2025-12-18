@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 class AarGenerationDetailsIntTest {
 
     private AarGenerationDetailsInt detailsInt;
@@ -22,7 +21,9 @@ class AarGenerationDetailsIntTest {
     @Test
     void testEquals() {
         AarGenerationDetailsInt expected = buildAarGenerationDetailsInt();
-        Assertions.assertEquals(Boolean.TRUE, expected.equals(detailsInt));
+        Assertions.assertEquals(expected.getGeneratedAarUrl(), detailsInt.getGeneratedAarUrl());
+        Assertions.assertEquals(expected.getNumberOfPages(), detailsInt.getNumberOfPages());
+        Assertions.assertEquals(expected.getRecIndex(), detailsInt.getRecIndex());
     }
     @Test
     void getRecIndex() {

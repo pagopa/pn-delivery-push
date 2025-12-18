@@ -1,9 +1,13 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
+import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpStatus;
@@ -17,11 +21,12 @@ import java.util.List;
 @Component
 public class TimelineClientImpl implements TimelineClient {
     private final TimelineControllerApi timelineControllerApi;
+    private final TimelineServiceMapper timelineServiceMapper;
 
     @Override
-    public boolean addTimelineElement(NewTimelineElement newTimelineElement) {
+    public boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification) {
         log.logInvokingExternalService(CLIENT_NAME, ADD_TIMELINE_ELEMENT);
-
+        NewTimelineElement newTimelineElement = timelineServiceMapper.getNewTimelineElement(element, notification);
         try {
             timelineControllerApi.addTimelineElement(newTimelineElement);
         } catch (PnHttpResponseException ex) {
@@ -37,47 +42,48 @@ public class TimelineClientImpl implements TimelineClient {
     }
 
     @Override
-    public Long retrieveAndIncrementCounterForTimelineEvent(String timelineId) {
-        log.logInvokingExternalService(CLIENT_NAME, RETRIEVE_AND_INCREMENT_COUNTER_FOR_TIMELINE_EVENT);
-
-        return timelineControllerApi.retrieveAndIncrementCounterForTimelineEvent(timelineId);
-    }
-
-    @Override
-    public TimelineElement getTimelineElement(String iun, String timelineId, Boolean strongly) {
+    public TimelineElementInternal getTimelineElement(String iun, String timelineId, Boolean strongly) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT);
 
-        return timelineControllerApi.getTimelineElement(iun, timelineId, strongly);
+        TimelineElement timelineElement = timelineControllerApi.getTimelineElement(iun, timelineId, strongly);
+        return timelineServiceMapper.toTimelineElementInternal(timelineElement);
     }
 
     @Override
-    public TimelineElementDetails getTimelineElementDetails(String iun, String timelineId) {
+    public TimelineElementDetailsInt getTimelineElementDetails(String iun, String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAILS);
 
-        return timelineControllerApi.getTimelineElementDetails(iun, timelineId);
+        TimelineElementDetails timelineElementDetails = timelineControllerApi.getTimelineElementDetails(iun, timelineId);
+        if(timelineElementDetails == null) {
+            return null;
+        }
+        return timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, TimelineElementCategoryInt.valueOf(timelineElementDetails.getCategoryType()));
     }
 
     @Override
-    public TimelineElementDetails getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineCategory category) {
+    public TimelineElementDetailsInt getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineElementCategoryInt category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT);
 
-        return timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
+        TimelineElementDetails timelineElementDetails = timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.name()));
+        return timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, category);
     }
 
     @Override
-    public TimelineElement getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineCategory category) {
+    public TimelineElementInternal getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineElementCategoryInt category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT);
 
-        return timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category);
+        TimelineElement timelineElement = timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, TimelineCategory.fromValue(category.name()));
+        return timelineServiceMapper.toTimelineElementInternal(timelineElement);
     }
 
     @Override
-    public List<TimelineElement> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId) {
+    public List<TimelineElementInternal> getTimeline(String iun, Boolean confidentialInfoRequired, Boolean strongly, String timelineId) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE);
 
         return timelineControllerApi.getTimeline(iun, confidentialInfoRequired, strongly, timelineId)
                 .stream()
                 .filter(element -> TimelineElementCategoryInt.isKnownCategory(element.getCategory().getValue()))
+                .map(timelineServiceMapper::toTimelineElementInternal)
                 .toList();
     }
 
