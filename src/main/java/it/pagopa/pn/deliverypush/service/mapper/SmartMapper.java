@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -11,15 +12,10 @@ import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SmartMapper {
     private final ObjectMapper objectMapper;
     private final ModelMapper modelMapper;
-
-    public SmartMapper(ObjectMapper objectMapper, ModelMapper modelMapper) {
-        this.objectMapper = objectMapper;
-        this.modelMapper = modelMapper;
-    }
-
 
     public <S,T> T mapToClass(S source, Class<T> destinationClass ){
         T result;
