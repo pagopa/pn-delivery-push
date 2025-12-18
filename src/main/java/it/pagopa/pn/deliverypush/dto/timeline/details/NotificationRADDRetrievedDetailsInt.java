@@ -12,7 +12,7 @@ import java.time.Instant;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class NotificationRADDRetrievedDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails{
+public class NotificationRADDRetrievedDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails{
     private int recIndex;
     private String raddType;
     private String raddTransactionId;

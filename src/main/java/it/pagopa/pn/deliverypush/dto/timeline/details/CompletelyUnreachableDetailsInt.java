@@ -12,7 +12,7 @@ import java.time.Instant;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class CompletelyUnreachableDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class CompletelyUnreachableDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant legalFactGenerationDate;
 

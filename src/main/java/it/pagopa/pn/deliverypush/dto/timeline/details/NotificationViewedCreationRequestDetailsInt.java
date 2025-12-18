@@ -13,7 +13,7 @@ import java.time.Instant;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class NotificationViewedCreationRequestDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PersonalInformationRelatedTimelineElement{
+public class NotificationViewedCreationRequestDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PersonalInformationRelatedTimelineElement{
     private int recIndex;
     private String legalFactId;
     private String raddType;

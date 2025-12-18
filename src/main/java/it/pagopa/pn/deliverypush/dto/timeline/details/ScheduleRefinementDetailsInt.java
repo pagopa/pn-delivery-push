@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
-public class ScheduleRefinementDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class ScheduleRefinementDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant schedulingDate;
 

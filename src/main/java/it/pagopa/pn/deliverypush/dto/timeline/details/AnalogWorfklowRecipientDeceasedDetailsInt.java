@@ -14,7 +14,7 @@ import java.time.Instant;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class AnalogWorfklowRecipientDeceasedDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement, ElementTimestampTimelineElementDetails {
+public class AnalogWorfklowRecipientDeceasedDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private PhysicalAddressInt physicalAddress;
     private Integer notificationCost;

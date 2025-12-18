@@ -16,7 +16,7 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class SendDigitalProgressDetailsInt extends CategoryTypeTimelineElementDetailsInt implements DigitalSendTimelineElementDetails, ElementTimestampTimelineElementDetails {
+public class SendDigitalProgressDetailsInt extends GenericTimelineElementDetailsInt implements DigitalSendTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt  digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;

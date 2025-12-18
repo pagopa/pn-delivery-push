@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
-public class ProbableDateAnalogWorkflowDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class ProbableDateAnalogWorkflowDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Instant schedulingAnalogDate;
 

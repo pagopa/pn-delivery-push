@@ -9,6 +9,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder( toBuilder = true )
 @ToString
-public class CategoryTypeTimelineElementDetailsInt {
+public class GenericTimelineElementDetailsInt {
     protected String categoryType;
 }

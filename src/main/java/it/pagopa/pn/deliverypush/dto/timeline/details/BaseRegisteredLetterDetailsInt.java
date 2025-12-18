@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class BaseRegisteredLetterDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
+public class BaseRegisteredLetterDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, PhysicalAddressRelatedTimelineElement {
     protected int recIndex;
     protected PhysicalAddressInt physicalAddress;
     protected String foreignState;

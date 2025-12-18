@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class AarGenerationDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails{
+public class AarGenerationDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails{
   private int recIndex;
   private String generatedAarUrl;
   private Integer numberOfPages; //Nota il campo potrà essere eliminato in futuro dal momento che il numero di pagine viene calcolato da paperChannel

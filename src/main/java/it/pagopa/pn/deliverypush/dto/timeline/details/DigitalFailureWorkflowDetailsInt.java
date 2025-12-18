@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class DigitalFailureWorkflowDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class DigitalFailureWorkflowDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
 
     public String toLog() {

@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class DigitalSuccessWorkflowDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement{
+public class DigitalSuccessWorkflowDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, DigitalAddressRelatedTimelineElement{
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
 

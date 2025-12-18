@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @ToString
-public class NotificationCancelledDetailsInt extends CategoryTypeTimelineElementDetailsInt implements TimelineElementDetailsInt {
+public class NotificationCancelledDetailsInt extends GenericTimelineElementDetailsInt implements TimelineElementDetailsInt {
 
     private int notificationCost;
     private List<Integer> notRefinedRecipientIndexes;

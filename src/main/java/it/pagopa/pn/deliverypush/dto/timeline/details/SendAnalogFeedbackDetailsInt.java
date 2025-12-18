@@ -17,7 +17,7 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class SendAnalogFeedbackDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails,
+public class SendAnalogFeedbackDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails,
         NewAddressRelatedTimelineElement, PhysicalAddressRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private PhysicalAddressInt physicalAddress;

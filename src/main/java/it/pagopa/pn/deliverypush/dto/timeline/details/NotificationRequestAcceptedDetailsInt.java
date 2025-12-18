@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class NotificationRequestAcceptedDetailsInt extends CategoryTypeTimelineElementDetailsInt implements TimelineElementDetailsInt{
+public class NotificationRequestAcceptedDetailsInt extends GenericTimelineElementDetailsInt implements TimelineElementDetailsInt{
     private String notificationRequestId;
     private String paProtocolNumber;
     private String idempotenceToken;

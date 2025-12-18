@@ -12,7 +12,7 @@ import java.time.Instant;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class RefinementDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class RefinementDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Integer notificationCost;
     private Instant eventTimestamp;

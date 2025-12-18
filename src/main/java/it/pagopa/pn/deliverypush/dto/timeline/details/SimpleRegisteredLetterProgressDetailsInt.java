@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString
-public class SimpleRegisteredLetterProgressDetailsInt extends CategoryTypeTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails {
+public class SimpleRegisteredLetterProgressDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private Instant notificationDate;
     private String deliveryFailureCause;
