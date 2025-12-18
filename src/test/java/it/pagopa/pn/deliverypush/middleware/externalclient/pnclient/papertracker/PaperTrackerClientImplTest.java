@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracke
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api.NotificationReworkApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
@@ -115,7 +116,7 @@ class PaperTrackerClientImplTest {
 
         // Act & Assert
         StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode,null,"AR"))
-                .expectErrorSatisfies(throwable -> assertTrue(Objects.requireNonNull(throwable.getMessage()).contains(originalMsg), "message should contain original error message"))
+                .expectError(PnInternalException.class)
                 .verify();
     }
 }
