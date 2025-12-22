@@ -33,6 +33,14 @@
             ],
             "servicePath": "delivery-push",
             "generateBundle": true
+        },
+        {
+            "intendedUsage": "PRIVATE",
+            "openapiFiles": [
+                "schemas-pn-timeline-internal.yaml"
+            ],
+            "servicePath": "delivery-push",
+            "generateBundle": false
         }
     ],
     "openapiBundlePresenceCheck": [
@@ -40,4 +48,3 @@
         "api-external-pn-delivery-push-b2b-pg-bundle.yaml"
     ]
 }
-    

@@ -2,21 +2,21 @@ package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-@EqualsAndHashCode
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
 @ToString
-public class NotificationCancelledDetailsInt implements TimelineElementDetailsInt {
+public class NotificationCancelledDetailsInt extends GenericTimelineElementDetailsInt implements TimelineElementDetailsInt {
 
     private int notificationCost;
     private List<Integer> notRefinedRecipientIndexes;

@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.config.springbootcfg;
 import it.pagopa.pn.commons.abstractions.impl.AbstractCachedSsmParameterConsumer;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
-import it.pagopa.pn.deliverypush.config.springbootcfg.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

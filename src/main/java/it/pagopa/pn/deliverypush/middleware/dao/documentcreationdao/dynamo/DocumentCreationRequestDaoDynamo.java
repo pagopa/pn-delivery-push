@@ -6,13 +6,9 @@ import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCrea
 import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.DocumentCreationRequestEntityDao;
 import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.entity.DocumentCreationRequestEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.mapper.DtoToEntityDocumentCreationRequestMapper;
-import it.pagopa.pn.deliverypush.middleware.dao.documentcreationdao.dynamo.mapper.EntityToDtoDocumentCreationRequestMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-
-import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(name = DocumentCreationRequestDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
@@ -21,13 +17,11 @@ public class DocumentCreationRequestDaoDynamo implements DocumentCreationRequest
 
     private final DocumentCreationRequestEntityDao dao;
     private final DtoToEntityDocumentCreationRequestMapper dtoToEntity;
-    private final EntityToDtoDocumentCreationRequestMapper entityToDto;
 
     public DocumentCreationRequestDaoDynamo(DocumentCreationRequestEntityDao dao,
-                                            DtoToEntityDocumentCreationRequestMapper dtoToEntity, EntityToDtoDocumentCreationRequestMapper entityToDto) {
+                                            DtoToEntityDocumentCreationRequestMapper dtoToEntity) {
         this.dao = dao;
         this.dtoToEntity = dtoToEntity;
-        this.entityToDto = entityToDto;
     }
     
     @Override
@@ -36,14 +30,5 @@ public class DocumentCreationRequestDaoDynamo implements DocumentCreationRequest
         dao.put(entity);
     }
 
-    @Override
-    public Optional<DocumentCreationRequest>  getDocumentCreationRequest(String fileKey) {
-        Key keyToSearch = Key.builder()
-                .partitionValue(fileKey)
-                .build();
-
-        return dao.get(keyToSearch)
-                .map(entityToDto::entityToDto);
-    }
 }
 

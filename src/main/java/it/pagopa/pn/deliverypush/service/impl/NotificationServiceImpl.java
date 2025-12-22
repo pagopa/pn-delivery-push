@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED;
 
 @Service
@@ -39,24 +37,6 @@ public class NotificationServiceImpl implements NotificationService {
             log.error("Get notification is not valid for - iun {}", iun);
             throw new PnInternalException("Get notification is not valid for - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED);
         }        
-    }
-
-
-    @Override
-    public Mono<Void> removeAllNotificationCostsByIun(String iun) {
-        return pnDeliveryClientReactive.removeAllNotificationCostsByIun(iun)
-                .onErrorResume( error -> {
-                    log.error("removeAllNotificationCostsByIun error ={} - iun {}", error,  iun);
-                    return Mono.error(new PnInternalException("removeAllNotificationCostsByIun error - iun " + iun, ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED, error));
-                });
-    }
-
-
-    @Override
-    public Map<String, String> getRecipientsQuickAccessLinkToken(String iun) {
-       Map<String, String> resp = pnDeliveryClient.getQuickAccessLinkTokensPrivate(iun);
-       log.debug("Get QuickAccessLinkToken OK for - iun {}", iun);
-       return resp;         
     }
 
     @Override

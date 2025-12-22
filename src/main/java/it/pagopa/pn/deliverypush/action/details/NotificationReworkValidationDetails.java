@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.details;
 
-import it.pagopa.pn.deliverypush.middleware.queue.producer.abstractions.actionspool.ActionDetails;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationReworkValidationDetails implements ActionDetails {
+public class NotificationReworkValidationDetails {
     private String reworkId;
     private String reworkAttempt;
     private String reworkPcRetry;

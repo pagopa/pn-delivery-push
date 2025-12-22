@@ -6,7 +6,7 @@ import it.pagopa.pn.deliverypush.service.SafeStorageService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.impl.NotificationServiceImpl;
 import it.pagopa.pn.deliverypush.service.impl.SafeStorageServiceImpl;
-import it.pagopa.pn.deliverypush.service.impl.TimeLineServiceImpl;
+import it.pagopa.pn.deliverypush.service.impl.TimelineServiceHttpImpl;
 import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,7 +21,7 @@ public class TestConfiguration {
     
     @Bean
     public TimelineService timeLineServiceImplTest() {
-        return Mockito.mock(TimeLineServiceImpl.class);
+        return Mockito.mock(TimelineServiceHttpImpl.class);
     }
 
     @Bean
