@@ -3,7 +3,7 @@
         {
             "intendedUsage": "IO",
             "commonFiles": [
-                "schemas-pn-legal-facts.yaml",
+                "schemas-pn-legal-facts-internal.yaml",
                 "schemas-pn-legal-facts-older-version.yaml"
             ],
             "openapiFiles": [
@@ -15,7 +15,7 @@
         {
             "intendedUsage": "B2B",
             "commonFiles": [
-                "schemas-pn-legal-facts.yaml",
+                "schemas-pn-legal-facts-internal.yaml",
                 "schemas-pn-legal-facts-older-version.yaml"
             ],
             "openapiFiles": [
@@ -41,7 +41,15 @@
             ],
             "servicePath": "delivery-push",
             "generateBundle": false
-        }
+        },
+      {
+        "intendedUsage": "PRIVATE",
+        "openapiFiles": [
+          "schemas-pn-legal-facts-internal.yaml"
+        ],
+        "servicePath": "delivery-push",
+        "generateBundle": false
+      }
     ],
     "openapiBundlePresenceCheck": [
         "api-external-pn-delivery-push-bundle.yaml",
