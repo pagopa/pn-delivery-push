@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.externalchannel.ResponseStatusInt;
 import it.pagopa.pn.deliverypush.utils.AuditLogUtils;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,10 +14,10 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
-@EqualsAndHashCode
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class SendDigitalFeedbackDetailsInt implements DigitalAddressRelatedTimelineElement, DigitalAddressSourceRelatedTimelineElement, ElementTimestampTimelineElementDetails {
+public class SendDigitalFeedbackDetailsInt extends GenericTimelineElementDetailsInt implements DigitalAddressRelatedTimelineElement, DigitalAddressSourceRelatedTimelineElement, ElementTimestampTimelineElementDetails {
     private int recIndex;
     private LegalDigitalAddressInt digitalAddress;
     private DigitalAddressSourceInt digitalAddressSource;

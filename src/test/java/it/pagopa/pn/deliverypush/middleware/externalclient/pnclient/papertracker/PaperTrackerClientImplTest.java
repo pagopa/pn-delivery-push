@@ -1,16 +1,16 @@
 package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.api.NotificationReworkApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.Problem;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +24,6 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,8 +32,17 @@ class PaperTrackerClientImplTest {
     @Mock
     private NotificationReworkApi notificationReworkApi;
 
-    @InjectMocks
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private PaperTrackerClientImpl client;
+
+    @BeforeEach
+    void setup() {
+        objectMapper.registerModule(new JavaTimeModule());
+        client = new PaperTrackerClientImpl(notificationReworkApi, objectMapper);
+    }
+
+
     @Test
     void retrieveSequenceAndFinalStatus_success() {
         // Arrange
@@ -59,14 +66,29 @@ class PaperTrackerClientImplTest {
     @Test
     void retrieveSequenceAndFinalStatus_mapsWebClientErrorToPnInternalException_withStatus() {
         // Arrange
-        String statusCode = "RECRN002B";
+        String statusCode = "RECAG003A";
+        String jsonBody = """
+        {
+          "type" : "GENERIC_ERROR",
+          "status" : 400,
+          "title" : "Handled error",
+          "detail" : "See logs for details in pn-paper-tracker",
+          "traceId" : "trace_id:87424e79-f153-4a4a-867c-eb437a31c865",
+          "timestamp" : "2025-11-28T10:11:59.6388503Z",
+          "errors" : [ {
+            "code" : "PN_PAPER_TRACKER_INVALID_STATUS_CODE",
+            "element" : null,
+            "detail" : "statusCode RECAG003A is PROGRESS"
+          } ]
+        }
+        """;
 
         WebClientResponseException webEx = new WebClientResponseException(
                 "Invalid status code",
                 HttpStatus.BAD_REQUEST.value(),
-                "statusCode RECRN002B is PROGRESS",
+                "statusCode RECAG003A is PROGRESS",
                 new HttpHeaders(),
-                new byte[0],
+                jsonBody.getBytes(),
                 null
         );
 
@@ -76,9 +98,9 @@ class PaperTrackerClientImplTest {
         // Act & Assert
         StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode, null, "AR"))
                 .expectErrorSatisfies(throwable -> {
-                    WebClientResponseException ex = (WebClientResponseException) throwable;
-                    assertEquals(400, ex.getStatusCode().value());
-                    assertEquals("statusCode RECRN002B is PROGRESS", ex.getStatusText());
+                    PnRuntimeException ex = (PnRuntimeException) throwable;
+                    assertEquals(400, ex.getProblem().getStatus());
+                    assertEquals("statusCode RECAG003A is PROGRESS", ex.getProblem().getErrors().get(0).getDetail());
                 })
                 .verify();
     }
@@ -94,7 +116,7 @@ class PaperTrackerClientImplTest {
 
         // Act & Assert
         StepVerifier.create(client.retrieveSequenceAndFinalStatus(statusCode,null,"AR"))
-                .expectErrorSatisfies(throwable -> assertTrue(Objects.requireNonNull(throwable.getMessage()).contains(originalMsg), "message should contain original error message"))
+                .expectError(PnInternalException.class)
                 .verify();
     }
 }

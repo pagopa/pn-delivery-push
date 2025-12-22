@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.dto.timeline.details;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
@@ -8,10 +9,10 @@ import java.time.Instant;
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
-@EqualsAndHashCode
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class RefinementDetailsInt implements RecipientRelatedTimelineElementDetails {
+public class RefinementDetailsInt extends GenericTimelineElementDetailsInt implements RecipientRelatedTimelineElementDetails {
     private int recIndex;
     private Integer notificationCost;
     private Instant eventTimestamp;

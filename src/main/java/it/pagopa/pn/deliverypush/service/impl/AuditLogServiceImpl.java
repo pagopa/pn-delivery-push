@@ -23,17 +23,5 @@ public class AuditLogServiceImpl implements AuditLogService {
         logEvent.log();
         return logEvent;
     }
-    
-    @Override
-    public PnAuditLogEvent buildAuditLogEvent(String iun, Integer recIndex, PnAuditLogEventType pnAuditLogEventType, String message, Object ... arguments) {
-        String logMessage = MessageFormatter.arrayFormat(message, arguments).getMessage();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent;
-        logEvent = auditLogBuilder.before(pnAuditLogEventType, "{} - iun={} id={}", logMessage, iun, recIndex)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        return logEvent;
-    }
 
 }

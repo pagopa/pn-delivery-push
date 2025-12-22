@@ -4,8 +4,6 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedEntityDao;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.entity.PaperNotificationFailedEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.DtoToEntityNotificationFailedMapper;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.dynamo.mapper.EntityToDtoNotificationFailedMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,20 +19,12 @@ import java.util.stream.Collectors;
 public class PaperNotificationFailedDaoDynamo implements PaperNotificationFailedDao{
 
     private final PaperNotificationFailedEntityDao dao;
-    private final DtoToEntityNotificationFailedMapper dtoToEntity;
     private final EntityToDtoNotificationFailedMapper entityToDto;
 
     public PaperNotificationFailedDaoDynamo(PaperNotificationFailedEntityDao dao,
-                                            DtoToEntityNotificationFailedMapper dtoToEntity, EntityToDtoNotificationFailedMapper entityToDto) {
+                                            EntityToDtoNotificationFailedMapper entityToDto) {
         this.dao = dao;
-        this.dtoToEntity = dtoToEntity;
         this.entityToDto = entityToDto;
-    }
-
-    @Override
-    public void addPaperNotificationFailed(PaperNotificationFailed paperNotificationFailed) {
-        PaperNotificationFailedEntity entity = dtoToEntity.dto2Entity(paperNotificationFailed);
-        dao.put(entity);
     }
 
     @Override

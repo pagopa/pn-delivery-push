@@ -1,18 +1,15 @@
 package it.pagopa.pn.deliverypush.action.it.utils;
 
 import it.pagopa.pn.commons.utils.DateFormatUtils;
-import it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import org.springframework.util.Base64Utils;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-
-import static it.pagopa.pn.deliverypush.action.it.mockbean.ExternalChannelMock.EXTCHANNEL_SEND_SUCCESS;
 
 public class NotificationTestBuilder {
     private String iun;
@@ -110,12 +107,12 @@ public class NotificationTestBuilder {
             notificationDocument = List.of(
                     NotificationDocumentInt.builder()
                             .ref(NotificationDocumentInt.Ref.builder()
-                                    .key(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                    .key(Base64.getEncoder().encodeToString(fileDoc.getBytes()))
                                     .versionToken("v01_doc00")
                                     .build()
                             )
                             .digests(NotificationDocumentInt.Digests.builder()
-                                    .sha256(Base64Utils.encodeToString(fileDoc.getBytes()))
+                                    .sha256(Base64.getEncoder().encodeToString(fileDoc.getBytes()))
                                     .build()
                             )
                             .build()
@@ -136,13 +133,13 @@ public class NotificationTestBuilder {
                     .withTaxId("testTaxId")
                     .withInternalId("ANON_testTaxId")
                     .withDigitalDomicile(LegalDigitalAddressInt.builder()
-                            .address("digitalDomicile@" + ExternalChannelMock.EXT_CHANNEL_WORKS)
+                            .address("digitalDomicile@works")
                             .type(LegalDigitalAddressInt.LEGAL_DIGITAL_ADDRESS_TYPE.PEC)
                             .build()
                     )
                     .withPhysicalAddress(
                             PhysicalAddressBuilder.builder()
-                                    .withAddress(EXTCHANNEL_SEND_SUCCESS + "_Via Nuova")
+                                    .withAddress("OK_Via Nuova")
                                     .build()
                     )
                     .build()

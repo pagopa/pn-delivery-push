@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class PnCancellationController implements NotificationCancellationApi {
 
     private final NotificationCancellationService notificationCancellationService;
+    private final SmartMapper smartMapper;
     
     @Override
     public  Mono<ResponseEntity<RequestStatus>> notificationCancellation(
@@ -32,7 +33,7 @@ public class PnCancellationController implements NotificationCancellationApi {
         return notificationCancellationService.startCancellationProcess(iun, xPagopaPnCxId, xPagopaPnCxType, xPagopaPnCxGroups)
                 .map(statusdetail -> ResponseEntity.accepted().body(RequestStatus.builder()
                                     .status("OK")
-                                    .details(List.of(SmartMapper.mapToClass(statusdetail, StatusDetail.class)))
+                                    .details(List.of(smartMapper.mapToClass(statusdetail, StatusDetail.class)))
                                     .build())
                 );
     }

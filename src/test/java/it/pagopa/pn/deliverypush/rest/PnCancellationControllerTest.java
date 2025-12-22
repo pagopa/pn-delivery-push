@@ -1,34 +1,38 @@
 package it.pagopa.pn.deliverypush.rest;
 
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
-import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.cancellation.StatusDetailInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestStatus;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusDetail;
 import it.pagopa.pn.deliverypush.service.NotificationCancellationService;
+import it.pagopa.pn.deliverypush.service.mapper.SmartMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_ALREADY_CANCELLED;
+import static it.pagopa.pn.deliverypush.service.impl.NotificationCancellationServiceImpl.NOTIFICATION_CANCELLATION_ACCEPTED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @WebFluxTest(PnCancellationController.class)
 class PnCancellationControllerTest {
     private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     @Autowired
     WebTestClient webTestClient;
-    @MockBean
+    @MockitoBean
+    private SmartMapper smartMapper;
+    @MockitoBean
     private NotificationCancellationService notificationCancellationService;
     
     @Test
@@ -40,6 +44,8 @@ class PnCancellationControllerTest {
                         .level("INFO")
                         .detail("La richiesta di annullamento è stata presa in carico")
                         .build()));
+
+        Mockito.when(smartMapper.mapToClass(any(), any())).thenReturn(new StatusDetail());
         
         // WHEN
         webTestClient.put()
@@ -70,6 +76,13 @@ class PnCancellationControllerTest {
                         .level("WARN")
                         .detail("E' già presente una richiesta di annullamento per questa notifica")
                         .build()));
+
+        StatusDetail mapped = StatusDetail.builder()
+                .code(NOTIFICATION_ALREADY_CANCELLED)
+                .level("WARN")
+                .detail("E' già presente una richiesta di annullamento per questa notifica")
+                .build();
+        Mockito.when(smartMapper.mapToClass(any(), any())).thenReturn(mapped);
 
         // WHEN
         webTestClient.put()

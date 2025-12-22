@@ -41,12 +41,4 @@ public class PnDeliveryClientReactiveImpl extends CommonBaseClient implements Pn
                 .doOnSuccess(res -> log.debug("Received sync response from {} for {}", CLIENT_NAME, GET_NOTIFICATION));
     }
 
-    @Override
-    public Mono<Void> removeAllNotificationCostsByIun(String iun) {
-        log.logInvokingExternalService(CLIENT_NAME, REMOVE_IUV);
-
-        return pnDeliveryApi.removeAllNotificationCostsByIun(iun)
-                .doOnSuccess(res -> log.debug("Received sync response from {} for {} ", CLIENT_NAME, REMOVE_IUV));
-    }
-
 }

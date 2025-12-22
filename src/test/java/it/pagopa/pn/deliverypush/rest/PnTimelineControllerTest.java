@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -26,7 +26,7 @@ class PnTimelineControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private TimelineService service;
 
     @Test
@@ -35,7 +35,7 @@ class PnTimelineControllerTest {
                 .timestamp( Instant.now() )
                 .elementId( "element_id" )
                 .category( TimelineElementCategoryV28.REQUEST_ACCEPTED )
-                .details(TimelineElementDetailsV28.builder().build())
+                .details( NotificationRequestAcceptedDetailsV28.builder().build() )
                 .build()
         );
         NotificationHistoryResponse dto = NotificationHistoryResponse.builder()

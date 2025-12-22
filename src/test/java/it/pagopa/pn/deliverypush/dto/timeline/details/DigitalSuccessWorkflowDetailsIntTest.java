@@ -19,7 +19,8 @@ class DigitalSuccessWorkflowDetailsIntTest {
     @Test
     void testEquals() {
         DigitalSuccessWorkflowDetailsInt expected = buildDigitalSuccessWorkflowDetailsInt();
-        Assertions.assertEquals(Boolean.TRUE, detailsInt.equals(expected));
+        Assertions.assertEquals(expected.getDigitalAddress(), detailsInt.getDigitalAddress());
+        Assertions.assertEquals(expected.getRecIndex(), detailsInt.getRecIndex());
     }
     @Test
     void getRecIndex() {

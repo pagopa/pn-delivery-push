@@ -25,8 +25,22 @@ class SendAnalogDetailsIntTest {
     @Test
     void testEquals() {
         SendAnalogDetailsInt expected = buildSendAnalogDetailsInt();
-        Assertions.assertEquals(Boolean.TRUE, expected.equals(detailsInt));
+        Assertions.assertEquals(expected.getAnalogCost(), detailsInt.getAnalogCost());
+        Assertions.assertEquals(expected.getPhysicalAddress(), detailsInt.getPhysicalAddress());
+        Assertions.assertEquals(expected.getRecIndex(), detailsInt.getRecIndex());
+        Assertions.assertEquals(expected.getRelatedRequestId(), detailsInt.getRelatedRequestId());
+        Assertions.assertEquals(expected.getServiceLevel(), detailsInt.getServiceLevel());
+        Assertions.assertEquals(expected.getSentAttemptMade(), detailsInt.getSentAttemptMade());
+        Assertions.assertEquals(expected.getCategorizedAttachmentsResult(), detailsInt.getCategorizedAttachmentsResult());
+        Assertions.assertEquals(expected.getProductType(), detailsInt.getProductType());
+        Assertions.assertEquals(expected.getPrepareRequestId(), detailsInt.getPrepareRequestId());
+        Assertions.assertEquals(expected.getEnvelopeWeight(), detailsInt.getEnvelopeWeight());
+        Assertions.assertEquals(expected.getVat(), detailsInt.getVat());
+        Assertions.assertEquals(expected.getF24Attachments(), detailsInt.getF24Attachments());
+        Assertions.assertEquals(expected.getNumberOfPages(), detailsInt.getNumberOfPages());
+
     }
+
     @Test
     void getRecIndex() {
         Assertions.assertEquals(3, detailsInt.getRecIndex());
