@@ -13,7 +13,8 @@ import java.util.Set;
 
 public class TimelineDetailsServerCounter {
     private static final String BASE_PACKAGE = "it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto";
-    private static final String INTERFACE_NAME = "it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV27";
+    // Nome completo dell'interfaccia da cercare (Da aggiornare ad ogni nuova versione)
+    private static final String INTERFACE_NAME = "it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementDetailsV28";
 
     public static int countSubClasses() throws IOException, ClassNotFoundException {
         // 1. Definisci il pattern di scansione

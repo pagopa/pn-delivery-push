@@ -180,8 +180,8 @@ public class TimelineServiceMapper {
         return smartMapper.mapToClass(details, category.getDetailsJavaClass());
     }
 
-    private TimelineElementDetailsV27 toTimelineElementDetailsV27(TimelineElementDetails details) {
-        return smartMapper.mapToClassWithObjectMapper(details, TimelineElementDetailsV27.class);
+    private TimelineElementDetailsV28 toTimelineElementDetailsV28(TimelineElementDetails details) {
+        return smartMapper.mapToClassWithObjectMapper(details, TimelineElementDetailsV28.class);
     }
 
     private StatusInfoInternal toStatusInfoInternal(StatusInfo statusInfo) {
