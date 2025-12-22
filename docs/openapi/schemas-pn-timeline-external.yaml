@@ -1222,7 +1222,6 @@ components:
           type: string
           maxLength: 128
         taxId:
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           type: string
           maxLength: 128
         operatorUuid:
@@ -1232,7 +1231,6 @@ components:
           type: string
           maxLength: 128
         denomination:
-          x-field-extra-annotation: "@lombok.ToString.Exclude"
           type: string
           maxLength: 128
         delegateType:
