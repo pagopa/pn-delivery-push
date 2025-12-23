@@ -1578,7 +1578,7 @@ components:
         - recIndex
         - sentAttemptMade
         - invalidatedTimelineAndStatusHistory
-        - categoryType
+        - categoryType # NO EXTERNAL
       properties:
         recIndex:
           type: integer
