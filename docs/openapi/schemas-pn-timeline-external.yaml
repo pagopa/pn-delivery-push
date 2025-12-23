@@ -1391,5 +1391,3 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NotificationStatusHistoryInvalidatedElement"
-        categoryType:
-          type: string
