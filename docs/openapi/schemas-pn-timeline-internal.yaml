@@ -1572,7 +1572,7 @@ components:
             $ref: "#/components/schemas/TimelineElementV28"
 
     NotificationTimelineReworkedDetails:
-      x-discriminator-value: "NOTIFICATION_TIMELINE_REWORKED"
+      x-discriminator-value: "NOTIFICATION_TIMELINE_REWORKED" # NO EXTERNAL
       type: object
       required:
         - recIndex
