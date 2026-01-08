@@ -10,8 +10,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV27;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV27;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV28;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,12 +113,12 @@ class TimelineServiceMapperTest {
         assertEquals(NotificationStatusV26.DELIVERED, result.getNotificationStatus());
         assertNotNull(result.getTimeline());
         assertEquals(1, result.getTimeline().size());
-        TimelineElementV27 elem = result.getTimeline().getFirst();
+        TimelineElementV28 elem = result.getTimeline().getFirst();
         assertEquals("ELEM1", elem.getElementId());
     }
 
     @Test
-    void getTimelineElementV27List_mapsFieldsCorrectly() {
+    void getTimelineElementV28List_mapsFieldsCorrectly() {
         TimelineElementDetails details = new NotificationViewedDetails().categoryType("NOTIFICATION_VIEWED");
         LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
         TimelineElement timelineElement = new TimelineElement()
@@ -134,13 +134,13 @@ class TimelineServiceMapperTest {
         NotificationHistoryResponse source = new NotificationHistoryResponse()
                 .timeline(List.of(timelineElement));
 
-        List<TimelineElementV27> result = timelineServiceMapper.toNotificationHistoryResponseDto(source).getTimeline();
+        List<TimelineElementV28> result = timelineServiceMapper.toNotificationHistoryResponseDto(source).getTimeline();
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        TimelineElementV27 elem = result.getFirst();
+        TimelineElementV28 elem = result.getFirst();
         assertEquals("ELEM1", elem.getElementId());
-        assertEquals(TimelineElementCategoryV27.NOTIFICATION_VIEWED, elem.getCategory());
+        assertEquals(TimelineElementCategoryV28.NOTIFICATION_VIEWED, elem.getCategory());
         assertNotNull(elem.getDetails());
     }
 

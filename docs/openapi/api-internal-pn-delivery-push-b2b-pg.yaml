@@ -67,7 +67,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
+                $ref: "./schemas-pn-legal-facts-internal.yaml#/components/schemas/LegalFactDownloadMetadataResponse"
         '400':
           description: Invalid input
           content:

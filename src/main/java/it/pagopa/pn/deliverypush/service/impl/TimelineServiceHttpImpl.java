@@ -133,7 +133,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
     }
 
     private boolean isPublicElement(String elementCategory) {
-        return Arrays.stream(TimelineElementCategoryV27.values())
+        return Arrays.stream(TimelineElementCategoryV28.values())
                 .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
     }
 
