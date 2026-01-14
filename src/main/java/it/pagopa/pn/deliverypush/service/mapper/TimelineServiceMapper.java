@@ -59,20 +59,20 @@ public class TimelineServiceMapper {
         return it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse.builder()
                 .notificationStatus(getNotificationStatusV26(source))
                 .notificationStatusHistory(getNotificationStatusHistoryElementV26List(source))
-                .timeline(getTimelineElementV27List(source))
+                .timeline(getTimelineElementV28List(source))
                 .build();
     }
 
-    private List<TimelineElementV27> getTimelineElementV27List(NotificationHistoryResponse source) {
-        List<TimelineElementV27> timeline = null;
+    private List<TimelineElementV28> getTimelineElementV28List(NotificationHistoryResponse source) {
+        List<TimelineElementV28> timeline = null;
         if (source.getTimeline() != null) {
             timeline = source.getTimeline().stream()
-                    .map(item -> TimelineElementV27.builder()
+                    .map(item -> TimelineElementV28.builder()
                             .elementId(item.getElementId())
                             .timestamp(item.getTimestamp())
                             .legalFactsIds(item.getLegalFactsIds() != null ? toLegalFactsIdV20List(item.getLegalFactsIds()) : null)
-                            .category(TimelineElementCategoryV27.valueOf(item.getCategory().getValue()))
-                            .details(toTimelineElementDetailsV27(item.getDetails()))
+                            .category(TimelineElementCategoryV28.valueOf(item.getCategory().getValue()))
+                            .details(toTimelineElementDetailsV28(item.getDetails()))
                             .notificationSentAt(item.getNotificationSentAt())
                             .ingestionTimestamp(item.getIngestionTimestamp())
                             .eventTimestamp(item.getEventTimestamp())
@@ -180,8 +180,8 @@ public class TimelineServiceMapper {
         return smartMapper.mapToClass(details, category.getDetailsJavaClass());
     }
 
-    private TimelineElementDetailsV27 toTimelineElementDetailsV27(TimelineElementDetails details) {
-        return smartMapper.mapToClassWithObjectMapper(details, TimelineElementDetailsV27.class);
+    private TimelineElementDetailsV28 toTimelineElementDetailsV28(TimelineElementDetails details) {
+        return smartMapper.mapToClassWithObjectMapper(details, TimelineElementDetailsV28.class);
     }
 
     private StatusInfoInternal toStatusInfoInternal(StatusInfo statusInfo) {

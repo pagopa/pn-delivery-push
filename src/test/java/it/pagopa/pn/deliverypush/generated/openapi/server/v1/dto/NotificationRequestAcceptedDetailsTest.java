@@ -6,12 +6,11 @@ import org.junit.jupiter.api.Test;
 
 class NotificationRequestAcceptedDetailsTest {
 
-    private NotificationRequestAcceptedDetailsV27 details;
+    private NotificationRequestAcceptedDetailsV28 details;
 
     @BeforeEach
     void setUp() {
-        details = new NotificationRequestAcceptedDetailsV27();
-        details.setRecIndex(1);
+        details = new NotificationRequestAcceptedDetailsV28();
         details.setNotificationRequestId("notificationRequestId");
         details.setPaProtocolNumber("paProtocolNumber");
         details.setIdempotenceToken("idempotenceToken");
@@ -19,7 +18,6 @@ class NotificationRequestAcceptedDetailsTest {
 
     @Test
     void verifyFields() {
-        Assertions.assertEquals(1, details.getRecIndex());
         Assertions.assertEquals("notificationRequestId", details.getNotificationRequestId());
         Assertions.assertEquals("paProtocolNumber", details.getPaProtocolNumber());
         Assertions.assertEquals("idempotenceToken", details.getIdempotenceToken());
@@ -27,8 +25,7 @@ class NotificationRequestAcceptedDetailsTest {
 
     @Test
     void testEquals() {
-        NotificationRequestAcceptedDetailsV27 tmp = NotificationRequestAcceptedDetailsV27.builder()
-                .recIndex(1)
+        NotificationRequestAcceptedDetailsV28 tmp = NotificationRequestAcceptedDetailsV28.builder()
                 .notificationRequestId("notificationRequestId")
                 .paProtocolNumber("paProtocolNumber")
                 .idempotenceToken("idempotenceToken")

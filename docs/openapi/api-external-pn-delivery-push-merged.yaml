@@ -90,7 +90,7 @@ paths:
             application/json:
               schema:
                 $ref: >-
-                  ./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactListV20
+                  ./schemas-pn-legal-facts-internal.yaml#/components/schemas/LegalFactListV20
         '400':
           description: Invalid input
           content:
@@ -166,7 +166,7 @@ paths:
             application/json:
               schema:
                 $ref: >-
-                  ./schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse
+                  ./schemas-pn-legal-facts-internal.yaml#/components/schemas/LegalFactDownloadMetadataResponse
         '400':
           description: Invalid input
           content:
