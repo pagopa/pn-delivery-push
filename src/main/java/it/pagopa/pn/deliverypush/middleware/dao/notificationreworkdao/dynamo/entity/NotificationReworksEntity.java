@@ -97,8 +97,8 @@ public class NotificationReworksEntity {
             return matcher.find() ? Optional.ofNullable(matcher.group(1)).map(Integer::parseInt).orElse(0) : 0;
         }
 
-        public static String build(Integer reworkIdx, Integer tryIdx) {
-            return String.format("REWORK_%d.TRY_%d", reworkIdx, tryIdx);
+        public static String build(Integer reworkIdx, Integer tryIdx, String recIndex) {
+            return String.format("REWORK_%d.TRY_%d.%s", reworkIdx, tryIdx, recIndex);
         }
     }
 

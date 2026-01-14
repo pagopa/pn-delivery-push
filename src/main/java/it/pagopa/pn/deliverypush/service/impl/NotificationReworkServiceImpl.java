@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
+import it.pagopa.pn.deliverypush.utils.ReworkUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,7 +37,7 @@ import java.util.Objects;
 
 import static it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt.AR_REGISTERED_LETTER;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONREWORK_CONFLICT;
-import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity.*;
+import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity.ReworkIdBuilder;
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.DONE;
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.ERROR;
 
@@ -57,7 +58,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         return notificationService.getNotificationByIunReactive(notificationReworkRequestDto.getIun())
                 .flatMap(notificationInt -> {
                     notificationReworkRequestDto.setProductType(resolveProductType(notificationInt.getPhysicalCommunicationType()));
-                    return retrieveAndEvaluateReworkRequest(notificationReworkRequestDto.getIun());
+                    return retrieveAndEvaluateReworkRequest(notificationReworkRequestDto.getIun(), notificationReworkRequestDto.getRecIndex());
                 })
                 .zipWhen(reworkId -> paperTrackerClient.retrieveSequenceAndFinalStatus(notificationReworkRequestDto.getExpectedStatusCode(), notificationReworkRequestDto.getExpectedDeliveryFailureCause(), notificationReworkRequestDto.getProductType()))
                 .flatMap(reworkIdSequenceTuple -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkIdSequenceTuple.getT1(), notificationReworkRequestDto, reworkIdSequenceTuple.getT2())))
@@ -90,6 +91,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                    .thenReturn(reworkItemsResponse);
         }
         return notificationReworkDao.findByIun(iun)
+                .collectList()
                 .doOnNext(notificationReworksEntities -> {
                     reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(notificationReworksEntities));
                 })
@@ -153,17 +155,20 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         return details;
     }
 
-    private Mono<String> retrieveAndEvaluateReworkRequest(String iun) {
-        return notificationReworkDao.findLatestByIun(iun)
+    private Mono<String> retrieveAndEvaluateReworkRequest(String iun, String recIndex) {
+        return notificationReworkDao.findByIun(iun)
+                .filter(e -> recIndex.equals(e.getRecIndex()))
+                .collectList()
+                .flatMap(ReworkUtils::getLatestReworkRequest)
                 .map(notificationReworksEntity -> {
                     if(DONE.equals(notificationReworksEntity.getStatus())){
-                        return ReworkIdBuilder.build(notificationReworksEntity.getIdx() + 1, 0);
+                        return ReworkIdBuilder.build(notificationReworksEntity.getIdx() + 1, 0, recIndex);
                     } else if(ERROR.equals(notificationReworksEntity.getStatus())){
-                        return ReworkIdBuilder.build(notificationReworksEntity.getIdx(), ReworkIdBuilder.extractTryIdx(notificationReworksEntity.getReworkId()) + 1);
-                    } else{
+                        return ReworkIdBuilder.build(notificationReworksEntity.getIdx(), ReworkIdBuilder.extractTryIdx(notificationReworksEntity.getReworkId()) + 1, recIndex);
+                    } else {
                         throw new PnConflictException(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONREWORK_CONFLICT, "A rework request is already in progress for the provided IUN");
                     }
                 })
-                .switchIfEmpty(Mono.just(ReworkIdBuilder.build(0, 0)));
+                .switchIfEmpty(Mono.just(ReworkIdBuilder.build(0, 0, recIndex)));
     }
 }

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -89,13 +90,14 @@ class NotificationReworkServiceImplTest {
         return s;
     }
 
-    private NotificationReworksEntity getEntity(Integer idx) {
+    private NotificationReworksEntity getEntity(Integer idx, Integer recIndex) {
         NotificationReworksEntity entity = new NotificationReworksEntity();
-        entity.setReworkId("REWORK_" + idx + ".TRY_0");
+        entity.setReworkId("REWORK_" + idx + ".TRY_0" + ".RECINDEX_" + recIndex);
         entity.setIun("iun123");
         entity.setExpectedFinalStatus("OK");
         entity.setIdx(idx);
         entity.setCreatedAt(Instant.now());
+        entity.setRecIndex("RECINDEX_" + recIndex);
         entity.setStatus(ReworkRequestStatus.CREATED);
         return entity;
     }
@@ -106,6 +108,7 @@ class NotificationReworkServiceImplTest {
         entity.setIun("iun123");
         entity.setExpectedFinalStatus("OK");
         entity.setIdx(0);
+        entity.setRecIndex("RECINDEX_0");
         entity.setCreatedAt(Instant.now());
         entity.setStatus(reworkRequestStatus);
         return entity;
@@ -150,7 +153,7 @@ class NotificationReworkServiceImplTest {
         NotificationReworksEntity entity = getEntity("REWORK_0_UUID", 0, ReworkRequestStatus.CREATED);
         NotificationReworksEntity entity2 = getEntity("REWORK_1_UUID", 0, ReworkRequestStatus.DONE);
         when(notificationReworkDao.findByIun("IUN_1"))
-                .thenReturn(Mono.just(List.of(entity, entity2)));
+                .thenReturn(Flux.fromIterable(List.of(entity, entity2)));
 
         StepVerifier.create(service.retrieveNotificationRework("IUN_1", null))
                 .expectNextMatches(response -> response.getIun().equals("IUN_1")
@@ -163,11 +166,11 @@ class NotificationReworkServiceImplTest {
     void createNotificationReworkRequest_happyPath() {
         var req = sampleRequest();
         var seq = seqResponse();
-        var entity = getEntity(0);
+        var entity = getEntity(0, 0);
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findLatestByIun("IUN_123")).thenReturn(Mono.empty());
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -178,7 +181,7 @@ class NotificationReworkServiceImplTest {
         // Esecuzione
         StepVerifier.create(service.createNotificationReworkRequest(req))
                 .assertNext(resp -> {
-                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0");
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
                     assertThat(resp.getCreationDate()).isNotNull();
                 })
                 .verifyComplete();
@@ -186,7 +189,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su entity costruita
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
-        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
         assertThat(saved.getExpectedStatusCodes().size() == 1) ;
         assertThat(saved.getExpectedStatusCodes().get(0).getStatusCode()).isEqualTo("RECRN002B");
         assertThat(saved.getExpectedStatusCodes().get(0).getAttachments().get(0)).isEqualTo("Plico");
@@ -196,7 +199,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -216,7 +219,7 @@ class NotificationReworkServiceImplTest {
         var oldEntity = getOldEntity(IN_PROGRESS);
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(new NotificationInt()));
-        when(notificationReworkDao.findLatestByIun("IUN_123")).thenReturn(Mono.just(oldEntity));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
 
         // Esecuzione
         StepVerifier.create(service.createNotificationReworkRequest(req))
@@ -228,13 +231,13 @@ class NotificationReworkServiceImplTest {
     void createNotificationReworkRequest_oldRequestInDone() {
         var req = sampleRequest();
         var seq = seqResponse();
-        var entity = getEntity(1);
+        var entity = getEntity(1, 0);
         var oldEntity = getOldEntity(DONE);
 
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findLatestByIun("IUN_123")).thenReturn(Mono.just(oldEntity));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -245,7 +248,7 @@ class NotificationReworkServiceImplTest {
         // Esecuzione
         StepVerifier.create(service.createNotificationReworkRequest(req))
                 .assertNext(resp -> {
-                    assertThat(resp.getReworkId()).isEqualTo("REWORK_1.TRY_0");
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_1.TRY_0.RECINDEX_0");
                     assertThat(resp.getCreationDate()).isNotNull();
                 })
                 .verifyComplete();
@@ -253,7 +256,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su entity costruita
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
-        assertThat(saved.getReworkId()).isEqualTo("REWORK_1.TRY_0");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_1.TRY_0.RECINDEX_0");
         assertThat(saved.getExpectedStatusCodes().size()).isEqualTo(1);
 
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
@@ -262,7 +265,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_1.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_1.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -270,12 +273,12 @@ class NotificationReworkServiceImplTest {
     void createNotificationReworkRequest_OldRequestInError() {
         var req = sampleRequest();
         var seq = seqResponse();
-        var entity = getEntity(0);
+        var entity = getEntity(0, 0);
         var oldEntity = getOldEntity(ERROR);
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findLatestByIun("IUN_123")).thenReturn(Mono.just(oldEntity));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -286,7 +289,7 @@ class NotificationReworkServiceImplTest {
         // Esecuzione
         StepVerifier.create(service.createNotificationReworkRequest(req))
                 .assertNext(resp -> {
-                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0");
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
                     assertThat(resp.getCreationDate()).isNotNull();
                 })
                 .verifyComplete();
@@ -294,7 +297,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su entity costruita
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
-        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_1");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_1.RECINDEX_0");
         assertThat(saved.getExpectedStatusCodes().size()).isEqualTo(1);
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
@@ -302,7 +305,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0");
+        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -313,7 +316,7 @@ class NotificationReworkServiceImplTest {
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findLatestByIun("IUN_123")).thenReturn(Mono.empty());
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.error(new PnInternalException("", 400, "")));
 
