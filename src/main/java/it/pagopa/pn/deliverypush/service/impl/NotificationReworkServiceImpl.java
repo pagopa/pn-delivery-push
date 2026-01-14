@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
+import it.pagopa.pn.deliverypush.utils.ReworkUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,7 +37,7 @@ import java.util.Objects;
 
 import static it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt.AR_REGISTERED_LETTER;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONREWORK_CONFLICT;
-import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity.*;
+import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity.ReworkIdBuilder;
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.DONE;
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.ERROR;
 
@@ -90,6 +91,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                    .thenReturn(reworkItemsResponse);
         }
         return notificationReworkDao.findByIun(iun)
+                .collectList()
                 .doOnNext(notificationReworksEntities -> {
                     reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(notificationReworksEntities));
                 })
@@ -155,8 +157,9 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
 
     private Mono<String> retrieveAndEvaluateReworkRequest(String iun, String recIndex) {
         return notificationReworkDao.findByIun(iun)
-                .map(listNotificationReworksEntity -> listNotificationReworksEntity.stream().filter(entity -> entity.getRecIndex().equals(recIndex)).toList())
-                .map(this::getLatestReworkRequest)
+                .filter(e -> recIndex.equals(e.getRecIndex()))
+                .collectList()
+                .flatMap(ReworkUtils::getLatestReworkRequest)
                 .map(notificationReworksEntity -> {
                     if(DONE.equals(notificationReworksEntity.getStatus())){
                         return ReworkIdBuilder.build(notificationReworksEntity.getIdx() + 1, 0, recIndex);
@@ -167,24 +170,5 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                     }
                 })
                 .switchIfEmpty(Mono.just(ReworkIdBuilder.build(0, 0, recIndex)));
-    }
-
-    private NotificationReworksEntity getLatestReworkRequest(List<NotificationReworksEntity> listNotificationReworksEntity) {
-        return listNotificationReworksEntity.stream()
-                .sorted((e1, e2) -> {
-                    int reworkCompare = Integer.compare(
-                            NotificationReworksEntity.ReworkIdBuilder.extractReworkIdx(e2.getReworkId()),
-                            NotificationReworksEntity.ReworkIdBuilder.extractReworkIdx(e1.getReworkId())
-                    );
-                    if (reworkCompare != 0) {
-                        return reworkCompare;
-                    }
-                    return Integer.compare(
-                            NotificationReworksEntity.ReworkIdBuilder.extractTryIdx(e2.getReworkId()),
-                            NotificationReworksEntity.ReworkIdBuilder.extractTryIdx(e1.getReworkId())
-                    );
-                })
-                .findFirst()
-                .orElse(null);
     }
 }

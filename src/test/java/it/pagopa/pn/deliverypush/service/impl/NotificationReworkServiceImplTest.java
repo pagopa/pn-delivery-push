@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -152,7 +153,7 @@ class NotificationReworkServiceImplTest {
         NotificationReworksEntity entity = getEntity("REWORK_0_UUID", 0, ReworkRequestStatus.CREATED);
         NotificationReworksEntity entity2 = getEntity("REWORK_1_UUID", 0, ReworkRequestStatus.DONE);
         when(notificationReworkDao.findByIun("IUN_1"))
-                .thenReturn(Mono.just(List.of(entity, entity2)));
+                .thenReturn(Flux.fromIterable(List.of(entity, entity2)));
 
         StepVerifier.create(service.retrieveNotificationRework("IUN_1", null))
                 .expectNextMatches(response -> response.getIun().equals("IUN_1")
@@ -169,7 +170,7 @@ class NotificationReworkServiceImplTest {
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Mono.empty());
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -218,7 +219,7 @@ class NotificationReworkServiceImplTest {
         var oldEntity = getOldEntity(IN_PROGRESS);
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(new NotificationInt()));
-        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Mono.just(List.of(oldEntity)));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
 
         // Esecuzione
         StepVerifier.create(service.createNotificationReworkRequest(req))
@@ -236,7 +237,7 @@ class NotificationReworkServiceImplTest {
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Mono.just(List.of(oldEntity)));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -277,7 +278,7 @@ class NotificationReworkServiceImplTest {
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Mono.just(List.of(oldEntity)));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.fromIterable(List.of(oldEntity)));
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.just(seq));
         ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
@@ -315,7 +316,7 @@ class NotificationReworkServiceImplTest {
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
-        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Mono.empty());
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
         when(paperTrackerClient.retrieveSequenceAndFinalStatus(req.getExpectedStatusCode(), req.getExpectedDeliveryFailureCause(), req.getProductType()))
                 .thenReturn(Mono.error(new PnInternalException("", 400, "")));
 

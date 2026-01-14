@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.Notificati
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
@@ -74,16 +75,17 @@ public class NotificationReworkDaoDynamo implements NotificationReworkDao {
     }
 
     @Override
-    public Mono<List<NotificationReworksEntity>> findByIun(String iun) {
+    public Flux<NotificationReworksEntity> findByIun(String iun) {
         Key key = Key.builder().partitionValue(iun).build();
         QueryConditional queryByHashKey = keyEqualTo(key);
 
-        QueryEnhancedRequest.Builder queryEnhancedRequest = QueryEnhancedRequest
+        QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest
                 .builder()
-                .queryConditional(queryByHashKey);
+                .queryConditional(queryByHashKey)
+                .build();
 
-        return Mono.from(notificationReworkTable.query(queryEnhancedRequest.build())
-                .map(Page::items));
+        return Flux.from(notificationReworkTable.query(queryEnhancedRequest))
+                .flatMapIterable(Page::items);
     }
 }
 
