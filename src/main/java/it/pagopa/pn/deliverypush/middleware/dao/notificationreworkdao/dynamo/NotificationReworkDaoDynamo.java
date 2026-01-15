@@ -4,15 +4,15 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksErrorEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestErrorCause;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.List;
@@ -42,6 +42,26 @@ public class NotificationReworkDaoDynamo implements NotificationReworkDao {
 
         return Mono.from(notificationReworkTable.query(request))
                 .flatMap(page -> Mono.justOrEmpty(page.items().stream().findFirst()));
+    }
+
+    @Override
+    public Mono<Void> updateStatusError(String iun, String reworkId, String message) {
+        NotificationReworksEntity item = new NotificationReworksEntity();
+        item.setIun(iun);
+        item.setReworkId(reworkId);
+        item.setStatus(ReworkRequestStatus.ERROR);
+        NotificationReworksErrorEntity notificationReworksErrorEntity = new NotificationReworksErrorEntity();
+        notificationReworksErrorEntity.setDescription(message);
+        notificationReworksErrorEntity.setCause(ReworkRequestErrorCause.ERROR_INSER_ACTION);
+        item.setErrors(List.of(notificationReworksErrorEntity));
+
+        return Mono.fromFuture(
+                notificationReworkTable.updateItem(
+                        UpdateItemEnhancedRequest.builder(NotificationReworksEntity.class)
+                                .item(item)
+                                .ignoreNullsMode(IgnoreNullsMode.MAPS_ONLY)
+                                .build())
+        ).then();
     }
 
     @Override
