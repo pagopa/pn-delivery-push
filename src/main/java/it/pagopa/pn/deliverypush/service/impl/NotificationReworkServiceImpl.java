@@ -60,12 +60,18 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                     notificationReworkRequestDto.setProductType(resolveProductType(notificationInt.getPhysicalCommunicationType()));
                     return retrieveAndEvaluateReworkRequest(notificationReworkRequestDto.getIun(), notificationReworkRequestDto.getRecIndex());
                 })
+                .doOnNext(reworkResponse::setReworkId)
                 .zipWhen(reworkId -> paperTrackerClient.retrieveSequenceAndFinalStatus(notificationReworkRequestDto.getExpectedStatusCode(), notificationReworkRequestDto.getExpectedDeliveryFailureCause(), notificationReworkRequestDto.getProductType()))
                 .flatMap(reworkIdSequenceTuple -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkIdSequenceTuple.getT1(), notificationReworkRequestDto, reworkIdSequenceTuple.getT2())))
-                .doOnNext(notificationReworksEntity -> actionManagerClient.addOnlyActionIfAbsent(constructNewAction(notificationReworksEntity, notificationReworkRequestDto)))
+                .flatMap(entity ->
+                        Mono.defer(() -> {
+                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity, notificationReworkRequestDto));
+                                    return Mono.just(entity);
+                                })
+                                .onErrorResume(ex -> notificationReworkDao.updateStatusError(notificationReworkRequestDto.getIun(), reworkResponse.getReworkId(), ex.getMessage())
+                                                .then(Mono.error(ex))))
                 .map(notificationReworksEntity -> {
                     reworkResponse.setCreationDate(notificationReworksEntity.getCreatedAt());
-                    reworkResponse.setReworkId(notificationReworksEntity.getReworkId());
                     return reworkResponse;
                 });
     }
