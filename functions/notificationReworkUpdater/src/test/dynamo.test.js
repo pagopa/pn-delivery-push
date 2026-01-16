@@ -157,4 +157,59 @@ describe("updateRework (dynamo.js)", () => {
     expect(sent.UpdateExpression).to.not.include("#category = :category");
     expect(sent.UpdateExpression).to.not.include("#timelineElementIds = :timelineElementIds");
   });
+
+    it("OK: updateRequestRework con status OK", async () => {
+    const item = {
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "OK",
+      expectedStatusCodes: ["A"],
+      deliveryFailureCause: "cause"
+    };
+    const res = await dynamo.updateRequestRework(item);
+    expect(res).to.deep.equal({ ok: true });
+    const sent = UpdateCommandCtorStub.firstCall.args[0];
+    expect(sent.TableName).to.equal(TABLE_NAME);
+    expect(sent.Key).to.deep.equal({ iun: "pkOK", reworkId: "skOK" });
+    expect(sent.UpdateExpression).to.include("#status = :ready");
+    expect(sent.ExpressionAttributeValues[":newExpectedStatusCodes"]).to.deep.equal(["A"]);
+    expect(sent.ExpressionAttributeValues[":newDeliveryFailureCause"]).to.equal("cause");
+    expect(sendStub.calledOnce).to.be.true;
+  });
+
+  it("KO: updateRequestRework con status KO", async () => {
+    const item = {
+      iun: "pkKO",
+      reworkId: "skKO",
+      status: "KO",
+      error: ["err"],
+      expectedStatusCodes: ["B"],
+      deliveryFailureCause: "fail"
+    };
+    const res = await dynamo.updateRequestRework(item);
+    expect(res).to.deep.equal({ ok: true });
+    const sent = UpdateCommandCtorStub.firstCall.args[0];
+    expect(sent.UpdateExpression).to.include("#status = :ready");
+    expect(sent.ExpressionAttributeValues[":ko"]).to.equal("KO");
+    expect(sent.ExpressionAttributeValues[":error"]).to.deep.equal(["err"]);
+    expect(sendStub.calledOnce).to.be.true;
+  });
+
+  it("lancia errore se mancano i campi obbligatori", async () => {
+    try {
+      await dynamo.updateRequestRework({ iun: "x", reworkId: "y" });
+      expect.fail("Doveva lanciare");
+    } catch (err) {
+      expect(err.message).to.match(/obbligatori/i);
+    }
+  });
+
+  it("lancia errore su status non supportato", async () => {
+    try {
+      await dynamo.updateRequestRework({ iun: "x", reworkId: "y", status: "TEST" });
+      expect.fail("Doveva lanciare");
+    } catch (err) {
+      expect(err.message).to.match(/Status non supportato per UPDATE_REQUEST: TEST/i);
+    }
+  });
 });

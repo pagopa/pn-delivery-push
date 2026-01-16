@@ -1,5 +1,5 @@
-const { updateRework } = require("./dynamo");
-const { processRecord } = require("./processRecord");
+const { updateRework, updateRequestRework } = require("./dynamo");
+const { processRecord, processUpdateRecord } = require("./processRecord");
 
 exports.handleEvent = async (event) => {
   const failures = [];
@@ -35,6 +35,15 @@ exports.handleEvent = async (event) => {
           console.warn(
             "[NOTIFICATION_REWORK] conditional check failed (no retry)",
             { iun: item.iun, reworkId: item.reworkId, expectedStates }
+          );
+        }
+      } else if (msg.operation === "UPDATE_REQUEST") {
+        const { item } = await processUpdateRecord(msg);
+        const res = await updateRequestRework(item);
+        if (res?.ok === false) {
+          console.warn(
+            "[NOTIFICATION_REWORK] unexpected error on UPDATE_REQUEST",
+            { iun: item.iun, reworkId: item.reworkId }
           );
         }
       } else {

@@ -76,4 +76,91 @@ const updateRework = async (item, expectedStates) => {
   }
 };
 
-module.exports = { updateRework, TABLE_NAME };
+const updateRequestRework = async (item) => {
+  if (!item?.iun || !item?.reworkId || !item?.status) {
+    throw new Error("iun, reworkId e status sono obbligatori");
+  }
+
+  const now = new Date().toISOString();
+
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      iun: item.iun,
+      reworkId: item.reworkId
+    },
+    ExpressionAttributeNames: {
+      "#status": "status",
+      "#updatedAt": "updatedAt",
+      "#updateRequests": "updateRequests",
+      "#expectedStatusCodes": "expectedStatusCodes",
+      "#deliveryFailureCause": "deliveryFailureCause"
+    },
+    ExpressionAttributeValues: {
+      ":ready": "READY",
+      ":now": now,
+      ":emptyList": [],
+      ":newExpectedStatusCodes": item.expectedStatusCodes,
+      ":newDeliveryFailureCause": item.deliveryFailureCause,
+      ":error": item.error,
+      ":ok": "OK",
+      ":ko": "KO"
+    }
+  };
+
+  if (item.status === "OK") {
+    params.UpdateExpression = `
+      SET
+        #status = :ready,
+        #updatedAt = :now,
+        #updateRequests = list_append(
+          if_not_exists(#updateRequests, :emptyList),
+          [
+            {
+              date: :now,
+              status: :ok,
+              newStatusCodes: :newExpectedStatusCodes,
+              newDeliveryFailureCause: :newDeliveryFailureCause,
+              oldStatusCodes: #expectedStatusCodes,
+              oldDeliveryFailureCause: #deliveryFailureCause
+            }
+          ]
+        ),
+        #expectedStatusCodes = :newExpectedStatusCodes,
+        #deliveryFailureCause = :newDeliveryFailureCause
+    `;
+  } else if (item.status === "KO") {
+    params.UpdateExpression = `
+      SET
+        #status = :ready,
+        #updatedAt = :now,
+        #updateRequests = list_append(
+          if_not_exists(#updateRequests, :emptyList),
+          [
+            {
+              date: :now,
+              status: :ko,
+              error: :error,
+              newStatusCodes: :newExpectedStatusCodes,
+              newDeliveryFailureCause: :newDeliveryFailureCause
+            }
+          ]
+        )
+    `;
+  } else {
+    throw new Error(`Status non supportato per UPDATE_REQUEST: ${item.status}`);
+  }
+
+    try {
+    await docClient.send(new UpdateCommand(params));
+    return { ok: true };
+  } catch (error) {
+    if (error.name === "ConditionalCheckFailedException") {
+      return { ok: false, reason: "CONDITION_FAILED" };
+    }
+    throw error;
+  }
+};
+
+
+module.exports = { updateRework, updateRequestRework, TABLE_NAME };
