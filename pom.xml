@@ -617,7 +617,7 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/bc606003aba2031ef651df92ff9dcadac3837b9c/docs/openapi/api-private.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-action-manager/db179d0281e60942b467f11c1a80d8ba20864b8e/docs/openapi/api-private.yaml</inputSpec>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/7.4.0/client</templateDirectory>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>

@@ -2,10 +2,8 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
+import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -24,6 +23,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(PnNotificationReworkController.class)
@@ -215,4 +216,34 @@ public class PnNotificationReworkControllerTest {
                 .expectStatus()
                 .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
     }
+
+    @Test
+    void updateReworkRequest() {
+
+        UpdateReworkRequest request = new UpdateReworkRequest();
+        request.setExpectedStatusCode("RECRN002C");
+        request.setExpectedDeliveryFailureCause("M02");
+
+        ArgumentCaptor<NotificationUpdateReworkRequestInternal> captor =
+                ArgumentCaptor.forClass(NotificationUpdateReworkRequestInternal.class);
+
+        when(service.updateNotificationRework(eq("KWKU-JHXN-HJXM-202304-U-1"),captor.capture(),eq("REWORK_0_123456789"))).thenReturn(Mono.empty());
+
+        webTestClient.put()
+                .uri("/delivery-push/private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework/REWORK_0_123456789/update")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody().isEmpty();
+
+        NotificationUpdateReworkRequestInternal internal = captor.getValue();
+        Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", internal.getIun());
+        Assertions.assertEquals("RECRN002C", internal.getExpectedStatusCode());
+        Assertions.assertEquals("M02", internal.getExpectedDeliveryFailureCause());
+    }
+
+
 }

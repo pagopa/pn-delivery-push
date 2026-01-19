@@ -5,5 +5,6 @@ public enum ReworkRequestStatus {
     READY,
     IN_PROGRESS,
     DONE,
-    ERROR
+    ERROR,
+    PENDING_UPDATE
 }

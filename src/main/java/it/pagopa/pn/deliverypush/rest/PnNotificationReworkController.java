@@ -7,6 +7,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationRew
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.UpdateReworkRequest;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import lombok.RequiredArgsConstructor;
@@ -42,5 +43,14 @@ public class PnNotificationReworkController implements NotificationReworkApi {
         MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, "NOTIFICATION_REWORK_" + iun + "_" + reworkId);
         return notificationReworkService.retrieveNotificationRework(iun, reworkId)
                 .map(ResponseEntity::ok);
+    }
+
+
+    @Override
+    public Mono<ResponseEntity<Void>> updateNotificationRework(String iun, String reworkId, Mono<UpdateReworkRequest> updateReworkRequest,  final ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, "NOTIFICATION_REWORK_" + iun + "_" + reworkId);
+        return updateReworkRequest
+                .flatMap(request -> notificationReworkService.updateNotificationRework(iun, NotificationReworkMapper.updateExternalToInternal(request, iun), reworkId))
+                .thenReturn(ResponseEntity.noContent().build());
     }
 }

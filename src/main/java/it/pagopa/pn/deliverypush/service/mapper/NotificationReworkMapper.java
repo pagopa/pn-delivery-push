@@ -1,9 +1,11 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusCodeItem;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.UpdateReworkRequest;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
@@ -75,4 +77,16 @@ public class NotificationReworkMapper {
                 })
                 .toList();
     }
+
+    public static NotificationUpdateReworkRequestInternal updateExternalToInternal(
+            UpdateReworkRequest externalRequest,
+            String iun
+    ) {
+        NotificationUpdateReworkRequestInternal internal = new NotificationUpdateReworkRequestInternal();
+        internal.setIun(iun);
+        internal.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
+        internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
+        return internal;
+    }
+
 }

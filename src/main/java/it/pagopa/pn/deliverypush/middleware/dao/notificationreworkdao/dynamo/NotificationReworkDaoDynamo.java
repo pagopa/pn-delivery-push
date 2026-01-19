@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
@@ -13,9 +14,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
+import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 
 import java.util.List;
+import java.util.Map;
 
 import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.keyEqualTo;
 
@@ -23,12 +27,58 @@ import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.ke
 @Slf4j
 public class NotificationReworkDaoDynamo implements NotificationReworkDao {
 
+    private static final String ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED = "ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED";
     private final String ERROR_CODE_REWORK_ENTITY_DUPLICATED_ITEM = "ERROR_CODE_REWORK_ENTITY_DUPLICATED_ITEM";
+
 
     private final DynamoDbAsyncTable<NotificationReworksEntity> notificationReworkTable;
 
     public NotificationReworkDaoDynamo(DynamoDbEnhancedAsyncClient dynamoDbEnhancedClient, PnDeliveryPushConfigs cfg) {
         this.notificationReworkTable = dynamoDbEnhancedClient.table(cfg.getNotificationReworksDao().getTableName(), TableSchema.fromBean(NotificationReworksEntity.class));
+    }
+
+
+    @Override
+    public Mono<NotificationReworksEntity> updateStatusToPending(String iun, String reworkId) {
+
+        String expression = "#st = :ready AND attribute_not_exists(#rcv)";
+
+        Expression conditionExpression = Expression.builder()
+                .expression(expression)
+                .expressionNames(Map.of(
+                        "#st", NotificationReworksEntity.FILED_STATUS,
+                        "#rcv", NotificationReworksEntity.FIELD_RECEIVED_STATUS_CODES
+                ))
+                .expressionValues(Map.of(
+                        ":ready", AttributeValue.builder().s(ReworkRequestStatus.READY.name()).build()
+                ))
+                .build();
+
+        return Mono.just(new NotificationReworksEntity())
+                .flatMap(entity -> {
+                    entity.setReworkId(reworkId);
+                    entity.setIun(iun);
+                    entity.setStatus(ReworkRequestStatus.PENDING_UPDATE);
+
+                    UpdateItemEnhancedRequest<NotificationReworksEntity> request =
+                            UpdateItemEnhancedRequest.builder(NotificationReworksEntity.class)
+                                    .item(entity)
+                                    .ignoreNullsMode(IgnoreNullsMode.MAPS_ONLY)
+                                    .returnValues(ReturnValue.ALL_NEW)
+                                    .conditionExpression(conditionExpression)
+                                    .build();
+
+                    return Mono.fromFuture(notificationReworkTable.updateItem(request))
+                            .onErrorMap(ConditionalCheckFailedException.class, ex -> {
+                                log.error(
+                                        "Conditional check failed on NotificationReworksDaoDynamo update reworkId={} exmessage={}",
+                                        entity.getReworkId(),
+                                        ex.getMessage()
+                                );
+
+                                return new PnInternalException(String.format("Update not allowed for reworkId %s", entity.getReworkId()), 400, ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED);
+                            });
+                });
     }
 
     public Mono<NotificationReworksEntity> findLatestByIun(String iun) {

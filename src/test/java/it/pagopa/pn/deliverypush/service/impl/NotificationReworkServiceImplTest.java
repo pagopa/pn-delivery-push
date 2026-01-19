@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -91,7 +93,7 @@ class NotificationReworkServiceImplTest {
     private NotificationReworksEntity getEntity(Integer idx, Integer recIndex) {
         NotificationReworksEntity entity = new NotificationReworksEntity();
         entity.setReworkId("REWORK_" + idx + ".TRY_0" + ".RECINDEX_" + recIndex);
-        entity.setIun("iun123");
+        entity.setIun("IUN_123");
         entity.setExpectedFinalStatus("OK");
         entity.setIdx(idx);
         entity.setCreatedAt(Instant.now());
@@ -103,7 +105,7 @@ class NotificationReworkServiceImplTest {
     private NotificationReworksEntity getOldEntity(ReworkRequestStatus reworkRequestStatus) {
         NotificationReworksEntity entity = new NotificationReworksEntity();
         entity.setReworkId("REWORK_0.TRY_0.RECINDEX_0");
-        entity.setIun("iun123");
+        entity.setIun("IUN_123");
         entity.setExpectedFinalStatus("OK");
         entity.setIdx(0);
         entity.setRecIndex("RECINDEX_0");
@@ -197,7 +199,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -263,7 +265,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_1.TRY_0.RECINDEX_0");
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_1.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -303,7 +305,7 @@ class NotificationReworkServiceImplTest {
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
-        assertThat(action.getActionId()).isEqualTo("iun123_REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
     }
 
@@ -348,5 +350,131 @@ class NotificationReworkServiceImplTest {
 
         verify(notificationReworkDao, times(1)).updateStatusError(eq("IUN_123"), eq("REWORK_0.TRY_0.RECINDEX_0"), any());
     }
+
+
+    @Test
+    void updateNotificationRework_success() {
+
+        //input
+        String iun = "IUN_123";
+        String reworkId = "REWORK_0.TRY_0";
+
+        NotificationUpdateReworkRequestInternal req = new NotificationUpdateReworkRequestInternal();
+        req.setIun(iun);
+        req.setExpectedStatusCode("RECRN002C");
+        req.setExpectedDeliveryFailureCause("M02");
+
+        //response da getNotificationByIunReactive
+        NotificationInt notificationInt =
+                NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        //response da papertracker
+        SequenceResponse seq = seqResponse();
+
+        //response da updateToPending
+        NotificationReworksEntity updatedEntity = getEntity(reworkId, 0, ReworkRequestStatus.PENDING_UPDATE);
+        updatedEntity.setIun(iun);
+
+        when(notificationService.getNotificationByIunReactive(iun)).thenReturn(Mono.just(notificationInt));
+
+        when(paperTrackerClient.retrieveSequenceAndFinalStatus("RECRN002C", "M02","AR"))
+                .thenReturn(Mono.just(seq));
+
+        when(notificationReworkDao.updateStatusToPending(iun, reworkId)).thenReturn(Mono.just(updatedEntity));
+
+        ArgumentCaptor<NewAction> actionCaptor = ArgumentCaptor.forClass(NewAction.class);
+        doNothing().when(actionManagerClient).addOnlyActionIfAbsent(actionCaptor.capture());
+
+        StepVerifier.create(service.updateNotificationRework(iun, req, reworkId))
+                .verifyComplete();
+
+        //check che productType sia stato settato
+        assertThat(req.getProductType()).isEqualTo("AR");
+
+        //check sulla action
+        NewAction action = actionCaptor.getValue();
+        assertThat(action.getIun()).isEqualTo(iun);
+        assertThat(action.getActionId()).startsWith(iun + "_" + reworkId + "_update_");
+        assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_UPDATE);
+
+        //check sui details della action
+        assertThat(action.getDetails()).contains("\"reworkId\":\"" + reworkId + "\"");
+        assertThat(action.getDetails()).contains("\"reworkExpectedDeliveryFailureCause\":\"M02\"");
+        assertThat(action.getDetails()).contains("\"reworkAttempt\":\"ATTEMPT_1\"");
+        assertThat(action.getDetails()).contains("\"reworkRecIndex\":\"RECINDEX_0\"");
+        assertThat(action.getDetails()).contains("\"reworkExpectedFinalStatus\":\"OK\"");
+        assertThat(action.getDetails()).contains("\"reworkExpectedStatusCodes\"");
+    }
+
+
+    @Test
+    void updateNotificationRework_updateConditionFails() {
+
+        String iun = "IUN_123";
+        String reworkId = "REWORK_0.TRY_0";
+
+        NotificationUpdateReworkRequestInternal req = new NotificationUpdateReworkRequestInternal();
+        req.setIun(iun);
+        req.setExpectedStatusCode("RECRN002C");
+        req.setExpectedDeliveryFailureCause("M02");
+
+        NotificationInt notificationInt =
+                NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(notificationInt));
+
+        when(paperTrackerClient.retrieveSequenceAndFinalStatus("RECRN002C", "M02", "AR"))
+                .thenReturn(Mono.just(seqResponse()));
+
+        // update fallisce per condition check
+        when(notificationReworkDao.updateStatusToPending(iun, reworkId))
+                .thenReturn(Mono.error(new PnInternalException(String.format("Update not allowed for reworkId %s", reworkId), 400, "")));
+
+        StepVerifier.create(service.updateNotificationRework(iun, req, reworkId))
+                .verifyErrorMatches(throwable ->
+                        throwable instanceof PnInternalException &&
+                                ((PnInternalException) throwable).getStatus() == 400
+                );
+
+        //check action non viene aggiunta
+        verify(actionManagerClient, never()).addOnlyActionIfAbsent(any());
+    }
+
+    @Test
+    void updateNotificationRework_paperTrackerFails() {
+        String iun = "IUN_123";
+        String reworkId = "REWORK_0.TRY_0";
+
+        NotificationUpdateReworkRequestInternal req = new NotificationUpdateReworkRequestInternal();
+        req.setIun(iun);
+        req.setExpectedStatusCode("RECRN002C");
+        req.setExpectedDeliveryFailureCause("M02");
+
+        NotificationInt notificationInt =
+                NotificationInt.builder()
+                        .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER)
+                        .build();
+
+        when(notificationService.getNotificationByIunReactive(iun))
+                .thenReturn(Mono.just(notificationInt));
+
+
+        when(paperTrackerClient.retrieveSequenceAndFinalStatus("RECRN002C", "M02", "AR"))
+                .thenReturn(Mono.error(new PnInternalException("", 400, "")));
+
+        StepVerifier.create(service.updateNotificationRework(iun, req, reworkId))
+                .verifyErrorMatches(throwable ->
+                        throwable instanceof PnInternalException &&
+                                ((PnInternalException) throwable).getStatus() == 400
+                );
+
+
+        //check update non eseguito
+        verify(notificationReworkDao, never()).updateStatusToPending(any(), any());
+        //check action non viene aggiunta
+        verify(actionManagerClient, never()).addOnlyActionIfAbsent(any());
+    }
+
 
 }
