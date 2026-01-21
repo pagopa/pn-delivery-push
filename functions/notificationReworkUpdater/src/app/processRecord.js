@@ -47,4 +47,37 @@ const processRecord = async (message) => {
   return { item, expectedStates };
 };
 
-module.exports = { processRecord };
+const processUpdateRecord = async (message) => {
+  const { iun, reworkId, updateValidationStatus } = message || {};
+
+  if (!iun || !reworkId) {
+    throw new Error("Missing required fields: iun, reworkId");
+  }
+
+  const updateRequestElement = {
+    date: new Date().toISOString(),
+    status: updateValidationStatus,
+    expectedStatusCodes: message.expectedStatusCodes,
+    expectedDeliveryFailureCause: message.expectedDeliveryFailureCause
+  };
+
+  if (updateValidationStatus === "KO") {
+    updateRequestElement.error = message.error;
+  }
+
+  const item = {
+    iun,
+    reworkId,
+    status: "READY",
+    updateRequest: [updateRequestElement]
+  };
+
+  if (updateValidationStatus === "OK") {
+    item.deliveryFailureCause = message.deliveryFailureCause;
+    item.expectedStatusCodes = message.expectedStatusCodes;
+  }
+
+  return { item };
+};
+
+module.exports = { processRecord, processUpdateRecord };

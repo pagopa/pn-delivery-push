@@ -4,7 +4,7 @@ describe("processRecord.js", () => {
   let processRecord;
 
   beforeEach(() => {
-    ({ processRecord } = require("../app/processRecord.js"));
+    ({ processRecord, processUpdateRecord } = require("../app/processRecord.js"));
   });
 
   it("NOTIFICATION_TIMELINE_REWORKED → CREATED -> READY", async () => {
@@ -64,6 +64,45 @@ describe("processRecord.js", () => {
       expect.fail("doveva lanciare");
     } catch (err) {
       expect(err.message).to.include("Unknown category");
+    }
+  });
+
+  it("OK: genera item con status READY e campi attesi", async () => {
+    const msg = {
+      iun: "pk1",
+      reworkId: "sk1",
+      updateValidationStatus: "OK",
+      expectedStatusCodes: ["A"],
+      deliveryFailureCause: "cause"
+    };
+    const { item } = await processUpdateRecord(msg);
+    expect(item.iun).to.equal("pk1");
+    expect(item.reworkId).to.equal("sk1");
+    expect(item.status).to.equal("READY");
+    expect(item.updateRequest[0].status).to.equal("OK");
+    expect(item.deliveryFailureCause).to.equal("cause");
+    expect(item.expectedStatusCodes).to.deep.equal(["A"]);
+  });
+
+  it("KO: genera item con error", async () => {
+    const msg = {
+      iun: "pk2",
+      reworkId: "sk2",
+      updateValidationStatus: "KO",
+      error: ["err"]
+    };
+    const { item } = await processUpdateRecord(msg);
+    expect(item.status).to.equal("READY");
+    expect(item.updateRequest[0].status).to.equal("KO");
+    expect(item.updateRequest[0].error).to.deep.equal(["err"]);
+  });
+
+  it("lancia errore se mancano iun o reworkId", async () => {
+    try {
+      await processUpdateRecord({ updateValidationStatus: "OK" });
+      expect.fail("Doveva lanciare");
+    } catch (err) {
+      expect(err.message).to.match(/Missing required fields/);
     }
   });
 });

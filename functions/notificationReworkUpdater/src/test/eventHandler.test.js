@@ -215,4 +215,99 @@ describe("eventHandler.js (SQS → Lambda)", () => {
       ]
     });
   });
+
+  it("operation=UPDATE_REQUEST con updateValidationStatus=OK → chiama updateRequestRework e nessun failure", async () => {
+    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
+    const processUpdateRecordStub = sinon.stub().resolves({
+      item: {
+        iun: "pkOK",
+        reworkId: "skOK",
+        status: "READY",
+        updateRequest: [{ status: "OK" }],
+        deliveryFailureCause: "cause",
+        expectedStatusCodes: ["A"]
+      }
+    });
+
+    const mod = proxyquire("../app/eventHandler.js", {
+      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub() },
+      "./processRecord": { processUpdateRecord: processUpdateRecordStub, processRecord: sinon.stub() }
+    });
+
+    const handler = mod.handleEvent;
+
+    const event = {
+      Records: [
+        {
+          messageId: "mOK",
+          body: JSON.stringify({
+            operation: "UPDATE_REQUEST",
+            iun: "pkOK",
+            reworkId: "skOK",
+            updateValidationStatus: "OK",
+            deliveryFailureCause: "cause",
+            expectedStatusCodes: ["A"]
+          })
+        }
+      ]
+    };
+
+    const res = await handler(event);
+
+    expect(processUpdateRecordStub.calledOnce).to.be.true;
+    expect(updateRequestReworkStub.calledOnceWithExactly({
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "READY",
+      updateRequest: [{ status: "OK" }],
+      deliveryFailureCause: "cause",
+      expectedStatusCodes: ["A"]
+    })).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [] });
+  });
+
+  it("operation=UPDATE_REQUEST con updateValidationStatus=KO → chiama updateRequestRework e nessun failure", async () => {
+    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
+    const processUpdateRecordStub = sinon.stub().resolves({
+      item: {
+        iun: "pkKO",
+        reworkId: "skKO",
+        status: "READY",
+        updateRequest: [{ status: "KO", error: ["err"] }]
+      }
+    });
+
+    const mod = proxyquire("../app/eventHandler.js", {
+      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub() },
+      "./processRecord": { processUpdateRecord: processUpdateRecordStub, processRecord: sinon.stub() }
+    });
+
+    const handler = mod.handleEvent;
+
+    const event = {
+      Records: [
+        {
+          messageId: "mKO",
+          body: JSON.stringify({
+            operation: "UPDATE_REQUEST",
+            iun: "pkKO",
+            reworkId: "skKO",
+            updateValidationStatus: "KO",
+            error: ["err"]
+          })
+        }
+      ]
+    };
+
+    const res = await handler(event);
+
+    expect(processUpdateRecordStub.calledOnce).to.be.true;
+    expect(updateRequestReworkStub.calledOnceWithExactly({
+      iun: "pkKO",
+      reworkId: "skKO",
+      status: "READY",
+      updateRequest: [{ status: "KO", error: ["err"] }]
+    })).to.be.true;
+    expect(res).to.deep.equal({ batchItemFailures: [] });
+  });
 });
