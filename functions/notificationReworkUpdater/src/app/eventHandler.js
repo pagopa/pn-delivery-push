@@ -38,7 +38,7 @@ exports.handleEvent = async (event) => {
           );
         }
       } else if (msg.operation === "UPDATE_REQUEST") {
-        const { item } = await processUpdateRecord(msg);
+        const item = await processUpdateRecord(msg);
         const res = await updateRequestRework(item);
         if (res?.ok === false) {
           console.warn(
