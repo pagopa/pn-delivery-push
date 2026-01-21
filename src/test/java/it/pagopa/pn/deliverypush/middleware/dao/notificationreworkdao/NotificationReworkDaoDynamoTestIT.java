@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.NotificationReworkDaoDynamo;
@@ -61,6 +62,132 @@ class NotificationReworkDaoDynamoTestIT {
         Assertions.assertEquals("PCRETRY_0", result.getPcRetry());
         Assertions.assertEquals("ATTEMPTID_0", result.getAttemptId());
         Assertions.assertEquals("RECINDEX_0", result.getRecIndex());
+    }
+
+    @Test
+    void updateToPending_success() {
+        String iun = UUID.randomUUID().toString();
+        String reworkId = "REWORK_" + UUID.randomUUID();
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setIun(iun);
+        entity.setReworkId(reworkId);
+        entity.setReason("Reason di prova");
+        entity.setStatus(ReworkRequestStatus.READY);
+        entity.setCreatedAt(Instant.now());
+        StatusCodeEntity sequenceItem = new StatusCodeEntity();
+        sequenceItem.setStatusCode("RECRN001A");
+        entity.setExpectedStatusCodes(List.of(sequenceItem));
+        entity.setExpectedDeliveryFailureCause(null);
+        entity.setIdx(0);
+        entity.setPcRetry("PCRETRY_0");
+        entity.setAttemptId("ATTEMPTID_0");
+        entity.setRecIndex("RECINDEX_0");
+
+        notificationReworksDaoDynamo.putIfAbsent(entity).block();
+
+        notificationReworksDaoDynamo.updateStatusToPending(iun, reworkId).block();
+
+        NotificationReworksEntity updated = notificationReworksDaoDynamo.findByIunAndReworkId(iun, reworkId).block();
+
+        assert updated != null;
+        Assertions.assertEquals(iun, updated.getIun());
+        Assertions.assertEquals(reworkId, updated.getReworkId());
+        Assertions.assertEquals("Reason di prova", updated.getReason());
+        Assertions.assertEquals(ReworkRequestStatus.PENDING_UPDATE, updated.getStatus());
+        Assertions.assertEquals(0, updated.getIdx());
+        Assertions.assertEquals(1, updated.getExpectedStatusCodes().size());
+        Assertions.assertEquals("RECRN001A", updated.getExpectedStatusCodes().get(0).getStatusCode());
+        Assertions.assertNull(updated.getExpectedStatusCodes().get(0).getAttachments());
+        Assertions.assertNull(updated.getExpectedDeliveryFailureCause());
+        Assertions.assertEquals("PCRETRY_0", updated.getPcRetry());
+        Assertions.assertEquals("ATTEMPTID_0", updated.getAttemptId());
+        Assertions.assertEquals("RECINDEX_0", updated.getRecIndex());
+
+    }
+
+    @Test
+    void updateToPending_status_IN_PROGRESS() {
+        String iun = UUID.randomUUID().toString();
+        String reworkId = "REWORK_" + UUID.randomUUID();
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setIun(iun);
+        entity.setReworkId(reworkId);
+        entity.setReason("Reason di prova");
+        entity.setStatus(ReworkRequestStatus.IN_PROGRESS);
+        entity.setCreatedAt(Instant.now());
+        StatusCodeEntity sequenceItem = new StatusCodeEntity();
+        sequenceItem.setStatusCode("RECRN001A");
+        entity.setExpectedStatusCodes(List.of(sequenceItem));
+        entity.setReceivedStatusCodes(List.of(sequenceItem));
+        entity.setExpectedDeliveryFailureCause(null);
+        entity.setIdx(0);
+        entity.setPcRetry("PCRETRY_0");
+        entity.setAttemptId("ATTEMPTID_0");
+        entity.setRecIndex("RECINDEX_0");
+
+        notificationReworksDaoDynamo.putIfAbsent(entity).block();
+        Assertions.assertThrows(PnInternalException.class,
+                () -> notificationReworksDaoDynamo.updateStatusToPending(iun, reworkId).block());
+        NotificationReworksEntity updated = notificationReworksDaoDynamo.findByIunAndReworkId(iun, reworkId).block();
+
+        assert updated != null;
+        Assertions.assertEquals(iun, updated.getIun());
+        Assertions.assertEquals(reworkId, updated.getReworkId());
+        Assertions.assertEquals("Reason di prova", updated.getReason());
+        Assertions.assertEquals(ReworkRequestStatus.IN_PROGRESS, updated.getStatus());
+        Assertions.assertEquals(0, updated.getIdx());
+        Assertions.assertEquals(1, updated.getExpectedStatusCodes().size());
+        Assertions.assertEquals("RECRN001A", updated.getExpectedStatusCodes().get(0).getStatusCode());
+        Assertions.assertNull(updated.getExpectedStatusCodes().get(0).getAttachments());
+        Assertions.assertEquals("RECRN001A", updated.getReceivedStatusCodes().get(0).getStatusCode());
+        Assertions.assertNull(updated.getReceivedStatusCodes().get(0).getAttachments());
+        Assertions.assertNull(updated.getExpectedDeliveryFailureCause());
+        Assertions.assertEquals("PCRETRY_0", updated.getPcRetry());
+        Assertions.assertEquals("ATTEMPTID_0", updated.getAttemptId());
+        Assertions.assertEquals("RECINDEX_0", updated.getRecIndex());
+    }
+
+
+    @Test
+    void updateToPending_status_CREATED() {
+        String iun = UUID.randomUUID().toString();
+        String reworkId = "REWORK_" + UUID.randomUUID();
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setIun(iun);
+        entity.setReworkId(reworkId);
+        entity.setReason("Reason di prova");
+        entity.setStatus(ReworkRequestStatus.CREATED);
+        entity.setCreatedAt(Instant.now());
+        StatusCodeEntity sequenceItem = new StatusCodeEntity();
+        sequenceItem.setStatusCode("RECRN001A");
+        entity.setExpectedStatusCodes(List.of(sequenceItem));
+        entity.setExpectedDeliveryFailureCause(null);
+        entity.setIdx(0);
+        entity.setPcRetry("PCRETRY_0");
+        entity.setAttemptId("ATTEMPTID_0");
+        entity.setRecIndex("RECINDEX_0");
+
+        notificationReworksDaoDynamo.putIfAbsent(entity).block();
+        Assertions.assertThrows(PnInternalException.class,
+                () -> notificationReworksDaoDynamo.updateStatusToPending(iun, reworkId).block());
+
+        NotificationReworksEntity updated = notificationReworksDaoDynamo.findByIunAndReworkId(iun, reworkId).block();
+
+        assert updated != null;
+        Assertions.assertEquals(iun, updated.getIun());
+        Assertions.assertEquals(reworkId, updated.getReworkId());
+        Assertions.assertEquals("Reason di prova", updated.getReason());
+        Assertions.assertEquals(ReworkRequestStatus.CREATED, updated.getStatus());
+        Assertions.assertEquals(0, updated.getIdx());
+        Assertions.assertEquals(1, updated.getExpectedStatusCodes().size());
+        Assertions.assertEquals("RECRN001A", updated.getExpectedStatusCodes().get(0).getStatusCode());
+        Assertions.assertNull(updated.getExpectedStatusCodes().get(0).getAttachments());
+        Assertions.assertNull(updated.getReceivedStatusCodes());
+        Assertions.assertNull(updated.getExpectedDeliveryFailureCause());
+        Assertions.assertEquals("PCRETRY_0", updated.getPcRetry());
+        Assertions.assertEquals("ATTEMPTID_0", updated.getAttemptId());
+        Assertions.assertEquals("RECINDEX_0", updated.getRecIndex());
+
     }
 
     @Test

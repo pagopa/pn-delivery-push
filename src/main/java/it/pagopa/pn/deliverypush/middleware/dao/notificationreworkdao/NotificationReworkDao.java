@@ -10,5 +10,6 @@ public interface NotificationReworkDao {
     Flux<NotificationReworksEntity> findByIun(String iun);
     Mono<NotificationReworksEntity> findLatestByIun(String iun);
     Mono<Void> updateStatusError(String iun, String reworkId, String message);
+    Mono<NotificationReworksEntity> updateStatusToPending(String iun, String reworkId);
 }
 

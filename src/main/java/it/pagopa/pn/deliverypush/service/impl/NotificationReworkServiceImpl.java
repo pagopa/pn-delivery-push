@@ -2,9 +2,12 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.deliverypush.action.details.NotificationReworkUpdateValidationDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationReworkValidationDetails;
+import it.pagopa.pn.deliverypush.action.details.SequenceItemInternal;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
@@ -30,10 +33,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt.AR_REGISTERED_LETTER;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTIFICATIONREWORK_CONFLICT;
@@ -52,6 +52,20 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     private final NotificationReworkDao notificationReworkDao;
     private final ObjectMapper objectMapper;
 
+
+    @Override
+    public Mono<Void> updateNotificationRework(String iun, NotificationUpdateReworkRequestInternal updateReworkRequest, String reworkId) {
+
+        return notificationService.getNotificationByIunReactive(iun)
+                .doOnNext(notificationInt -> updateReworkRequest.setProductType(resolveProductType(notificationInt.getPhysicalCommunicationType())))
+                .flatMap(unused -> paperTrackerClient.retrieveSequenceAndFinalStatus(updateReworkRequest.getExpectedStatusCode(), updateReworkRequest.getExpectedDeliveryFailureCause(), updateReworkRequest.getProductType()))
+                .zipWhen(unused -> notificationReworkDao.updateStatusToPending(iun, reworkId))
+                .doOnNext(tuple -> actionManagerClient.addOnlyActionIfAbsent(constructNewAction(tuple.getT2().getIun(), tuple.getT2().getIun() + "_" + tuple.getT2().getReworkId() + "_update_" + UUID.randomUUID(), ActionType.NOTIFICATION_REWORK_UPDATE, buildNotificationReworkUpdateDetails(tuple.getT1(), tuple.getT2(), updateReworkRequest))))
+                .doOnError(throwable -> log.error("error during update notification rework: {}", throwable.getMessage(), throwable))
+                .then();
+    }
+
+
     @Override
     public Mono<ReworkResponse> createNotificationReworkRequest(NotificationReworkRequestInternal notificationReworkRequestDto) {
         ReworkResponse reworkResponse = new ReworkResponse();
@@ -65,7 +79,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                 .flatMap(reworkIdSequenceTuple -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkIdSequenceTuple.getT1(), notificationReworkRequestDto, reworkIdSequenceTuple.getT2())))
                 .flatMap(entity ->
                         Mono.defer(() -> {
-                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity, notificationReworkRequestDto));
+                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity.getIun(), entity.getIun() + "_" + entity.getReworkId(), ActionType.NOTIFICATION_REWORK_VALIDATION, getValidationDetailsAsString(getNotificationReworkValidationDetails(entity.getReworkId(), notificationReworkRequestDto, entity.getExpectedFinalStatus()))));
                                     return Mono.just(entity);
                                 })
                                 .onErrorResume(ex -> notificationReworkDao.updateStatusError(notificationReworkRequestDto.getIun(), reworkResponse.getReworkId(), ex.getMessage())
@@ -77,7 +91,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     }
 
     private String resolveProductType(ServiceLevelTypeInt physicalCommunicationType) {
-        if(Objects.nonNull(physicalCommunicationType)){
+        if (Objects.nonNull(physicalCommunicationType)) {
             return AR_REGISTERED_LETTER.equals(physicalCommunicationType) ? "AR" : "890";
         }
         log.warn("PhysicalCommunicationType is null, setting productType to null");
@@ -89,12 +103,9 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         ReworkItemsResponse reworkItemsResponse = new ReworkItemsResponse();
         reworkItemsResponse.setIun(iun);
         reworkItemsResponse.setItems(new ArrayList<>());
-        if(StringUtils.hasText(reworkId)){
-           return notificationReworkDao.findByIunAndReworkId(iun, reworkId)
-                    .doOnNext(notificationReworksEntity -> {
-                        reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(List.of(notificationReworksEntity)));
-                    })
-                   .thenReturn(reworkItemsResponse);
+        if (StringUtils.hasText(reworkId)) {
+            return notificationReworkDao.findByIunAndReworkId(iun, reworkId).doOnNext(notificationReworksEntity ->
+                    reworkItemsResponse.setItems(NotificationReworkMapper.entityToExternal(List.of(notificationReworksEntity)))).thenReturn(reworkItemsResponse);
         }
         return notificationReworkDao.findByIun(iun)
                 .collectList()
@@ -122,32 +133,33 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     }
 
     private List<StatusCodeEntity> mapToStatusCodeEntity(List<SequenceItem> sequence) {
-        if(CollectionUtils.isEmpty(sequence)){
+        if (CollectionUtils.isEmpty(sequence)) {
             return Collections.emptyList();
         }
-        return sequence.stream()
-                .map(item -> {
-                    StatusCodeEntity statusCodeEntity = new StatusCodeEntity();
-                    statusCodeEntity.setStatusCode(item.getStatusCode());
-                    statusCodeEntity.setAttachments(item.getAttachments());
-                    return statusCodeEntity;
-                })
-                .toList();
+        return sequence.stream().map(item -> {
+            StatusCodeEntity statusCodeEntity = new StatusCodeEntity();
+            statusCodeEntity.setStatusCode(item.getStatusCode());
+            statusCodeEntity.setAttachments(item.getAttachments());
+            return statusCodeEntity;
+        }).toList();
     }
 
-    private NewAction constructNewAction(NotificationReworksEntity notificationReworksEntity, NotificationReworkRequestInternal notificationReworkRequestDto) {
+    private NewAction constructNewAction(String iun, String actionId, ActionType actionType, String detailsAsString) {
         NewAction newAction = new NewAction();
+        newAction.setActionId(actionId);
+        newAction.setIun(iun);
+        newAction.setType(actionType);
+        newAction.notBefore(Instant.now());
+        newAction.setDetails(detailsAsString);
+        return newAction;
+    }
+
+    private String getValidationDetailsAsString(NotificationReworkValidationDetails details) {
         try {
-            NotificationReworkValidationDetails details = getNotificationReworkValidationDetails(notificationReworksEntity.getReworkId(), notificationReworkRequestDto, notificationReworksEntity.getExpectedFinalStatus());
-            newAction.setActionId(notificationReworksEntity.getIun() + "_" + notificationReworksEntity.getReworkId());
-            newAction.setIun(notificationReworkRequestDto.getIun());
-            newAction.setType(ActionType.NOTIFICATION_REWORK_VALIDATION);
-            newAction.notBefore(Instant.now());
-            newAction.setDetails(objectMapper.writeValueAsString(details));
+            return objectMapper.writeValueAsString(details);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        return newAction;
     }
 
     private static NotificationReworkValidationDetails getNotificationReworkValidationDetails(String reworkId, NotificationReworkRequestInternal notificationReworkRequestDto, String finalStatusCode) {
@@ -160,6 +172,34 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReason(notificationReworkRequestDto.getReason());
         return details;
     }
+
+    private String buildNotificationReworkUpdateDetails(SequenceResponse sequenceResponse, NotificationReworksEntity updatedEntity, NotificationUpdateReworkRequestInternal updateReq) {
+        try {
+            NotificationReworkUpdateValidationDetails details = new NotificationReworkUpdateValidationDetails();
+            details.setReworkId(updatedEntity.getReworkId());
+            details.setReworkExpectedDeliveryFailureCause(updateReq.getExpectedDeliveryFailureCause());
+            details.setReworkExpectedStatusCodes(mapToSequenceItemInternal(sequenceResponse.getSequence()));
+            details.setReworkExpectedFinalStatus(Optional.ofNullable(sequenceResponse.getFinalStatusCode()).map(SequenceResponse.FinalStatusCodeEnum::getValue).orElse(null));
+            details.setReworkAttempt(updatedEntity.getAttemptId());
+            details.setReworkRecIndex(updatedEntity.getRecIndex());
+            return objectMapper.writeValueAsString(details);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<SequenceItemInternal> mapToSequenceItemInternal(List<SequenceItem> sequence) {
+        if (CollectionUtils.isEmpty(sequence)) {
+            return Collections.emptyList();
+        }
+        return sequence.stream().map(item -> {
+            SequenceItemInternal sequenceItemInternal = new SequenceItemInternal();
+            sequenceItemInternal.setStatusCode(item.getStatusCode());
+            sequenceItemInternal.setAttachments(item.getAttachments());
+            return sequenceItemInternal;
+        }).toList();
+    }
+
 
     private Mono<String> retrieveAndEvaluateReworkRequest(String iun, String recIndex) {
         return notificationReworkDao.findByIun(iun)
