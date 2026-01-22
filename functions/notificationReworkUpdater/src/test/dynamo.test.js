@@ -124,7 +124,7 @@ describe("updateRework (dynamo.js)", () => {
       await dynamo.updateRework(item, ["READY"]);
       expect.fail("Doveva lanciare per campi mancanti");
     } catch (err) {
-      expect(err.message).to.match(/obbligatori/i);
+      expect(err.message).to.match(/mandatory/i);
     }
   });
 
@@ -134,7 +134,7 @@ describe("updateRework (dynamo.js)", () => {
       await dynamo.updateRework(item, ["CREATED"]);
       expect.fail("Doveva lanciare per vincolo timelineElementIds/category");
     } catch (err) {
-      expect(err.message).to.match(/timelineElementIds richiede category/i);
+      expect(err.message).to.match(/timelineElementIds needs category/i);
     }
   });
 
@@ -160,38 +160,64 @@ describe("updateRework (dynamo.js)", () => {
 
     it("OK: updateRequestRework con status OK", async () => {
     const item = {
+      updateRequest: {
+        expectedStatusCodes: ["RECAG001C"],
+        expectedDeliveryFailureCause: "M01",
+        status: "OK"
+      },
       iun: "pkOK",
       reworkId: "skOK",
-      status: "OK",
-      expectedStatusCodes: ["A"],
-      deliveryFailureCause: "cause"
+      status: "READY",
+      expectedStatusCodes: ["RECAG001C"],
+      deliveryFailureCause: "M01"
     };
-    const res = await dynamo.updateRequestRework(item);
+
+    const reworkEntity = {
+      Item: {
+        expectedStatusCodes: ["RECAG002C"],
+        deliveryFailureCause: "M02"
+      }
+    };
+
+    const res = await dynamo.updateRequestRework(item, reworkEntity);
     expect(res).to.deep.equal({ ok: true });
     const sent = UpdateCommandCtorStub.firstCall.args[0];
     expect(sent.TableName).to.equal(TABLE_NAME);
     expect(sent.Key).to.deep.equal({ iun: "pkOK", reworkId: "skOK" });
     expect(sent.UpdateExpression).to.include("#status = :ready");
-    expect(sent.ExpressionAttributeValues[":newExpectedStatusCodes"]).to.deep.equal(["A"]);
-    expect(sent.ExpressionAttributeValues[":newDeliveryFailureCause"]).to.equal("cause");
+    expect(sent.ExpressionAttributeValues[":newExpectedStatusCodes"]).to.deep.equal(["RECAG001C"]);
+    expect(sent.ExpressionAttributeValues[":newDeliveryFailureCause"]).to.equal("M01");
     expect(sendStub.calledOnce).to.be.true;
   });
 
   it("KO: updateRequestRework con status KO", async () => {
     const item = {
-      iun: "pkKO",
-      reworkId: "skKO",
-      status: "KO",
-      error: ["err"],
-      expectedStatusCodes: ["B"],
-      deliveryFailureCause: "fail"
+      updateRequest: {
+        expectedStatusCodes: ["RECAG001C"],
+        expectedDeliveryFailureCause: "M01",
+        status: "KO",
+        error: ["err"]
+      },
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "READY",
+      expectedStatusCodes: ["RECAG001C"],
+      deliveryFailureCause: "M01"
     };
-    const res = await dynamo.updateRequestRework(item);
+
+    const reworkEntity = {
+      Item: {
+        expectedStatusCodes: ["RECAG002C"],
+        deliveryFailureCause: "M02"
+      }
+    };
+
+    const res = await dynamo.updateRequestRework(item, reworkEntity);
     expect(res).to.deep.equal({ ok: true });
     const sent = UpdateCommandCtorStub.firstCall.args[0];
     expect(sent.UpdateExpression).to.include("#status = :ready");
-    expect(sent.ExpressionAttributeValues[":ko"]).to.equal("KO");
-    expect(sent.ExpressionAttributeValues[":error"]).to.deep.equal(["err"]);
+    expect(sent.ExpressionAttributeValues[":updateRequestKo"][0].status).to.equal("KO");
+    expect(sent.ExpressionAttributeValues[":updateRequestKo"][0].error).to.deep.equal(["err"]);
     expect(sendStub.calledOnce).to.be.true;
   });
 
@@ -200,16 +226,36 @@ describe("updateRework (dynamo.js)", () => {
       await dynamo.updateRequestRework({ iun: "x", reworkId: "y" });
       expect.fail("Doveva lanciare");
     } catch (err) {
-      expect(err.message).to.match(/obbligatori/i);
+      expect(err.message).to.match(/mandatory/i);
     }
   });
 
   it("lancia errore su status non supportato", async () => {
+    const item = {
+      updateRequest: {
+        expectedStatusCodes: ["RECAG001C"],
+        expectedDeliveryFailureCause: "M01",
+        status: "TEST",
+        error: ["err"]
+      },
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "READY",
+      expectedStatusCodes: ["RECAG001C"],
+      deliveryFailureCause: "M01"
+    };
+
+    const reworkEntity = {
+      Item: {
+        expectedStatusCodes: ["RECAG002C"],
+        deliveryFailureCause: "M02"
+      }
+    };
     try {
-      await dynamo.updateRequestRework({ iun: "x", reworkId: "y", status: "TEST" });
+      await dynamo.updateRequestRework(item, reworkEntity);
       expect.fail("Doveva lanciare");
     } catch (err) {
-      expect(err.message).to.match(/Status non supportato per UPDATE_REQUEST: TEST/i);
+      expect(err.message).to.match(/Not Supported status for UPDATE_REQUEST operation: TEST/i);
     }
   });
 });

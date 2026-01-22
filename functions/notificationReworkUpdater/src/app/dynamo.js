@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, UpdateCommand } = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, UpdateCommand, GetCommand } = require("@aws-sdk/lib-dynamodb");
 
 // Nome tabella da env (obbligatorio)
 const TABLE_NAME = process.env.NOTIFICATION_REWORKS_DYNAMO_TABLENAME;
@@ -14,10 +14,10 @@ const docClient = DynamoDBDocumentClient.from(client, {
 
 const updateRework = async (item, expectedStates) => {
   if (!item || !item.iun || !item.reworkId || !item.status) {
-    throw new Error("iun, reworkId e status sono obbligatori");
+    throw new Error("iun, reworkId and status are mandatory");
   }
   if (item.timelineElementIds !== undefined && item.category === undefined) {
-    throw new Error("timelineElementIds richiede category");
+    throw new Error("timelineElementIds needs category to be set");
   }
 
   const Key = { iun: item.iun, reworkId: item.reworkId };
@@ -76,12 +76,29 @@ const updateRework = async (item, expectedStates) => {
   }
 };
 
-const updateRequestRework = async (item) => {
+const updateRequestRework = async (item, reworkEntity) => {
   if (!item?.iun || !item?.reworkId || !item?.status) {
-    throw new Error("iun, reworkId e status sono obbligatori");
+    throw new Error("iun, reworkId e status are mandatory");
   }
 
   const now = new Date().toISOString();
+
+  const okUpdateRequestEntry = {
+    date: now,
+    status: "OK",
+    newStatusCodes: item.updateRequest.expectedStatusCodes,
+    newDeliveryFailureCause: item.updateRequest.expectedDeliveryFailureCause,
+    oldStatusCodes: reworkEntity.Item.expectedStatusCodes,
+    oldDeliveryFailureCause: reworkEntity.Item.expectedDeliveryFailureCause
+  };
+
+  const koUpdateRequestEntry = {
+    date: now,
+    status: "KO",
+    error: item.updateRequest.error,
+    newStatusCodes: item.updateRequest.expectedStatusCodes,
+    newDeliveryFailureCause: item.updateRequest.expectedDeliveryFailureCause
+  };
 
   const params = {
     TableName: TABLE_NAME,
@@ -92,63 +109,45 @@ const updateRequestRework = async (item) => {
     ExpressionAttributeNames: {
       "#status": "status",
       "#updatedAt": "updatedAt",
-      "#updateRequests": "updateRequests",
-      "#expectedStatusCodes": "expectedStatusCodes",
-      "#deliveryFailureCause": "deliveryFailureCause"
+      "#updateRequests": "updateRequests"
     },
     ExpressionAttributeValues: {
       ":ready": "READY",
       ":now": now,
-      ":emptyList": [],
-      ":newExpectedStatusCodes": item.expectedStatusCodes,
-      ":newDeliveryFailureCause": item.deliveryFailureCause,
-      ":error": item.error,
-      ":ok": "OK",
-      ":ko": "KO"
+      ":emptyList": []
     }
   };
 
-  if (item.status === "OK") {
+  if (item.updateRequest.status === "OK") {
+    params.ExpressionAttributeNames["#expectedStatusCodes"] = "expectedStatusCodes";
+    params.ExpressionAttributeNames["#deliveryFailureCause"] = "deliveryFailureCause";
+    params.ExpressionAttributeValues[":newExpectedStatusCodes"] = item.expectedStatusCodes;
+    params.ExpressionAttributeValues[":newDeliveryFailureCause"] = item.deliveryFailureCause;
+    params.ExpressionAttributeValues[":updateRequestOk"] = [okUpdateRequestEntry];
     params.UpdateExpression = `
-      SET
-        #status = :ready,
-        #updatedAt = :now,
-        #updateRequests = list_append(
-          if_not_exists(#updateRequests, :emptyList),
-          [
-            {
-              date: :now,
-              status: :ok,
-              newStatusCodes: :newExpectedStatusCodes,
-              newDeliveryFailureCause: :newDeliveryFailureCause,
-              oldStatusCodes: #expectedStatusCodes,
-              oldDeliveryFailureCause: #deliveryFailureCause
-            }
-          ]
-        ),
-        #expectedStatusCodes = :newExpectedStatusCodes,
-        #deliveryFailureCause = :newDeliveryFailureCause
-    `;
-  } else if (item.status === "KO") {
+          SET
+            #status = :ready,
+            #updatedAt = :now,
+            #updateRequests = list_append(
+              if_not_exists(#updateRequests, :emptyList),
+              :updateRequestOk
+            ),
+            #expectedStatusCodes = :newExpectedStatusCodes,
+            #deliveryFailureCause = :newDeliveryFailureCause
+        `;
+  } else if (item.updateRequest.status === "KO") {
+    params.ExpressionAttributeValues[":updateRequestKo"] = [koUpdateRequestEntry];
     params.UpdateExpression = `
-      SET
-        #status = :ready,
-        #updatedAt = :now,
-        #updateRequests = list_append(
-          if_not_exists(#updateRequests, :emptyList),
-          [
-            {
-              date: :now,
-              status: :ko,
-              error: :error,
-              newStatusCodes: :newExpectedStatusCodes,
-              newDeliveryFailureCause: :newDeliveryFailureCause
-            }
-          ]
-        )
-    `;
+          SET
+            #status = :ready,
+            #updatedAt = :now,
+            #updateRequests = list_append(
+              if_not_exists(#updateRequests, :emptyList),
+              :updateRequestKo
+            )
+        `;
   } else {
-    throw new Error(`Status non supportato per UPDATE_REQUEST: ${item.status}`);
+    throw new Error(`Not Supported status for UPDATE_REQUEST operation: ${item.updateRequest.status}`);
   }
 
     try {
@@ -162,5 +161,21 @@ const updateRequestRework = async (item) => {
   }
 };
 
+const getReworkEntity = async (item) => {
+  if (!item?.iun || !item?.reworkId) {
+    throw new Error("iun, reworkId are mandatory");
+  }
 
-module.exports = { updateRework, updateRequestRework, TABLE_NAME };
+  const params = {
+    TableName: TABLE_NAME,
+    Key: {
+      iun: item.iun,
+      reworkId: item.reworkId
+    }
+  };
+
+  return await docClient.send(new GetCommand(params));
+};
+
+
+module.exports = { updateRework, updateRequestRework, getReworkEntity, TABLE_NAME };

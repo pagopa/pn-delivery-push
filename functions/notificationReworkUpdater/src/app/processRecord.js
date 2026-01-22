@@ -69,15 +69,14 @@ const processUpdateRecord = async (message) => {
     iun,
     reworkId,
     status: "READY",
-    updateRequest: [updateRequestElement]
+    updateRequest: updateRequestElement
   };
 
   if (updateValidationStatus === "OK") {
-    item.deliveryFailureCause = message.deliveryFailureCause;
+    item.deliveryFailureCause = message.expectedDeliveryFailureCause;
     item.expectedStatusCodes = message.expectedStatusCodes;
   }
-
-  return { item };
+  return item;
 };
 
 module.exports = { processRecord, processUpdateRecord };

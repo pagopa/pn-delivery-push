@@ -3,7 +3,7 @@ const sinon = require("sinon");
 const proxyquire = require("proxyquire");
 
 describe("eventHandler.js (SQS → Lambda)", () => {
-  let updateReworkStub, processRecordStub, handler;
+  let updateReworkStub, processRecordStub, getReworkEntityStub, handler;
 
   beforeEach(() => {
     updateReworkStub = sinon.stub().resolves({ ok: true });
@@ -217,20 +217,32 @@ describe("eventHandler.js (SQS → Lambda)", () => {
   });
 
   it("operation=UPDATE_REQUEST con updateValidationStatus=OK → chiama updateRequestRework e nessun failure", async () => {
-    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
-    const processUpdateRecordStub = sinon.stub().resolves({
-      item: {
-        iun: "pkOK",
-        reworkId: "skOK",
-        status: "READY",
-        updateRequest: [{ status: "OK" }],
-        deliveryFailureCause: "cause",
-        expectedStatusCodes: ["A"]
+    const item = {
+      updateRequest: {
+        expectedStatusCodes: ["RECAG001C"],
+        expectedDeliveryFailureCause: "M01",
+        status: "OK"
+      },
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "READY",
+      expectedStatusCodes: ["RECAG001C"],
+      deliveryFailureCause: "M01"
+    };
+
+    const reworkEntity = {
+      Item: {
+        expectedStatusCodes: ["RECAG002C"],
+        deliveryFailureCause: "M02"
       }
-    });
+    };
+    
+    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
+    const processUpdateRecordStub = sinon.stub().resolves(item);
+    const getReworkEntityStub = sinon.stub().resolves(reworkEntity);
 
     const mod = proxyquire("../app/eventHandler.js", {
-      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub() },
+      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub(), getReworkEntity: getReworkEntityStub },
       "./processRecord": { processUpdateRecord: processUpdateRecordStub, processRecord: sinon.stub() }
     });
 
@@ -255,30 +267,37 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     const res = await handler(event);
 
     expect(processUpdateRecordStub.calledOnce).to.be.true;
-    expect(updateRequestReworkStub.calledOnceWithExactly({
-      iun: "pkOK",
-      reworkId: "skOK",
-      status: "READY",
-      updateRequest: [{ status: "OK" }],
-      deliveryFailureCause: "cause",
-      expectedStatusCodes: ["A"]
-    })).to.be.true;
+    expect(updateRequestReworkStub.calledOnceWithExactly(item, reworkEntity)).to.be.true;
     expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 
   it("operation=UPDATE_REQUEST con updateValidationStatus=KO → chiama updateRequestRework e nessun failure", async () => {
-    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
-    const processUpdateRecordStub = sinon.stub().resolves({
-      item: {
-        iun: "pkKO",
-        reworkId: "skKO",
-        status: "READY",
-        updateRequest: [{ status: "KO", error: ["err"] }]
+    const item = {
+      updateRequest: {
+        expectedStatusCodes: ["RECAG001C"],
+        expectedDeliveryFailureCause: "M01",
+        status: "OK"
+      },
+      iun: "pkOK",
+      reworkId: "skOK",
+      status: "READY",
+      expectedStatusCodes: ["RECAG001C"],
+      deliveryFailureCause: "M01"
+    };
+
+    const reworkEntity = {
+      Item: {
+        expectedStatusCodes: ["RECAG002C"],
+        deliveryFailureCause: "M02"
       }
-    });
+    };
+
+    const updateRequestReworkStub = sinon.stub().resolves({ ok: true });
+    const processUpdateRecordStub = sinon.stub().resolves(item);
+    const getReworkEntityStub = sinon.stub().resolves(reworkEntity);
 
     const mod = proxyquire("../app/eventHandler.js", {
-      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub() },
+      "./dynamo": { updateRequestRework: updateRequestReworkStub, updateRework: sinon.stub(), getReworkEntity: getReworkEntityStub },
       "./processRecord": { processUpdateRecord: processUpdateRecordStub, processRecord: sinon.stub() }
     });
 
@@ -302,12 +321,7 @@ describe("eventHandler.js (SQS → Lambda)", () => {
     const res = await handler(event);
 
     expect(processUpdateRecordStub.calledOnce).to.be.true;
-    expect(updateRequestReworkStub.calledOnceWithExactly({
-      iun: "pkKO",
-      reworkId: "skKO",
-      status: "READY",
-      updateRequest: [{ status: "KO", error: ["err"] }]
-    })).to.be.true;
+    expect(updateRequestReworkStub.calledOnceWithExactly(item, reworkEntity)).to.be.true;
     expect(res).to.deep.equal({ batchItemFailures: [] });
   });
 });

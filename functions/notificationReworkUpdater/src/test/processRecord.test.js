@@ -73,13 +73,13 @@ describe("processRecord.js", () => {
       reworkId: "sk1",
       updateValidationStatus: "OK",
       expectedStatusCodes: ["A"],
-      deliveryFailureCause: "cause"
+      expectedDeliveryFailureCause: "cause"
     };
-    const { item } = await processUpdateRecord(msg);
+    const item = await processUpdateRecord(msg);
     expect(item.iun).to.equal("pk1");
     expect(item.reworkId).to.equal("sk1");
     expect(item.status).to.equal("READY");
-    expect(item.updateRequest[0].status).to.equal("OK");
+    expect(item.updateRequest.status).to.equal("OK");
     expect(item.deliveryFailureCause).to.equal("cause");
     expect(item.expectedStatusCodes).to.deep.equal(["A"]);
   });
@@ -91,10 +91,10 @@ describe("processRecord.js", () => {
       updateValidationStatus: "KO",
       error: ["err"]
     };
-    const { item } = await processUpdateRecord(msg);
+    const item = await processUpdateRecord(msg);
     expect(item.status).to.equal("READY");
-    expect(item.updateRequest[0].status).to.equal("KO");
-    expect(item.updateRequest[0].error).to.deep.equal(["err"]);
+    expect(item.updateRequest.status).to.equal("KO");
+    expect(item.updateRequest.error).to.deep.equal(["err"]);
   });
 
   it("lancia errore se mancano iun o reworkId", async () => {

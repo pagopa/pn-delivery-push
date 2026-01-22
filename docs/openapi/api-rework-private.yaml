@@ -89,7 +89,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
-  '/delivery-push/private/v1/notifications/{iun}/rework/{reworkId}/update':
+  '/delivery-push-private/v1/notifications/{iun}/rework/{reworkId}/update':
     put:
       summary: Aggiornamento richiesta invalidazione timeline
       description: >
