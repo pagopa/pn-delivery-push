@@ -400,6 +400,7 @@ Resources:
               - "dynamodb:GetItem"
               - "dynamodb:Query"
               - "dynamodb:PutItem"
+              - "dynamodb:UpdateItem"
             Resource:
               - !Sub "${NotificationReworksDynamoTableArn}"
               - !Sub "${NotificationReworksDynamoTableArn}/*"
@@ -557,7 +558,7 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - "dynamodb:updateItem"
+              - "dynamodb:UpdateItem"
               - "dynamodb:GetItem"
             Resource:
               - !Sub "${NotificationReworksDynamoTableArn}"
