@@ -1,4 +1,4 @@
-const { updateRework, updateRequestRework } = require("./dynamo");
+const { updateRework, updateRequestRework, getReworkEntity } = require("./dynamo");
 const { processRecord, processUpdateRecord } = require("./processRecord");
 
 exports.handleEvent = async (event) => {
@@ -16,6 +16,7 @@ exports.handleEvent = async (event) => {
       continue;
     }
 
+    
     try {
       if (msg.operation === "ERROR") {
         const { iun, reworkId, error } = msg;
@@ -39,7 +40,8 @@ exports.handleEvent = async (event) => {
         }
       } else if (msg.operation === "UPDATE_REQUEST") {
         const item = await processUpdateRecord(msg);
-        const res = await updateRequestRework(item);
+        const reworkEntity = await getReworkEntity(item);
+        const res = await updateRequestRework(item, reworkEntity);
         if (res?.ok === false) {
           console.warn(
             "[NOTIFICATION_REWORK] unexpected error on UPDATE_REQUEST",

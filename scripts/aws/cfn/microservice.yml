@@ -558,6 +558,7 @@ Resources:
           - Effect: Allow
             Action:
               - "dynamodb:updateItem"
+              - "dynamodb:GetItem"
             Resource:
               - !Sub "${NotificationReworksDynamoTableArn}"
               - !Sub "${NotificationReworksDynamoTableArn}/*"
