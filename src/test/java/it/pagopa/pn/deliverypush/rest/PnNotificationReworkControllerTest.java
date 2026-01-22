@@ -208,7 +208,7 @@ public class PnNotificationReworkControllerTest {
         when(configs.isNotificationReworkEnabled()).thenReturn(false);
 
         webTestClient.put()
-                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
+                .uri("/delivery-push/private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .body(Mono.just(request), ReworkRequest.class)
@@ -230,7 +230,7 @@ public class PnNotificationReworkControllerTest {
         when(service.updateNotificationRework(eq("KWKU-JHXN-HJXM-202304-U-1"),captor.capture(),eq("REWORK_0_123456789"))).thenReturn(Mono.empty());
 
         webTestClient.put()
-                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework/REWORK_0_123456789/update")
+                .uri("/delivery-push/private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/rework/REWORK_0_123456789/update")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
                 .contentType(MediaType.APPLICATION_JSON)
