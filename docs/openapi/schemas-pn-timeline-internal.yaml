@@ -1565,6 +1565,11 @@ components:
           type: string
           description: data e ora di raggiungimento dello stato di avanzamento
           format: date-time
+        relatedTimelineElementIds: # NO EXTERNAL
+          type: array # NO EXTERNAL
+          description: Id degli eventi avvenuti nello stato # NO EXTERNAL
+          items: # NO EXTERNAL
+            type: string # NO EXTERNAL
         relatedTimelineElements:
           type: array
           description: Eventi avvenuti nello stato
