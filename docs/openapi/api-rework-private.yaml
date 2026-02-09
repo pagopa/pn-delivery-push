@@ -160,6 +160,8 @@ components:
           type: string
         expectedDeliveryFailureCause:
           type: string
+      required:
+        - expectedStatusCode
     ReworkRequest:
       type: object
       properties:
