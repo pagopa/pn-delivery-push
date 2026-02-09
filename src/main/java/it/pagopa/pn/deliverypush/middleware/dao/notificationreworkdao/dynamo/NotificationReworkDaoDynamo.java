@@ -16,7 +16,6 @@ import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
-import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 
 import java.util.List;
@@ -29,7 +28,6 @@ import static software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional.ke
 public class NotificationReworkDaoDynamo implements NotificationReworkDao {
 
     private static final String ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED = "ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED";
-    private static final String ERROR_CODE_REWORK_NOT_FOUND = "ERROR_CODE_REWORK_NOT_FOUND";
     private final String ERROR_CODE_REWORK_ENTITY_DUPLICATED_ITEM = "ERROR_CODE_REWORK_ENTITY_DUPLICATED_ITEM";
 
 
@@ -79,16 +77,6 @@ public class NotificationReworkDaoDynamo implements NotificationReworkDao {
                                 );
 
                                 return new PnInternalException(String.format("Update not allowed for reworkId %s", entity.getReworkId()), 400, ERROR_CODE_REWORK_UPDATE_NOT_ALLOWED);
-                            })
-                            .onErrorMap(ResourceNotFoundException.class, ex -> {
-                                log.error(
-                                        "Rework entity not found on NotificationReworksDaoDynamo reworkId={} iun={} exmessage={}",
-                                        entity.getReworkId(),
-                                        entity.getIun(),
-                                        ex.getMessage()
-                                );
-
-                                return new PnInternalException(String.format("Rework entity not found for reworkId %s", entity.getReworkId()), 404, ERROR_CODE_REWORK_NOT_FOUND);
                             });
                 });
     }
