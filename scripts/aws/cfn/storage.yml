@@ -31,36 +31,7 @@ Parameters:
     Type: Number
     Default: 14
 
-    ## KINESIS STREAM PARAMS USED FOR NEW kinesis-data-stream.yml fragment template
-  CdcPnFutureActionShards:
-    Type: Number
-    Default: 8
-    Description: Number of shards for the stream CdcPnFutureAction, 0 for OnDemand
 
-  CdcPnActionShards:
-    Type: Number
-    Default: 12
-    Description: Number of shards for the stream CdcPnActionShards, 0 for OnDemand
-
-  CdcPnFutureActionStreamRetentionHours:
-    Type: Number
-    Default: 168
-    Description: Number of hours to retain data records in the stream
-
-  CdcPnActionStreamRetentionHours:
-    Type: Number
-    Default: 168
-    Description: Number of hours to retain data records in the stream
-
-  CdcActionStandardAlarmThresholdsMs:
-    Type: Number
-    Default: 2000000
-    Description: Threshold for standard alarms in milliseconds
-
-  CdcActionOnCallAlarmThresholdsMs:
-    Type: Number
-    Default: 2000000
-    Description: Threshold for oncall alarms in milliseconds for pn-<xx>Action tables
 
   AlarmSNSTopicArn:
     Type: String
@@ -279,8 +250,6 @@ Resources:
         - AttributeName: "actionId"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
       StreamSpecification:
         StreamViewType: NEW_IMAGE
       TimeToLiveSpecification:
@@ -313,8 +282,6 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
       StreamSpecification:
         StreamViewType: NEW_IMAGE
       TimeToLiveSpecification:
@@ -504,42 +471,6 @@ Resources:
         LogGroupName: !Sub "${ProjectName}-NotificationReworkUpdaterLambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
-
-  ### Kinesis Data Stream: CDC for PN-ACTION DynamoDB Table (INSERT CDC ARE THE INTERESTED ONE)
-  CdcPnActionStream:
-    Type: AWS::CloudFormation::Stack
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
-      Parameters:
-        StreamName: "pn-action-cdc"
-        # PROVISIONED MODE: follow shard configuration
-        StreamShardsCount: !Ref CdcPnActionShards
-        StreamRetentionHours: !Ref CdcPnActionStreamRetentionHours
-        RequireManagedKey: false
-        # USES SNSTopic used for all Kinesis alarms
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
-        OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
-
-  ### Kinesis Data Stream: CDC for PN-FUTURE-ACTION DynamoDB Table
-  CdcPnFutureActionStream:
-    Type: AWS::CloudFormation::Stack
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-data-stream.yaml"
-      Parameters:
-        StreamName: "pn-future-action-cdc"
-        # PROVISIONED MODE: follow shard configuration
-        StreamShardsCount: !Ref CdcPnFutureActionShards
-        StreamRetentionHours: !Ref CdcPnFutureActionStreamRetentionHours
-        RequireManagedKey: false
-        # USES SNSTopic used for all Kinesis alarms
-        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        StandardAlarmThresholdsMs: !Ref CdcActionStandardAlarmThresholdsMs
-        OnCallAlarmThresholdsMs: !Ref CdcActionOnCallAlarmThresholdsMs
 
 Outputs:
 
@@ -753,11 +684,3 @@ Outputs:
   ActionTimeoutErrorDLQURL:
     Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueURL
     Description: ActionTimeoutErrorDLQ queue URL
-
-  CdcPnFutureActionArn:
-    Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
-    Description: "Kinesis source stream name ARN"
-
-  CdcPnActionArn:
-    Value: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
-    Description: "Kinesis source stream name ARN"
