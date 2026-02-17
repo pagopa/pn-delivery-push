@@ -16,4 +16,5 @@ public class FileDownloadResponseInt {
     private BigDecimal contentLength;
     private String contentType;
     private FileDownloadInfoInt download;
+    private Integer numberOfPages;
 }

@@ -44,6 +44,7 @@ public class SafeStorageServiceImpl implements SafeStorageService {
         FileDownloadResponseInt.FileDownloadResponseIntBuilder responseIntBuilder = FileDownloadResponseInt.builder()
                 .contentLength(fileDownloadResponse.getContentLength())
                 .checksum(fileDownloadResponse.getChecksum())
+                .numberOfPages(fileDownloadResponse.getNumberOfPages())
                 .contentType(fileDownloadResponse.getContentType())
                 .key(fileDownloadResponse.getKey());
 

@@ -133,6 +133,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         response.setFilename(FileUtils.buildFileName(iun, legalFactType == null ? null : legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
         response.setContentLength(fileDownloadResponse.getContentLength());
         response.setContentType(fileDownloadResponse.getContentType());
+        response.setNumberOfPages(fileDownloadResponse.getNumberOfPages());
         response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
         response.setUrl(fileDownloadResponse.getDownload().getUrl());
         return response;

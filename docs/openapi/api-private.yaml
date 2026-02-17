@@ -809,3 +809,6 @@ components:
             contentType:
               description: il contentType del file
               type: string
+            numberOfPages:
+              type: integer
+              description: numero di pagine del documento. Valorizzato solo se il documento è di tipo PDF
