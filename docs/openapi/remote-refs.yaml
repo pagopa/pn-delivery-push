@@ -27,7 +27,7 @@ components:
     NotificationFeePolicy:
       $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/1750230e82ea6e03516e9f4bfae09c1737c1d5e7/docs/openapi/schemas-pn-notification.yaml#/components/schemas/NotificationFeePolicy"
     PaTaxId:
-      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/1750230e82ea6e03516e9f4bfae09c1737c1d5e7/docs/openapi/schemas-pn-notification.yaml#/components/schemas/paTaxId"
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/f5ff1c7cc073f204adba8b0375126573c239fee1/docs/openapi/schemas-pn-notification.yaml#/components/schemas/paTaxId"
     NoticeCode:
       $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/1750230e82ea6e03516e9f4bfae09c1737c1d5e7/docs/openapi/schemas-pn-notification.yaml#/components/schemas/noticeCode"
     ############################################################################################
