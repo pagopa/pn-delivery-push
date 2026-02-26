@@ -2,10 +2,8 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnValidationRecipientIdNotValidException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
@@ -18,13 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND;
 
 @Service
 @Slf4j
@@ -135,25 +130,6 @@ public class TimelineServiceHttpImpl implements TimelineService {
     private boolean isPublicElement(String elementCategory) {
         return Arrays.stream(TimelineElementCategoryV28.values())
                 .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
-    }
-
-    @Override
-    public Mono<ProbableSchedulingAnalogDateResponse> getSchedulingAnalogDate(String iun, String recipientId) {
-        log.debug("getSchedulingAnalogDate - IUN={}, recipientId={}", iun, recipientId);
-
-
-        return notificationService.getNotificationByIunReactive(iun)
-                .map(notificationRecipientInts -> getRecipientIndex(notificationRecipientInts, recipientId))
-                .map(recIndex -> this.getTimelineElementDetailForSpecificRecipient(iun,recIndex,false, TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE, ProbableDateAnalogWorkflowDetailsInt.class))
-                .flatMap(optionalDetails -> optionalDetails.map(Mono::just).orElseGet(Mono::empty))
-                .map(details -> new ProbableSchedulingAnalogDateResponse()
-                        .iun(iun)
-                        .recIndex(details.getRecIndex())
-                        .schedulingAnalogDate(details.getSchedulingAnalogDate()))
-                .switchIfEmpty(Mono.error(() -> {
-                    String message = String.format("ProbableSchedulingDateAnalog not found for iun: %s, recipientId: %s", iun, recipientId);
-                    return new PnNotFoundException("Not found", message, ERROR_CODE_DELIVERYPUSH_STATUSNOTFOUND);
-                }));
     }
 
     private int getRecipientIndex(NotificationInt notificationInt, String recipientId) {

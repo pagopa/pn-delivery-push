@@ -1,33 +1,23 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Mono;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -219,69 +209,6 @@ class TimelineServiceHttpImplTest {
 
         assertTrue(result.isEmpty());
     }
-
-    @Test
-    void getSchedulingAnalogDateOKTest() {
-        final String iun = "iun1";
-        final String recipientId = "cxId";
-
-        String timelineElementIdExpected = "PROBABLE_SCHEDULING_ANALOG_DATE_0";
-        Instant schedulingDate = Instant.now();
-        TimelineElementInternal timelineElementExpected = TimelineElementInternal.builder()
-                .elementId(timelineElementIdExpected)
-                .timestamp(schedulingDate)
-                .category(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE)
-                .details(ProbableDateAnalogWorkflowDetailsInt.builder()
-                        .schedulingAnalogDate(schedulingDate)
-                        .recIndex(0)
-                        .build())
-                .build();
-
-        Mockito.when(notificationService.getNotificationByIunReactive(iun))
-                .thenReturn(Mono.just(NotificationInt.builder()
-                        .recipients(List.of(NotificationRecipientInt.builder()
-                                .internalId(recipientId)
-                                .build()))
-                        .build()));
-
-        ProbableDateAnalogWorkflowDetailsInt details = new ProbableDateAnalogWorkflowDetailsInt();
-        details.setSchedulingAnalogDate(schedulingDate);
-        details.setRecIndex(0);
-
-        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(details);
-
-        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timelineServiceHttp.getSchedulingAnalogDate(iun, recipientId).block();
-
-        assertNotNull(schedulingAnalogDateActual);
-        assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
-                .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());
-
-        assertThat(schedulingAnalogDateActual.getIun()).isEqualTo(iun);
-        assertThat(schedulingAnalogDateActual.getRecIndex()).isZero();
-    }
-
-    @Test
-    void getSchedulingAnalogDateNotFoundTest() {
-        final String iun = "iun1";
-        final String recipientId = "cxId";
-
-        Mockito.when(notificationService.getNotificationByIunReactive(iun))
-                .thenReturn(Mono.just(NotificationInt.builder()
-                        .recipients(List.of(NotificationRecipientInt.builder()
-                                .internalId(recipientId)
-                                .build()))
-                        .build()));
-
-        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())
-                )
-                .thenReturn(null);
-
-        Executable executable = () -> timelineServiceHttp.getSchedulingAnalogDate(iun, recipientId).block();
-        Assertions.assertThrows(PnNotFoundException.class, executable);
-    }
-
     @Test
     void getTimelineAndStatusHistory_ReturnsMappedResponse() {
         String iun = "iunTest";
