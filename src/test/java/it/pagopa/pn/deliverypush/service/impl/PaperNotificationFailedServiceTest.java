@@ -3,7 +3,6 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -80,15 +79,12 @@ class PaperNotificationFailedServiceTest {
                 .build());
 
         String aarUrl = "http://test.download.com/aar";
-        AarGenerationDetailsInt aarGenerationDetailsInt = new AarGenerationDetailsInt();
-        aarGenerationDetailsInt.setGeneratedAarUrl(aarUrl);
-
         //When
         Mockito.when( paperNotificationFailedDao.getPaperNotificationFailedByRecipientId( Mockito.anyString() ))
                 .thenReturn( paperNotificationFailedSet );
         Mockito.when( notificationService.getNotificationByIun(Mockito.any())).thenReturn(new NotificationInt());
         Mockito.when( notificationUtils.getRecipientIndexFromInternalId(Mockito.any(), Mockito.any())).thenReturn(0);
-        Mockito.when( timelineService.getTimelineElementDetails(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Optional.of(aarGenerationDetailsInt));
+        Mockito.when(timelineService.getRecipientAARUrl(Mockito.anyString(),Mockito.anyInt())).thenReturn(Optional.of(aarUrl));
 
         //Then
         StepVerifier.create(paperNotificationFailedService.getPaperNotificationByRecipientId( RECIPIENT_ID, true ))
@@ -107,16 +103,11 @@ class PaperNotificationFailedServiceTest {
                 .recipientId( RECIPIENT_ID )
                 .build());
 
-        String aarUrl = "http://test.download.com/aar";
-        AarGenerationDetailsInt aarGenerationDetailsInt = new AarGenerationDetailsInt();
-        aarGenerationDetailsInt.setGeneratedAarUrl(aarUrl);
-
         //When
         Mockito.when( paperNotificationFailedDao.getPaperNotificationFailedByRecipientId( Mockito.anyString() ))
                 .thenReturn( paperNotificationFailedSet );
         Mockito.when( notificationService.getNotificationByIun(Mockito.any())).thenReturn(new NotificationInt());
         Mockito.when( notificationUtils.getRecipientIndexFromInternalId(Mockito.any(), Mockito.any())).thenReturn(0);
-        Mockito.when( timelineService.getTimelineElementDetails(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
 
         //Then
         StepVerifier.create(paperNotificationFailedService.getPaperNotificationByRecipientId( RECIPIENT_ID, true ))

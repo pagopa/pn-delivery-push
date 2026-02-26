@@ -61,14 +61,6 @@ public class TimelineClientImpl implements TimelineClient {
     }
 
     @Override
-    public TimelineElementDetailsInt getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineElementCategoryInt category) {
-        log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT);
-
-        TimelineElementDetails timelineElementDetails = timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.name()));
-        return timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, category);
-    }
-
-    @Override
     public TimelineElementInternal getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineElementCategoryInt category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT);
 
@@ -92,5 +84,17 @@ public class TimelineClientImpl implements TimelineClient {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_AND_STATUS_HISTORY);
 
         return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+    }
+
+    @Override
+    public RequestRefusedResponse getRequestRefused(String iun) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_REQUEST_REFUSED);
+        return timelineControllerApi.getRequestRefused(iun);
+    }
+
+    @Override
+    public AarResponse getAarForRecipient(String iun, int recIndex) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_AAR_FOR_RECIPIENT);
+        return timelineControllerApi.getAarForRecipient(iun, recIndex);
     }
 }

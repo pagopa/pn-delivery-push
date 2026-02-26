@@ -150,49 +150,11 @@ class TimelineClientImplTest {
     }
 
     @Test
-    void getTimelineElementDetailForSpecificRecipient_returnsExpectedDetails() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        Boolean confidentialInfoRequired = true;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
-        TimelineElementDetails timelineElementDetails = new AarGenerationDetails().categoryType("AAR_GENERATION");
-        TimelineElementDetailsInt expectedDetails = Mockito.mock(TimelineElementDetailsInt.class);
-
-        when(timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category))
-                .thenReturn(timelineElementDetails);
-
-        when(timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, TimelineElementCategoryInt.AAR_GENERATION))
-                .thenReturn(expectedDetails);
-
-        TimelineElementDetailsInt result = timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, categoryInt);
-
-        assertEquals(expectedDetails, result);
-        Mockito.verify(timelineControllerApi).getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
-    }
-
-    @Test
-    void getTimelineElementDetailForSpecificRecipient_throwsException() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        Boolean confidentialInfoRequired = true;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
-
-        when(timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category))
-                .thenThrow(new RuntimeException("Errore"));
-
-        assertThrows(RuntimeException.class, () ->
-                timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, categoryInt)
-        );
-    }
-
-    @Test
     void getTimelineElementForSpecificRecipient_returnsExpectedElement() {
         String iun = "iun123";
         Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
+        TimelineCategory category = TimelineCategory.REQUEST_ACCEPTED;
+        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.REQUEST_ACCEPTED;
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal expectedElement = Mockito.mock(TimelineElementInternal.class);
 
@@ -211,8 +173,8 @@ class TimelineClientImplTest {
     void getTimelineElementForSpecificRecipient_throwsException() {
         String iun = "iun123";
         Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
+        TimelineCategory category = TimelineCategory.REQUEST_ACCEPTED;
+        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.REQUEST_ACCEPTED;
 
         when(timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category))
                 .thenThrow(new RuntimeException("Errore"));
