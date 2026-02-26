@@ -487,6 +487,50 @@ class GetLegalFactServiceImplTest {
     }
 
     @Test
+    void getAnalogLegalFactMetadata_WithInvalidNumberOfPagesFormat() {
+        //Given
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+        String tagKey = "document_number_of_pages";
+        fileDownloadResponse.setTags(Map.of(tagKey, List.of("invalidFormat")));
+
+        //When
+        Mockito.when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn(tagKey);
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
+                .thenReturn(Mono.just(fileDownloadResponse));
+
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
+
+        Mono<LegalFactDownloadMetadataWithContentTypeResponse> resultMono = getLegalFactService.getLegalFactMetadataWithContentType(IUN, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        //Then
+        assertNotNull( resultMono );
+        LegalFactDownloadMetadataWithContentTypeResponse result = resultMono.block();
+        assertNotNull(result);
+        assertNotNull(result.getFilename());
+        assertNull(result.getNumberOfPages());
+        assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
+        assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
+        assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
+    }
+
+    @Test
     void getAnalogLegalFactMetadataSuccessXML() {
         //Given
         String[] urls = new String[1];

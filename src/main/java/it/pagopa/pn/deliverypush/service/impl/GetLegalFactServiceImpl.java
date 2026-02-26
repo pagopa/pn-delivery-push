@@ -145,7 +145,16 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
             return null;
         }
         List<String> tagValues = documentTags.get(cfg.getDocumentNumberOfPagesTagKey());
-        return CollectionUtils.isEmpty(tagValues) ? null : Integer.valueOf(tagValues.getFirst());
+        if (CollectionUtils.isEmpty(tagValues)) {
+            return null;
+        }
+        String tagValue = tagValues.getFirst();
+        try {
+            return Integer.valueOf(tagValue);
+        } catch (NumberFormatException ex) {
+            log.warn("Unable to parse document number of pages tag value '{}' for key '{}'", tagValue, cfg.getDocumentNumberOfPagesTagKey(), ex);
+            return null;
+        }
     }
 
     private void generateSuccessAuditLog(String iun, String legalfactId, String senderReceiverId, PnAuditLogEvent logEvent, String fileName, String url, BigDecimal retryAfter) {
