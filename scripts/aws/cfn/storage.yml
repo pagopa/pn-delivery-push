@@ -126,19 +126,6 @@ Resources:
         MaxReceiveCount: 10
         DelaySeconds: 1
 
-  DoneActionsQueue:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_actions_done'
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        VisibilityTimeout: 60
-        MaxReceiveCount: 10
-        DelaySeconds: 1
-
   NotificationReworkUpdaterQueue:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
@@ -151,73 +138,6 @@ Resources:
         MaxReceiveCount: 3
         VisibilityTimeout: 1800
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        QueueHasAlarm: "true"
-
-  # internal queues DLQ
-  NotificationCancellationActionInsertDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_cdc_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
-
-  # internal queues DLQ
-  PaperEventsCostUpdateDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_papereventscostupdate_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
-
-  ActionRouterDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_action_router_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
-
-  ActionEnqueuerDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_action_enqueuer_DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
-        QueueHasAlarm: "true"
-
-  ActionTimeoutErrorDLQ:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
-      Parameters:
-        QueueName: !Sub '${ProjectName}-delivery_push_action-timeout-error-DLQ'
-        DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
-        HasDLQ: "false"
         QueueHasAlarm: "true"
 
   # Notification Timeline DynamoDB Table
@@ -262,119 +182,6 @@ Resources:
           KeyType: "HASH"
         - AttributeName: "iun"
           KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-  # Rescheduling Action Table
-  ReschedulingActionTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-ReschedulingAction'
-      AttributeDefinitions:
-        - AttributeName: "actionId"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "actionId"
-          KeyType: "HASH"
-      BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
-      TimeToLiveSpecification:
-        AttributeName: "ttl"
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-
-
-  # Action Table
-  ActionTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-Action'
-      AttributeDefinitions:
-        - AttributeName: "actionId"
-          AttributeType: "S"
-        - AttributeName: "iun"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "actionId"
-          KeyType: "HASH"
-      GlobalSecondaryIndexes:
-        - IndexName: "iun-index"
-          KeySchema:
-            - AttributeName: "iun"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: "ALL"
-      BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !GetAtt CdcPnActionStream.Outputs.KinesisStreamArn
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
-      TimeToLiveSpecification:
-        AttributeName: "ttl"
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-
-
-
-  # Future Action Table
-  FutureActionTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-FutureAction'
-      AttributeDefinitions:
-        - AttributeName: "timeSlot"
-          AttributeType: "S"
-        - AttributeName: "actionId"
-          AttributeType: "S"
-        - AttributeName: "iun"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "timeSlot"
-          KeyType: "HASH"
-        - AttributeName: "actionId"
-          KeyType: "RANGE"
-      GlobalSecondaryIndexes:
-        - IndexName: "iun-index"
-          KeySchema:
-            - AttributeName: "iun"
-              KeyType: "HASH"
-          Projection:
-            ProjectionType: "ALL"
-      BillingMode: "PAY_PER_REQUEST"
-      KinesisStreamSpecification:
-        StreamArn: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
-      TimeToLiveSpecification:
-        AttributeName: "ttl"
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-
-  # Last scheduled poll time
-  LastPollForFutureActionTable:
-    Type: AWS::DynamoDB::Table
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TableName: !Sub '${ProjectName}-LastPollForFutureActionTable'
-      AttributeDefinitions:
-        - AttributeName: "lastPoolKey"
-          AttributeType: "N"
-      KeySchema:
-        - AttributeName: "lastPoolKey"
-          KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
@@ -459,29 +266,6 @@ Resources:
         LogGroupName: !Sub '${ProjectName}-delivery-push'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
         LogGroupRetention: !Ref LogRetention
-
-
-  NotificationCancellationActionInsertLambdaLogGroup:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
-      Parameters:
-        LogGroupName: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
-        LogGroupRetention: !Ref LogRetention
-        LogGroupPrefix: '/aws/lambda'
-
-  PaperEventsCostUpdateLambdaLogGroup:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
-      Parameters:
-        LogGroupName: !Sub "${ProjectName}-paperEventsCostUpdateLambda"
-        LogGroupRetention: !Ref LogRetention
-        LogGroupPrefix: '/aws/lambda'
 
   VersioningGetNotificationLegalFactsLambdaLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -577,23 +361,6 @@ Outputs:
     Value: !GetAtt ScheduledValidationActionsQueue.Outputs.SqsAgeAlarmArn
     Description: pn-delivery-push validation actions queue age alarm ARN
 
-  # Already Done Actions
-  DoneActionsQueueName:
-    Value: !GetAtt DoneActionsQueue.Outputs.QueueName
-    Description: pn-delivery-push actions done queue name
-  DoneActionsQueueURL:
-    Value: !GetAtt DoneActionsQueue.Outputs.QueueURL
-    Description: pn-delivery-push actions done queue URL
-  DoneActionsQueueARN:
-    Value: !GetAtt DoneActionsQueue.Outputs.QueueARN
-    Description: pn-delivery-push actions done queue ARN
-  DoneActionsQueueAlarmARN:
-    Value: !GetAtt DoneActionsQueue.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push actions done queue dlq alarm ARN
-  DoneActionsQueueAgeAlarmARN:
-    Value: !GetAtt DoneActionsQueue.Outputs.SqsAgeAlarmArn
-    Description: pn-delivery-push actions done queue age alarm ARN
-
   # NotificationReworkUpdaterQueue
   NotificationReworkUpdaterQueueName:
     Value: !GetAtt NotificationReworkUpdaterQueue.Outputs.QueueName
@@ -619,27 +386,6 @@ Outputs:
   PaperNotificationFailedDynamoTableArn:
     Description: ARN of dynamodb table containing unreacheble notifications recipients
     Value: !Sub '${PaperNotificationFailedTable.Arn}'
-
-  ActionDynamoTableName:
-    Description: Name of dynamodb table containing
-    Value: !Ref ActionTable
-  ActionDynamoTableArn:
-    Description: ARN of dynamodb table containing
-    Value: !Sub '${ActionTable.Arn}'
-
-  FutureActionDynamoTableName:
-    Description: Name of dynamodb table containing
-    Value: !Ref FutureActionTable
-  FutureActionDynamoTableArn:
-    Description: ARN of dynamodb table containing
-    Value: !Sub '${FutureActionTable.Arn}'
-
-  LastPollForFutureActionDynamoTableName:
-    Description: Name of dynamodb table containing
-    Value: !Ref LastPollForFutureActionTable
-  LastPollForFutureActionDynamoTableArn:
-    Description: ARN of dynamodb table containing
-    Value: !Sub '${LastPollForFutureActionTable.Arn}'
 
   PnDeliveryPushShedLockDynamoTableName:
     Description: Name of dynamodb table containing
@@ -674,85 +420,13 @@ Outputs:
   VersioningGetNotificationLegalFactsLambdaName:
     Value: !Sub "${ProjectName}-versioningGetNotificationLegalFactsLambda"
 
-  ActionRouterLambdaName:
-    Value: !Sub "${ProjectName}-actionRouterLambda"
-
-  ActionEnqueuerLambdaName:
-    Value: !Sub "${ProjectName}-actionEnqueuer"
-
-  ActionRemoverLambdaName:
-    Value: !Sub "${ProjectName}-actionRemover"
-
-
-  ValidationMessageEventBridgeToQueueLambdaName:
-    Value: !Sub "${ProjectName}-validationMessageEventBridgeToQueueLambda"
-
   # Log group exports
   EcsLogGroup:
     Value: !GetAtt PnDeliveryPushLogGroup.Outputs.LogGroupName
 
   # Lambda functions
-  NotificationCancellationActionInsertLambdaName:
-    Value: !Sub "${ProjectName}-notificationCancellationActionInsertLambda"
-
-  # NotificationCancellationActionInsertLambdaAlarms DLQ
-  NotificationCancellationActionInsertDLQName:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueName
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue name
-  NotificationCancellationActionInsertDLQURL:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueURL
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue URL
-  NotificationCancellationActionInsertDLQARN:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.QueueARN
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ queue ARN
-  NotificationCancellationActionInsertDLQAlarmARN:
-    Value: !GetAtt NotificationCancellationActionInsertDLQ.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push-notification-cancellationaction-insert_DLQ alarm ARN
-
-  # Lambda functions
   NotificationReworkUpdaterLambdaName:
     Value: !Sub "${ProjectName}-NotificationReworkUpdaterLambda"
-
-  # Lambda functions
-  PaperEventsCostUpdateLambdaName:
-    Value: !Sub "${ProjectName}-paperEventsCostUpdateLambda"
-
-  PaperEventsCostUpdateDLQName:
-    Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.QueueName
-    Description: pn-delivery-push_paper_events_costo_update_DLQ queue name
-  PaperEventsCostUpdateDLQURL:
-    Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.QueueURL
-    Description: pn-delivery-push_paper_events_costo_update_DLQ queue URL
-  PaperEventsCostUpdateDLQARN:
-    Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.QueueARN
-    Description: pn-delivery-push_paper_events_costo_update_DLQ queue ARN
-  PaperEventsCostUpdateDLQAlarmARN:
-    Value: !GetAtt PaperEventsCostUpdateDLQ.Outputs.SqsDLQAlarmArn
-    Description: pn-delivery-push_paper_events_costo_update_DLQ alarm ARN
-
-  ActionRouterDLQARN:
-    Value: !GetAtt ActionRouterDLQ.Outputs.QueueARN
-    Description: ActionRouterDLQ queue ARN
-  ActionRouterDLQAlarmARN:
-    Value: !GetAtt ActionRouterDLQ.Outputs.SqsDLQAlarmArn
-    Description: ActionRouterDLQ alarm ARN
-
-  ActionEnqueuerDLQARN:
-    Value: !GetAtt ActionEnqueuerDLQ.Outputs.QueueARN
-    Description: ActionEnqueuerDLQ queue ARN
-  ActionEnqueuerDLQAlarmARN:
-    Value: !GetAtt ActionEnqueuerDLQ.Outputs.SqsDLQAlarmArn
-    Description: ActionEnqueuerDLQ alarm ARN
-
-  ActionTimeoutErrorDLQARN:
-    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueARN
-    Description: ActionTimeoutErrorDLQ queue ARN
-  ActionTimeoutErrorDLQAlarmARN:
-    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.SqsDLQAlarmArn
-    Description: ActionTimeoutErrorDLQ alarm ARN
-  ActionTimeoutErrorDLQURL:
-    Value: !GetAtt ActionTimeoutErrorDLQ.Outputs.QueueURL
-    Description: ActionTimeoutErrorDLQ queue URL
 
   CdcPnFutureActionArn:
     Value: !GetAtt CdcPnFutureActionStream.Outputs.KinesisStreamArn
