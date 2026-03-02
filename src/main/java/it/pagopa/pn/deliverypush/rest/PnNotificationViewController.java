@@ -30,6 +30,7 @@ public class PnNotificationViewController implements EventComunicationApi {
     }
 
     @Override
+    @Deprecated(forRemoval = true)
     public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationViewed(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto, final ServerWebExchange exchange) {
         return requestNotificationViewedDto.flatMap(request -> {
             log.info("Start notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
