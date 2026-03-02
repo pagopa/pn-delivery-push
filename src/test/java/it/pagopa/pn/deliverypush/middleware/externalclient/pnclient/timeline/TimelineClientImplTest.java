@@ -295,7 +295,7 @@ class TimelineClientImplTest {
 
         when(timelineControllerApi.getLegalFacts(iun, recIndex)).thenReturn(expectedResponse);
 
-        LegalFactsResponse actualResponse = timelineControllerApi.getLegalFacts(iun, recIndex);
+        LegalFactsResponse actualResponse = timelineServiceClient.getLegalFacts(iun, recIndex);
 
         assertEquals(expectedResponse, actualResponse);
         Mockito.verify(timelineControllerApi).getLegalFacts(iun, recIndex);

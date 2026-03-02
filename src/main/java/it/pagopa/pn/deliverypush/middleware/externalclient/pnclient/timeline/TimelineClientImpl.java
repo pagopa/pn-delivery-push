@@ -94,6 +94,7 @@ public class TimelineClientImpl implements TimelineClient {
         return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
     }
 
+    @Override
     public LegalFactsResponse getLegalFacts(String iun, Integer recIndex) {
         log.logInvokingExternalService(CLIENT_NAME, GET_LEGAL_FACTS);
         return timelineControllerApi.getLegalFacts(iun, recIndex);
