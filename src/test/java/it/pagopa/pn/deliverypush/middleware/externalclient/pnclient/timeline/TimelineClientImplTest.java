@@ -286,4 +286,18 @@ class TimelineClientImplTest {
                 timelineServiceClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt)
         );
     }
+
+    @Test
+    void getLegalFacts_delegatesToControllerApiAndReturnsResponse() {
+        String iun = "testIun";
+        Integer recIndex = 2;
+        LegalFactsResponse expectedResponse = new LegalFactsResponse();
+
+        when(timelineControllerApi.getLegalFacts(iun, recIndex)).thenReturn(expectedResponse);
+
+        LegalFactsResponse actualResponse = timelineControllerApi.getLegalFacts(iun, recIndex);
+
+        assertEquals(expectedResponse, actualResponse);
+        Mockito.verify(timelineControllerApi).getLegalFacts(iun, recIndex);
+    }
 }

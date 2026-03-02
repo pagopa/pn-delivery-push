@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
@@ -92,5 +92,10 @@ public class TimelineClientImpl implements TimelineClient {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_AND_STATUS_HISTORY);
 
         return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+    }
+
+    public LegalFactsResponse getLegalFacts(String iun, Integer recIndex) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_LEGAL_FACTS);
+        return timelineControllerApi.getLegalFacts(iun, recIndex);
     }
 }

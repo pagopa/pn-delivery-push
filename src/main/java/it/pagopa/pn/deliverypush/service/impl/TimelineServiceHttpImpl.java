@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
@@ -11,6 +12,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHis
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -140,5 +142,12 @@ public class TimelineServiceHttpImpl implements TimelineService {
         }
 
         throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
+    }
+
+    public List<LegalFactsIdIntWithRecIndex> getLegalFacts(String iun, Integer recIndex) {
+        log.debug("getLegalFacts - IUN={}, recIndex={}", iun, recIndex);
+
+        LegalFactsResponse legalFactsResponse = timelineClient.getLegalFacts(iun, recIndex);
+        return LegalFactIdMapper.toLegalFactsIdIntWithRecIndex(legalFactsResponse);
     }
 }
