@@ -41,6 +41,10 @@ class GetLegalFactServiceImplTest {
     private static final String IUN = "fake_iun";
     private static final String TAX_ID = "tax_id";
     private static final String TAX_ID_2 = "tax_id_2";
+    private static final String GENERAL_KEY_LEGALFACT = "GENERAL_KEY_LEGALFACT";
+    private static final String RECIPIENT_1_KEY_LEGALFACT = "RECIPIENT_1_KEY_LEGALFACT";
+    private static final String RECIPIENT_2_KEY_LEGALFACT = "RECIPIENT_2_KEY_LEGALFACT";
+
     private static final String LEGAL_FACT_ID = "LEGAL_FACT_ID";
 
     private TimelineService timelineService;
@@ -69,8 +73,6 @@ class GetLegalFactServiceImplTest {
 
     @Test
     void getLegalFacts_nonPA_returnsFilteredLegalFacts() {
-        String GENERAL_KEY_LEGALFACT = "GENERAL";
-        String RECIPIENT_KEY_LEGALFACT = "RECIPIENT";
         List<LegalFactListElementV20> legalFactsExpectedResult = List.of(
                 LegalFactListElementV20.builder()
                     .iun(IUN)
@@ -84,7 +86,7 @@ class GetLegalFactServiceImplTest {
                         .iun(IUN)
                         .taxId(TAX_ID)
                         .legalFactsId(LegalFactsIdV20.builder()
-                                .key(RECIPIENT_KEY_LEGALFACT)
+                                .key(RECIPIENT_1_KEY_LEGALFACT)
                                 .category(LegalFactCategoryV20.RECIPIENT_ACCESS)
                                 .build()
                         ).build()
@@ -113,7 +115,7 @@ class GetLegalFactServiceImplTest {
                 .category(LegalFactCategoryInt.SENDER_ACK)
                 .build();
         LegalFactsIdIntWithRecIndex recipientRelatedLegalFact = LegalFactsIdIntWithRecIndex.builder()
-                .key(RECIPIENT_KEY_LEGALFACT)
+                .key(RECIPIENT_1_KEY_LEGALFACT)
                 .category(LegalFactCategoryInt.RECIPIENT_ACCESS)
                 .recIndex(0)
                 .build();
@@ -126,9 +128,6 @@ class GetLegalFactServiceImplTest {
 
     @Test
     void getLegalFacts_PA_returnsAllLegalFacts() {
-        String GENERAL_KEY_LEGALFACT = "GENERAL";
-        String RECIPIENT_1_KEY_LEGALFACT = "RECIPIENT_1";
-        String RECIPIENT_2_KEY_LEGALFACT = "RECIPIENT_2";
         List<LegalFactListElementV20> legalFactsExpectedResult = List.of(
                 LegalFactListElementV20.builder()
                         .iun(IUN)
