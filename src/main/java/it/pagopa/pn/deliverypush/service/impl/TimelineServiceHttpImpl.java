@@ -1,9 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.AarResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElement;
@@ -14,15 +12,11 @@ import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT;
 
 @Service
 @Slf4j
@@ -42,13 +36,6 @@ public class TimelineServiceHttpImpl implements TimelineService {
     public Optional<TimelineElementInternal> getTimelineElement(String iun, String timelineId) {
         log.debug("getTimelineElement - IUN={} and timelineId={}", iun, timelineId);
         return Optional.ofNullable(timelineClient.getTimelineElement(iun, timelineId, false));
-    }
-
-    private <T> @NotNull Optional<T> castInternalDetails(Class<T> timelineDetailsClass, TimelineElementDetailsInt timelineElementDetailsInt) {
-        if( timelineElementDetailsInt == null) {
-            return Optional.empty();
-        }
-        return Optional.of(timelineDetailsClass.cast(timelineElementDetailsInt));
     }
 
     @Override
@@ -112,36 +99,13 @@ public class TimelineServiceHttpImpl implements TimelineService {
     @Override
     public boolean isNotificationRefused(String iun) {
         log.debug("isNotificationRefused - IUN={}", iun);
-        try {
-            timelineClient.getRequestRefused(iun);
-            return true;
-        } catch (PnHttpResponseException pnHttpResponseException) {
-            if (pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && pnHttpResponseException.getProblem().getErrors().getFirst().getCode().equals(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT)) {
-                log.debug("Request refused information not found for iun: {}. Returning false.", iun);
-                return false;
-            }
-            else {
-                throw pnHttpResponseException;
-            }
-        }
+        return timelineClient.getRequestRefused(iun).isPresent();
     }
 
     @Override
     public Optional<String> getRecipientAARUrl(String iun, int recIndex) {
         log.debug("getRecipientAARUrl - IUN={}, recIndex={}", iun, recIndex);
-        try {
-            return Optional.ofNullable(timelineClient.getAarForRecipient(iun, recIndex))
+            return timelineClient.getAarForRecipient(iun, recIndex)
                     .map(AarResponse::getUrl);
-        }  catch (PnHttpResponseException pnHttpResponseException) {
-            if (pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
-                    && pnHttpResponseException.getProblem().getErrors().getFirst().getCode().equals(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT)) {
-                log.debug("AAR not found for iun: {}, recIndex: {}. Returning empty Optional.", iun, recIndex);
-                return Optional.empty();
-            }
-            else {
-                throw pnHttpResponseException;
-            }
-        }
     }
 }

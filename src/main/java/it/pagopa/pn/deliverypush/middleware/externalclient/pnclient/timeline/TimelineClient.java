@@ -11,6 +11,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface TimelineClient {
     String CLIENT_NAME = PnLogger.EXTERNAL_SERVICES.PN_TIMELINE_SERVICE;
@@ -35,7 +36,7 @@ public interface TimelineClient {
 
     NotificationHistoryResponse getTimelineAndStatusHistory(String iun, Integer numberOfRecipients, Instant createdAt);
 
-    RequestRefusedResponse getRequestRefused(String iun);
+    Optional<RequestRefusedResponse> getRequestRefused(String iun);
 
-    AarResponse getAarForRecipient(String iun, int recIndex);
+    Optional<AarResponse> getAarForRecipient(String iun, int recIndex);
 }

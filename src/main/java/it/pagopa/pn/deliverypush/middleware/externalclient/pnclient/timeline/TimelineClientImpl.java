@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -87,14 +90,37 @@ public class TimelineClientImpl implements TimelineClient {
     }
 
     @Override
-    public RequestRefusedResponse getRequestRefused(String iun) {
+    public Optional<RequestRefusedResponse> getRequestRefused(String iun) {
         log.logInvokingExternalService(CLIENT_NAME, GET_REQUEST_REFUSED);
-        return timelineControllerApi.getRequestRefused(iun);
+        try {
+            return Optional.of(timelineControllerApi.getRequestRefused(iun));
+        } catch (PnHttpResponseException pnHttpResponseException) {
+            if (isNotFoundError(pnHttpResponseException)) {
+                log.debug("Request refused information not found for iun: {}. Returning empty Optional.", iun);
+                return Optional.empty();
+            }
+
+            throw pnHttpResponseException;
+        }
+    }
+
+    private boolean isNotFoundError(PnHttpResponseException e) {
+        return e.getStatusCode() == HttpStatus.SC_NOT_FOUND
+                && e.getProblem().getErrors().getFirst().getCode().equals(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT);
     }
 
     @Override
-    public AarResponse getAarForRecipient(String iun, int recIndex) {
+    public Optional<AarResponse> getAarForRecipient(String iun, int recIndex) {
         log.logInvokingExternalService(CLIENT_NAME, GET_AAR_FOR_RECIPIENT);
-        return timelineControllerApi.getAarForRecipient(iun, recIndex);
+        try {
+            return Optional.of(timelineControllerApi.getAarForRecipient(iun, recIndex));
+        } catch (PnHttpResponseException pnHttpResponseException) {
+            if (isNotFoundError(pnHttpResponseException)) {
+                log.debug("AAR not found for iun: {}, recIndex: {}. Returning empty Optional.", iun, recIndex);
+                return Optional.empty();
+            }
+
+            throw pnHttpResponseException;
+        }
     }
 }

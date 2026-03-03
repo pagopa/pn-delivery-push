@@ -223,6 +223,93 @@ class TimelineServiceHttpImplTest {
 
     }
 
+    @Test
+    void isNotificationRefused_whenRequestRefusedIsPresent_returnsTrue() {
+        // Arrange
+        String iun = "testIun123";
+        RequestRefusedResponse requestRefusedResponse = new RequestRefusedResponse();
+
+        when(timelineClient.getRequestRefused(iun)).thenReturn(Optional.of(requestRefusedResponse));
+
+        // Act
+        boolean result = timelineServiceHttp.isNotificationRefused(iun);
+
+        // Assert
+        assertTrue(result);
+        Mockito.verify(timelineClient).getRequestRefused(iun);
+    }
+
+    @Test
+    void isNotificationRefused_whenRequestRefusedIsNotPresent_returnsFalse() {
+        // Arrange
+        String iun = "testIun123";
+
+        when(timelineClient.getRequestRefused(iun)).thenReturn(Optional.empty());
+
+        // Act
+        boolean result = timelineServiceHttp.isNotificationRefused(iun);
+
+        // Assert
+        assertFalse(result);
+        Mockito.verify(timelineClient).getRequestRefused(iun);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarExists_returnsUrl() {
+        // Arrange
+        String iun = "testIun456";
+        int recIndex = 0;
+        String expectedUrl = "https://example.com/aar/document.pdf";
+
+        AarResponse aarResponse = new AarResponse();
+        aarResponse.setUrl(expectedUrl);
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.of(aarResponse));
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(expectedUrl, result.get());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarDoesNotExist_returnsEmpty() {
+        // Arrange
+        String iun = "testIun456";
+        int recIndex = 0;
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.empty());
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarExistsButUrlIsNull_returnsEmpty() {
+        // Arrange
+        String iun = "testIun789";
+        int recIndex = 1;
+
+        AarResponse aarResponse = new AarResponse();
+        aarResponse.setUrl(null);
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.of(aarResponse));
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
     private TimelineElementInternal getTimelineElementInternal() {
         Instant timestamp = Instant.ofEpochMilli(1633072800000L);
         TimelineElementInternal element = new TimelineElementInternal();

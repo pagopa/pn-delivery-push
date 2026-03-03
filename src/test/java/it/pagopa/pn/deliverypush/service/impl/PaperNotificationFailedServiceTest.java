@@ -108,6 +108,7 @@ class PaperNotificationFailedServiceTest {
                 .thenReturn( paperNotificationFailedSet );
         Mockito.when( notificationService.getNotificationByIun(Mockito.any())).thenReturn(new NotificationInt());
         Mockito.when( notificationUtils.getRecipientIndexFromInternalId(Mockito.any(), Mockito.any())).thenReturn(0);
+        Mockito.when( timelineService.getRecipientAARUrl(Mockito.any(), Mockito.anyInt())).thenReturn(Optional.empty());
 
         //Then
         StepVerifier.create(paperNotificationFailedService.getPaperNotificationByRecipientId( RECIPIENT_ID, true ))
