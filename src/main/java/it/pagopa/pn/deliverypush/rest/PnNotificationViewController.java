@@ -32,7 +32,7 @@ public class PnNotificationViewController implements EventComunicationApi {
     /**
      * Notifica la visualizzazione di una notifica tramite RADD.
      * 
-     * @deprecated Questo metodo è deprecato con l'intenzione futura di rimuoverlo poichè i suoi client attuali
+     * @deprecated Questo metodo è deprecato con l'intenzione futura di rimuoverlo poiché i suoi client attuali
      * (pn-radd-fsu e pn-service-desk) non sono attivi o non hanno una funzionalità utilizzata in cui viene richiamato l'endpoint.
      *
      * @param iun l'identificativo univoco della notifica
