@@ -223,7 +223,7 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    public Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
+    private Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)
