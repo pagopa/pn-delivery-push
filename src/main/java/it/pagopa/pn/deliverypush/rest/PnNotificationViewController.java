@@ -29,7 +29,19 @@ public class PnNotificationViewController implements EventComunicationApi {
         this.notificationViewedRequestHandler = notificationViewedRequestHandler;
     }
 
+    /**
+     * Notifica la visualizzazione di una notifica tramite RADD.
+     * 
+     * @deprecated Questo metodo è deprecato con l'intenzione futura di rimuoverlo poiché i suoi client attuali
+     * (pn-radd-fsu e pn-service-desk) non sono attivi o non hanno una funzionalità utilizzata in cui viene richiamato l'endpoint.
+     *
+     * @param iun l'identificativo univoco della notifica
+     * @param requestNotificationViewedDto il payload della richiesta di visualizzazione
+     * @param exchange lo scambio web del server
+     * @return una Mono che emette la risposta con i dati di visualizzazione
+     */
     @Override
+    @Deprecated(forRemoval = true)
     public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationViewed(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto, final ServerWebExchange exchange) {
         return requestNotificationViewedDto.flatMap(request -> {
             log.info("Start notifyNotificationViewed - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());

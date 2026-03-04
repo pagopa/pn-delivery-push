@@ -102,50 +102,6 @@ class TimelineEventIdBuilderTest {
     }
 
     @Test
-    void buildREQUEST_REFUSEDTest() {
-        //vecchia versione 123456789_request_refused
-        String timeLineEventIdExpected = "REQUEST_REFUSED.IUN_KWKU-JHXN-HJXM-202304-U-1";
-        String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.REQUEST_REFUSED.getValue())
-                .withIun(IUN)
-                .build();
-
-        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
-
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.REQUEST_REFUSED.buildEventId(EventId
-                .builder()
-                .iun(IUN)
-                .build());
-
-
-        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
-
-    }
-
-    @Test
-    void buildAAR_GENERATIONTest() {
-        //vecchia versione 123456789_aar_gen_1
-        String timeLineEventIdExpected = "AAR_GEN.IUN_KWKU-JHXN-HJXM-202304-U-1.RECINDEX_0";
-        String timeLineEventIdActual = new TimelineEventIdBuilder()
-                .withCategory(TimelineEventId.AAR_GENERATION.getValue())
-                .withIun(IUN)
-                .withRecIndex(0)
-                .build();
-
-        assertThat(timeLineEventIdActual).isEqualTo(timeLineEventIdExpected);
-
-        String timeLineEventIdActualFromBuildEvent = TimelineEventId.AAR_GENERATION.buildEventId(EventId
-                .builder()
-                .iun(IUN)
-                .recIndex(0)
-                .build());
-
-
-        assertThat(timeLineEventIdActualFromBuildEvent).isEqualTo(timeLineEventIdExpected);
-
-    }
-
-    @Test
     void buildNOTIFICATION_CANCELLATION_REQUESTTest() {
         String timeLineEventIdExpected = String.format("NOTIFICATION_CANCELLATION_REQUEST.IUN_%s", IUN);
         String timeLineEventIdActual = new TimelineEventIdBuilder()

@@ -10,9 +10,8 @@ public enum TimelineElementCategoryInt {
     SCHEDULE_REFINEMENT(ScheduleRefinementDetailsInt.class, TimelineElementCategoryV28.SCHEDULE_REFINEMENT.getValue(),TimelineElementCategoryInt.PRIORITY_SCHEDULE_REFINEMENT, TimelineElementCategoryInt.VERSION_10),
     NOTIFICATION_VIEWED_CREATION_REQUEST(NotificationViewedCreationRequestDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_VIEWED_CREATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_10),
     SEND_SIMPLE_REGISTERED_LETTER(SimpleRegisteredLetterDetailsInt.class, TimelineElementCategoryV28.SEND_SIMPLE_REGISTERED_LETTER.getValue(), TimelineElementCategoryInt.VERSION_10),
-    NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_VIEWED.getValue(), TimelineElementCategoryInt.VERSION_10), //legal facts e visualizzazione
+    NOTIFICATION_VIEWED(NotificationViewedDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_VIEWED.getValue(), TimelineElementCategoryInt.VERSION_10), //visualizzazione
     SEND_ANALOG_DOMICILE(SendAnalogDetailsInt.class, TimelineElementCategoryV28.SEND_ANALOG_DOMICILE.getValue(), TimelineElementCategoryInt.VERSION_10),
-    AAR_GENERATION(AarGenerationDetailsInt.class, TimelineElementCategoryV28.AAR_GENERATION.getValue(), TimelineElementCategoryInt.VERSION_10),
     NOTIFICATION_CANCELLATION_REQUEST(NotificationCancellationRequestDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_CANCELLATION_REQUEST.getValue(), TimelineElementCategoryInt.VERSION_20),
     NOTIFICATION_CANCELLED(NotificationCancelledDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_CANCELLED.getValue(), TimelineElementCategoryInt.VERSION_20), //legal facts (Deve rimanere per TimelineUtils.checkIsNotificationCancelledLegalFactId)
     NOTIFICATION_RADD_RETRIEVED(NotificationRADDRetrievedDetailsInt.class, TimelineElementCategoryV28.NOTIFICATION_RADD_RETRIEVED.getValue(), TimelineElementCategoryInt.VERSION_23),

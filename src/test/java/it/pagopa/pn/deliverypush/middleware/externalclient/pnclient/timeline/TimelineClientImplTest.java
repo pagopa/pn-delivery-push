@@ -7,7 +7,6 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.List;
 
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
@@ -150,49 +150,11 @@ class TimelineClientImplTest {
     }
 
     @Test
-    void getTimelineElementDetailForSpecificRecipient_returnsExpectedDetails() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        Boolean confidentialInfoRequired = true;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
-        TimelineElementDetails timelineElementDetails = new AarGenerationDetails().categoryType("AAR_GENERATION");
-        TimelineElementDetailsInt expectedDetails = Mockito.mock(TimelineElementDetailsInt.class);
-
-        when(timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category))
-                .thenReturn(timelineElementDetails);
-
-        when(timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, TimelineElementCategoryInt.AAR_GENERATION))
-                .thenReturn(expectedDetails);
-
-        TimelineElementDetailsInt result = timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, categoryInt);
-
-        assertEquals(expectedDetails, result);
-        Mockito.verify(timelineControllerApi).getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category);
-    }
-
-    @Test
-    void getTimelineElementDetailForSpecificRecipient_throwsException() {
-        String iun = "iun123";
-        Integer recIndex = 1;
-        Boolean confidentialInfoRequired = true;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
-
-        when(timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, category))
-                .thenThrow(new RuntimeException("Errore"));
-
-        assertThrows(RuntimeException.class, () ->
-                timelineServiceClient.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, categoryInt)
-        );
-    }
-
-    @Test
     void getTimelineElementForSpecificRecipient_returnsExpectedElement() {
         String iun = "iun123";
         Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
+        TimelineCategory category = TimelineCategory.REQUEST_ACCEPTED;
+        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.REQUEST_ACCEPTED;
         TimelineElement timelineElement = new TimelineElement();
         TimelineElementInternal expectedElement = Mockito.mock(TimelineElementInternal.class);
 
@@ -211,8 +173,8 @@ class TimelineClientImplTest {
     void getTimelineElementForSpecificRecipient_throwsException() {
         String iun = "iun123";
         Integer recIndex = 1;
-        TimelineCategory category = TimelineCategory.AAR_GENERATION;
-        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.AAR_GENERATION;
+        TimelineCategory category = TimelineCategory.REQUEST_ACCEPTED;
+        TimelineElementCategoryInt categoryInt = TimelineElementCategoryInt.REQUEST_ACCEPTED;
 
         when(timelineControllerApi.getTimelineElementForSpecificRecipient(iun, recIndex, category))
                 .thenThrow(new RuntimeException("Errore"));
@@ -285,5 +247,171 @@ class TimelineClientImplTest {
         assertThrows(RuntimeException.class, () ->
                 timelineServiceClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt)
         );
+    }
+
+    @Test
+    void getRequestRefused_returnsRequestRefusedResponse() {
+        // Arrange
+        String iun = "testIun123";
+        RequestRefusedResponse expectedResponse = new RequestRefusedResponse();
+        expectedResponse.setNotificationCost(100);
+
+        when(timelineControllerApi.getRequestRefused(iun)).thenReturn(expectedResponse);
+
+        // Act
+        var result = timelineServiceClient.getRequestRefused(iun);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(expectedResponse, result.get());
+        Mockito.verify(timelineControllerApi).getRequestRefused(iun);
+    }
+
+    @Test
+    void getRequestRefused_returnsEmptyWhenNotFound() {
+        // Arrange
+        String iun = "testIun456";
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        it.pagopa.pn.common.rest.error.v1.dto.Problem problem = Mockito.mock(it.pagopa.pn.common.rest.error.v1.dto.Problem.class);
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError error = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError();
+        error.setCode(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT);
+
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(exception.getProblem()).thenReturn(problem);
+        when(problem.getErrors()).thenReturn(List.of(error));
+
+        when(timelineControllerApi.getRequestRefused(iun)).thenThrow(exception);
+
+        // Act
+        var result = timelineServiceClient.getRequestRefused(iun);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineControllerApi).getRequestRefused(iun);
+    }
+
+    @Test
+    void getRequestRefused_throwsExceptionWhenNotNotFoundError() {
+        // Arrange
+        String iun = "testIun789";
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        it.pagopa.pn.common.rest.error.v1.dto.Problem problem = Mockito.mock(it.pagopa.pn.common.rest.error.v1.dto.Problem.class);
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError error = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError();
+        error.setCode("DIFFERENT_ERROR_CODE");
+
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(exception.getProblem()).thenReturn(problem);
+        when(problem.getErrors()).thenReturn(List.of(error));
+
+        when(timelineControllerApi.getRequestRefused(iun)).thenThrow(exception);
+
+        // Act & Assert
+        assertThrows(PnHttpResponseException.class, () ->
+                timelineServiceClient.getRequestRefused(iun)
+        );
+        Mockito.verify(timelineControllerApi).getRequestRefused(iun);
+    }
+
+    @Test
+    void getRequestRefused_throwsExceptionWhenInternalServerError() {
+        // Arrange
+        String iun = "testIun999";
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+
+        when(timelineControllerApi.getRequestRefused(iun)).thenThrow(exception);
+
+        // Act & Assert
+        assertThrows(PnHttpResponseException.class, () ->
+                timelineServiceClient.getRequestRefused(iun)
+        );
+        Mockito.verify(timelineControllerApi).getRequestRefused(iun);
+    }
+
+    @Test
+    void getAarForRecipient_returnsAarResponse() {
+        // Arrange
+        String iun = "testIun123";
+        int recIndex = 0;
+        AarResponse expectedResponse = new AarResponse();
+        expectedResponse.setUrl("https://example.com/aar/document.pdf");
+
+        when(timelineControllerApi.getAarForRecipient(iun, recIndex)).thenReturn(expectedResponse);
+
+        // Act
+        var result = timelineServiceClient.getAarForRecipient(iun, recIndex);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(expectedResponse, result.get());
+        Mockito.verify(timelineControllerApi).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getAarForRecipient_returnsEmptyWhenNotFound() {
+        // Arrange
+        String iun = "testIun456";
+        int recIndex = 1;
+        it.pagopa.pn.common.rest.error.v1.dto.Problem problem = new it.pagopa.pn.common.rest.error.v1.dto.Problem();
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError error = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError();
+        error.setCode(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT);
+        problem.setErrors(List.of(error));
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(exception.getProblem()).thenReturn(problem);
+
+        when(timelineControllerApi.getAarForRecipient(iun, recIndex)).thenThrow(exception);
+
+        // Act
+        var result = timelineServiceClient.getAarForRecipient(iun, recIndex);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineControllerApi).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getAarForRecipient_throwsExceptionWhenNotNotFoundError() {
+        // Arrange
+        String iun = "testIun789";
+        int recIndex = 2;
+        it.pagopa.pn.common.rest.error.v1.dto.Problem problem = new it.pagopa.pn.common.rest.error.v1.dto.Problem();
+        it.pagopa.pn.common.rest.error.v1.dto.ProblemError error = new it.pagopa.pn.common.rest.error.v1.dto.ProblemError();
+        error.setCode("DIFFERENT_ERROR_CODE");
+        problem.setErrors(List.of(error));
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
+        when(exception.getProblem()).thenReturn(problem);
+
+        when(timelineControllerApi.getAarForRecipient(iun, recIndex)).thenThrow(exception);
+
+        // Act & Assert
+        assertThrows(PnHttpResponseException.class, () ->
+                timelineServiceClient.getAarForRecipient(iun, recIndex)
+        );
+        Mockito.verify(timelineControllerApi).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getAarForRecipient_throwsExceptionWhenInternalServerError() {
+        // Arrange
+        String iun = "testIun999";
+        int recIndex = 3;
+
+        PnHttpResponseException exception = Mockito.mock(PnHttpResponseException.class);
+        when(exception.getStatusCode()).thenReturn(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+
+        when(timelineControllerApi.getAarForRecipient(iun, recIndex)).thenThrow(exception);
+
+        // Act & Assert
+        assertThrows(PnHttpResponseException.class, () ->
+                timelineServiceClient.getAarForRecipient(iun, recIndex)
+        );
+        Mockito.verify(timelineControllerApi).getAarForRecipient(iun, recIndex);
     }
 }
