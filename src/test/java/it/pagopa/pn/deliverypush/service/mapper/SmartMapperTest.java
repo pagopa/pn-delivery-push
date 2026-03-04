@@ -1,7 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationCancellationRequestDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class SmartMapperTest {
                 .elementId("elementid")
                 .iun("iun")
                 .timestamp(elementTimestamp)
-                .details(AarGenerationDetailsInt.builder()
+                .details(NotificationCancellationRequestDetailsInt.builder()
                         .build())
                 .build();
 

@@ -46,27 +46,6 @@ public enum TimelineEventId {
         }
     },
 
-    REQUEST_REFUSED("REQUEST_REFUSED") {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return new TimelineEventIdBuilder()
-                    .withCategory(this.getValue())
-                    .withIun(eventId.getIun())
-                    .build();
-        }
-    },
-
-    AAR_GENERATION("AAR_GEN") {
-        @Override
-        public String buildEventId(EventId eventId) {
-            return new TimelineEventIdBuilder()
-                    .withCategory(this.getValue())
-                    .withIun(eventId.getIun())
-                    .withRecIndex(eventId.getRecIndex())
-                    .build();
-        }
-    },
-
     NOTIFICATION_CANCELLATION_REQUEST("NOTIFICATION_CANCELLATION_REQUEST") {
         @Override
         public String buildEventId(EventId eventId) {
