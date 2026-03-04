@@ -36,4 +36,22 @@ class SmartMapperTest {
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
 
+    @Test
+    void testTimelineElementInternalMappingTransformer2(){
+        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
+
+        TimelineElementInternal source = TimelineElementInternal.builder()
+                .elementId("elementid")
+                .iun("iun")
+                .timestamp(elementTimestamp)
+                .details(NotificationRADDRetrievedDetailsInt.builder()
+                        .build())
+                .build();
+
+        TimelineElementInternal ret = smartMapper.mapToClass(source, TimelineElementInternal.class);
+
+        Assertions.assertSame(ret, source);
+        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
+    }
+
 }
