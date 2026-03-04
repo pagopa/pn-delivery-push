@@ -1,11 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.papernotificationfailed.PaperNotificationFailed;
-import it.pagopa.pn.deliverypush.dto.timeline.EventId;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponsePaperNotificationFailedDto;
 import it.pagopa.pn.deliverypush.middleware.dao.failednotificationdao.PaperNotificationFailedDao;
@@ -91,34 +87,14 @@ public class PaperNotificationFailedServiceImpl implements PaperNotificationFail
         log.debug( "Start getAAR process - recipientId={} iun={}", recipientId, elem.getIun());
 
         return Mono.fromCallable(() -> notificationService.getNotificationByIun(iun))
-                .map(notificationInt -> buildAARGenerationElementId(notificationInt, iun, recipientId))
-                .flatMap(elementId -> getAarGenerationDetailFromTimeline(iun, elementId))
-                .map(aorDetailsOpt -> {
-                    if(aorDetailsOpt.isPresent()){
-                        log.debug( "Get AAR url Ok - recipientId={} iun={}", recipientId, iun);
-                        AarGenerationDetailsInt details = aorDetailsOpt.get();
-                        return Optional.of(details.getGeneratedAarUrl());
+                .map(notification -> notificationUtils.getRecipientIndexFromInternalId(notification, recipientId))
+                .map(recIndex -> timelineService.getRecipientAARUrl(iun, recIndex))
+                .doOnNext(optional -> {
+                    if(optional.isEmpty()) {
+                        log.warn("AAR url is not present for recipientId={} iun={}", recipientId, iun);
                     } else {
-                        log.error( "Get AAR url ERROR - recipientId={} iun={}", recipientId, iun);
-                        return Optional.empty();
+                        log.debug("AAR url retrieved successfully for recipientId={} iun={}", recipientId, iun);
                     }
                 });
     }
-
-    private String buildAARGenerationElementId(NotificationInt notificationInt, String iun, String recipientId) {
-        int index = notificationUtils.getRecipientIndexFromInternalId(notificationInt, recipientId);
-        log.debug( "getNotification and getIndex Ok - recipientId={} iun={}", recipientId, iun);
-
-        return TimelineEventId.AAR_GENERATION.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .recIndex(index)
-                        .build());
-    }
-
-    private Mono<Optional<AarGenerationDetailsInt>> getAarGenerationDetailFromTimeline(String iun, String elementId) {
-        return Mono.fromCallable(() -> timelineService.getTimelineElementDetails(iun, elementId, AarGenerationDetailsInt.class));
-    }
-
-
 }
