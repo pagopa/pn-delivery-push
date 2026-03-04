@@ -144,6 +144,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
         throw new PnValidationRecipientIdNotValidException(String.format("Recipient %s not found", recipientId));
     }
 
+    @Override
     public List<LegalFactsIdIntWithRecIndex> getLegalFacts(String iun, Integer recIndex) {
         log.debug("getLegalFacts - IUN={}, recIndex={}", iun, recIndex);
 
