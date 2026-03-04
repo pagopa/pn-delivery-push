@@ -83,6 +83,7 @@ paths:
 
   '/delivery-push-private/{iun}/viewed':
     post:
+      deprecated: true
       summary: Notifica che un destinatario ha preso visione di una notifica
       description: >-
         Metodo utilizzato da microservizi interni per notificare che un destinatario
