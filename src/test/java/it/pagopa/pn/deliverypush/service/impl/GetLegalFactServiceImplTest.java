@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.action.it.utils.NotificationTestBuilder;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.address.LegalDigitalAddressInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_NOTFOUND;
@@ -59,6 +61,7 @@ class GetLegalFactServiceImplTest {
     private NotificationUtils notificationUtils;
     private AuthUtils authUtils;
     private GetLegalFactService getLegalFactService;
+    private PnDeliveryPushConfigs cfg;
 
     @BeforeEach
     void setup() {
@@ -66,6 +69,7 @@ class GetLegalFactServiceImplTest {
         safeStorageService = Mockito.mock( SafeStorageServiceImpl.class );
         notificationService = Mockito.mock(NotificationService.class);
         notificationUtils = Mockito.mock(NotificationUtils.class);
+        cfg = Mockito.mock(PnDeliveryPushConfigs.class);
 
         authUtils = Mockito.mock(AuthUtils.class);
 
@@ -74,7 +78,8 @@ class GetLegalFactServiceImplTest {
                 safeStorageService,
                 notificationService,
                 notificationUtils,
-                authUtils);
+                authUtils,
+                cfg);
     }
 
     @Test
@@ -340,7 +345,7 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
-        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
         NotificationInt notificationInt = newNotification();
@@ -377,7 +382,7 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
         NotificationInt notificationInt = newNotification();
@@ -417,7 +422,7 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
         NotificationInt notificationInt = newNotification();
@@ -432,6 +437,94 @@ class GetLegalFactServiceImplTest {
         LegalFactDownloadMetadataWithContentTypeResponse result = resultMono.block();
         assertNotNull(result);
         assertNotNull(result.getFilename());
+        assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
+        assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
+        assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
+    }
+
+    @Test
+    void getAnalogLegalFactMetadata_WithNumberOfPagesAsTag_Success() {
+        //Given
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+        String tagKey = "document_number_of_pages";
+        fileDownloadResponse.setTags(Map.of(tagKey, List.of("5")));
+
+        //When
+        Mockito.when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn(tagKey);
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
+                .thenReturn(Mono.just(fileDownloadResponse));
+
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
+
+        Mono<LegalFactDownloadMetadataWithContentTypeResponse> resultMono = getLegalFactService.getLegalFactMetadataWithContentType(IUN, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        //Then
+        assertNotNull( resultMono );
+        LegalFactDownloadMetadataWithContentTypeResponse result = resultMono.block();
+        assertNotNull(result);
+        assertNotNull(result.getFilename());
+        assertEquals(5, result.getNumberOfPages());
+        assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
+        assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
+        assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
+    }
+
+    @Test
+    void getAnalogLegalFactMetadata_WithInvalidNumberOfPagesFormat() {
+        //Given
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile(null, null);
+            urls[0] = new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileDownloadResponseInt fileDownloadResponse = new FileDownloadResponseInt();
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setContentLength(new BigDecimal(0));
+        fileDownloadResponse.setChecksum("123");
+        fileDownloadResponse.setKey("123");
+        fileDownloadResponse.setDownload(new FileDownloadInfoInt());
+        fileDownloadResponse.getDownload().setUrl("https://www.url.qualcosa.it");
+        fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
+        String tagKey = "document_number_of_pages";
+        fileDownloadResponse.setTags(Map.of(tagKey, List.of("invalidFormat")));
+
+        //When
+        Mockito.when(cfg.getDocumentNumberOfPagesTagKey()).thenReturn(tagKey);
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
+                .thenReturn(Mono.just(fileDownloadResponse));
+
+        NotificationInt notificationInt = newNotification();
+        NotificationRecipientInt recipientInt = notificationInt.getRecipients().get(0);
+        Mockito.when(notificationService.getNotificationByIun(anyString()))
+                .thenReturn(notificationInt);
+
+        Mono<LegalFactDownloadMetadataWithContentTypeResponse> resultMono = getLegalFactService.getLegalFactMetadataWithContentType(IUN, LEGAL_FACT_ID, recipientInt.getInternalId(), null, CxTypeAuthFleet.PF, null);
+
+        //Then
+        assertNotNull( resultMono );
+        LegalFactDownloadMetadataWithContentTypeResponse result = resultMono.block();
+        assertNotNull(result);
+        assertNotNull(result.getFilename());
+        assertNull(result.getNumberOfPages());
         assertEquals(fileDownloadResponse.getDownload().getUrl(), result.getUrl());
         assertEquals(fileDownloadResponse.getDownload().getRetryAfter(), result.getRetryAfter());
         assertEquals(fileDownloadResponse.getContentLength(), result.getContentLength());
@@ -457,7 +550,7 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
         NotificationInt notificationInt = newNotification();
@@ -497,7 +590,7 @@ class GetLegalFactServiceImplTest {
         fileDownloadResponse.getDownload().setRetryAfter(new BigDecimal(0));
 
         //When
-        Mockito.when(safeStorageService.getFile(anyString(), eq(false)))
+        Mockito.when(safeStorageService.getFile(anyString(), eq(false), eq(true)))
                 .thenReturn(Mono.just(fileDownloadResponse));
 
         NotificationInt notificationInt = newNotification();

@@ -38,11 +38,11 @@ class SafeStorageServiceImplTest {
         fileDownloadResponse.setDocumentStatus("status");
         fileDownloadResponse.setDocumentType("type");
         
-        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(fileDownloadResponse));
         
         //WHEN
-        Mono<FileDownloadResponseInt> responseMono = safeStorageService.getFile("test", true);
+        Mono<FileDownloadResponseInt> responseMono = safeStorageService.getFile("test", true, false);
         
         //THEN
         Assertions.assertNotNull(responseMono);
@@ -57,10 +57,10 @@ class SafeStorageServiceImplTest {
     @ExtendWith(SpringExtension.class)
     void getFileError() {
         //GIVEN
-        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(safeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
                 .thenReturn( Mono.error(new PnInternalException("test", "test")) );
 
-        Mono<FileDownloadResponseInt> mono = safeStorageService.getFile("test", true);
+        Mono<FileDownloadResponseInt> mono = safeStorageService.getFile("test", true, false);
         
         //WHEN
         Assertions.assertThrows( PnInternalException.class, mono::block);

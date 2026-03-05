@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
@@ -23,13 +24,11 @@ import it.pagopa.pn.deliverypush.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -40,17 +39,19 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     private final NotificationService notificationService;
     private final NotificationUtils notificationUtils;
     private final AuthUtils authUtils;
+    private final PnDeliveryPushConfigs cfg;
 
     public GetLegalFactServiceImpl(TimelineService timelineService,
                                    SafeStorageService safeStorageService,
                                    NotificationService notificationService,
                                    NotificationUtils notificationUtils,
-                                   AuthUtils authUtils) {
+                                   AuthUtils authUtils, PnDeliveryPushConfigs cfg) {
         this.timelineService = timelineService;
         this.safeStorageService = safeStorageService;
         this.notificationService = notificationService;
         this.notificationUtils = notificationUtils;
         this.authUtils = authUtils;
+        this.cfg = cfg;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
                 })
                 .flatMap(logEvent ->
                         // la key è la legalfactId
-                        safeStorageService.getFile(legalfactId, false)
+                        safeStorageService.getFile(legalfactId, false, true)
                                 .onErrorResume(exc -> {
                                             logEvent.generateFailure("Exception in getLegalFactMetadata", exc).log();
                                             return Mono.error(exc);
@@ -133,9 +134,27 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         response.setFilename(FileUtils.buildFileName(iun, legalFactType == null ? null : legalFactType.getValue(), legalfactId, fileDownloadResponse.getContentType()));
         response.setContentLength(fileDownloadResponse.getContentLength());
         response.setContentType(fileDownloadResponse.getContentType());
+        response.setNumberOfPages(retrieveNumberOfPages(fileDownloadResponse.getTags()));
         response.setRetryAfter(fileDownloadResponse.getDownload() != null ? fileDownloadResponse.getDownload().getRetryAfter() : null);
         response.setUrl(fileDownloadResponse.getDownload().getUrl());
         return response;
+    }
+
+    private Integer retrieveNumberOfPages(Map<String, List<String>> documentTags) {
+        if (CollectionUtils.isEmpty(documentTags)) {
+            return null;
+        }
+        List<String> tagValues = documentTags.get(cfg.getDocumentNumberOfPagesTagKey());
+        if (CollectionUtils.isEmpty(tagValues)) {
+            return null;
+        }
+        String tagValue = tagValues.getFirst();
+        try {
+            return Integer.valueOf(tagValue);
+        } catch (NumberFormatException ex) {
+            log.warn("Unable to parse document number of pages tag value '{}' for key '{}'", tagValue, cfg.getDocumentNumberOfPagesTagKey(), ex);
+            return null;
+        }
     }
 
     private void generateSuccessAuditLog(String iun, String legalfactId, String senderReceiverId, PnAuditLogEvent logEvent, String fileName, String url, BigDecimal retryAfter) {
