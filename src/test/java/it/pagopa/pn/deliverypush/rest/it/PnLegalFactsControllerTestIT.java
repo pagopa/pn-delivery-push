@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest.it;
 
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadInfoInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
@@ -30,6 +31,7 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
         GetLegalFactServiceImpl.class,
         PnLegalFactsController.class,
         PnLegalFactsControllerTestIT.SpringTestConfiguration.class,
+        PnDeliveryPushConfigs.class
 })
 @WebFluxTest
 class PnLegalFactsControllerTestIT {
@@ -60,7 +62,7 @@ class PnLegalFactsControllerTestIT {
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";
 
-        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(
                 Mono.just(FileDownloadResponseInt.builder()
                         .key("key")
                         .download(
@@ -120,7 +122,7 @@ class PnLegalFactsControllerTestIT {
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";
 
-        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(
             Mono.just(FileDownloadResponseInt.builder()
                 .key("key")
                 .download(
@@ -160,7 +162,7 @@ class PnLegalFactsControllerTestIT {
         String legalFactType = LegalFactCategory.SENDER_ACK.getValue();
         String legalFactsId = "id100";
 
-        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(
+        Mockito.when(safeStorageService.getFile(Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(
             Mono.just(FileDownloadResponseInt.builder()
                 .key("key")
                 .download(
