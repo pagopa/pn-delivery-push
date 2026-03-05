@@ -414,4 +414,18 @@ class TimelineClientImplTest {
         );
         Mockito.verify(timelineControllerApi).getAarForRecipient(iun, recIndex);
     }
+
+    @Test
+    void getLegalFacts_delegatesToControllerApiAndReturnsResponse() {
+        String iun = "testIun";
+        Integer recIndex = 2;
+        LegalFactsResponse expectedResponse = new LegalFactsResponse();
+
+        when(timelineControllerApi.getLegalFacts(iun, recIndex)).thenReturn(expectedResponse);
+
+        LegalFactsResponse actualResponse = timelineServiceClient.getLegalFacts(iun, recIndex);
+
+        assertEquals(expectedResponse, actualResponse);
+        Mockito.verify(timelineControllerApi).getLegalFacts(iun, recIndex);
+    }
 }

@@ -1,14 +1,17 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.AarResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.LegalFactsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElement;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.TimelineService;
+import it.pagopa.pn.deliverypush.service.mapper.LegalFactIdMapper;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,5 +110,13 @@ public class TimelineServiceHttpImpl implements TimelineService {
         log.debug("getRecipientAARUrl - IUN={}, recIndex={}", iun, recIndex);
             return timelineClient.getAarForRecipient(iun, recIndex)
                     .map(AarResponse::getUrl);
+    }
+
+    @Override
+    public List<LegalFactsIdIntWithRecIndex> getLegalFacts(String iun, Integer recIndex) {
+        log.debug("getLegalFacts - IUN={}, recIndex={}", iun, recIndex);
+
+        LegalFactsResponse legalFactsResponse = timelineClient.getLegalFacts(iun, recIndex);
+        return LegalFactIdMapper.toLegalFactsIdIntWithRecIndex(legalFactsResponse);
     }
 }

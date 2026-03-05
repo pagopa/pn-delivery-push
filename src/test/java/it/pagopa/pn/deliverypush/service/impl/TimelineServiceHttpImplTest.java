@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
@@ -325,5 +326,38 @@ class TimelineServiceHttpImplTest {
         element.setIngestionTimestamp(timestamp);
         element.setEventTimestamp(timestamp);
         return element;
+    }
+
+    @Test
+    void getLegalFacts_returnsMappedLegalFacts() {
+        String iun = "IUN";
+        Integer recIndex = 1;
+
+        LegalFactWithRecIndex fact = new LegalFactWithRecIndex();
+        fact.setKey("key1");
+        fact.setRecIndex(recIndex);
+
+        LegalFactsResponse response = new LegalFactsResponse();
+        response.setLegalFacts(List.of(fact));
+
+        when(timelineClient.getLegalFacts(iun, recIndex)).thenReturn(response);
+
+        List<LegalFactsIdIntWithRecIndex> result = timelineServiceHttp.getLegalFacts(iun, recIndex);
+
+        assertEquals(1, result.size());
+        assertEquals("key1", result.getFirst().getKey());
+        assertEquals(recIndex, result.getFirst().getRecIndex());
+    }
+
+    @Test
+    void getLegalFacts_nullResponse_returnsEmptyList() {
+        String iun = "IUN";
+        Integer recIndex = 1;
+
+        when(timelineClient.getLegalFacts(iun, recIndex)).thenReturn(null);
+
+        List<LegalFactsIdIntWithRecIndex> result = timelineServiceHttp.getLegalFacts(iun, recIndex);
+
+        assertTrue(result.isEmpty());
     }
 }

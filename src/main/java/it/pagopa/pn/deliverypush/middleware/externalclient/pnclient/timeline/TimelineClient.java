@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.AarResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.LegalFactsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.RequestRefusedResponse;
 
@@ -23,6 +24,7 @@ public interface TimelineClient {
     String GET_TIMELINE_AND_STATUS_HISTORY = "GET TIMELINE AND STATUS HISTORY";
     String GET_REQUEST_REFUSED = "GET REQUEST REFUSED";
     String GET_AAR_FOR_RECIPIENT = "GET AAR FOR RECIPIENT";
+    String GET_LEGAL_FACTS = "GET LEGAL FACTS";
 
     boolean addTimelineElement(TimelineElementInternal element, NotificationInt notification);
 
@@ -39,4 +41,6 @@ public interface TimelineClient {
     Optional<RequestRefusedResponse> getRequestRefused(String iun);
 
     Optional<AarResponse> getAarForRecipient(String iun, int recIndex);
+
+    LegalFactsResponse getLegalFacts(String iun, Integer recIndex);
 }
