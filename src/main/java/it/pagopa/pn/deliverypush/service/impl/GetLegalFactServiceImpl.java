@@ -9,9 +9,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
 import it.pagopa.pn.deliverypush.dto.ext.safestorage.FileDownloadResponseInt;
-import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.RecipientRelatedTimelineElementDetails;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -167,12 +165,17 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
     @Override
     @NotNull
     public List<LegalFactListElementV20> getLegalFacts(String iun, String senderReceiverId, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
-        log.debug("Retrieve timeline elements for iun={}", iun);
-        Set<TimelineElementInternal> timelineElements = timelineService.getTimeline(iun, true);
+        log.debug("getLegalFacts for iun={}", iun);
 
         NotificationInt notification = notificationService.getNotificationByIun(iun);
 
         String recipientId = authUtils.checkUserPaAndMandateAuthorizationAndRetrieveRealRecipientId(notification, senderReceiverId, mandateId, cxType, cxGroups);
+        Integer recIndex = null;
+        // Se il chiamante non è una PA, allora recupero l'indice del recipient
+        if(cxType != CxTypeAuthFleet.PA) {
+            recIndex = notificationUtils.getRecipientIndexFromInternalId(notification, recipientId);
+        }
+
         PnAuditLogEventType eventType = AuditLogUtils.getAuditLogEventType(notification, senderReceiverId, mandateId);
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -183,18 +186,18 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         logEvent.log();
 
         try {
-            List<LegalFactListElementV20> legalFacts = timelineElements
+            /*
+                Se fornisco un recIndex valorizzato, l'api in risposta restituirà i legal facts filtrati:
+                Dunque avrò tutti i legal facts associati al recipient, e anche quelli generali per una notifica (es. quelli associati ad un timeline element non legato ad un recipient specifico).
+                Altrimenti, se recIndex è null, restituirà i legal facts di tutti i recipients associati alla notifica, senza filtri.
+            */
+            List<LegalFactListElementV20> legalFacts = timelineService.getLegalFacts(iun, recIndex)
                     .stream()
-                    .filter(timeEl -> timeEl.getLegalFactsIds() != null)
-                    .filter(timeEl -> checkIfLegalFactCanBeViewed(notification, recipientId, cxType, timeEl))
-                    .sorted(Comparator.comparing(TimelineElementInternal::getTimestamp))
-                    .flatMap(timeEl -> timeEl.getLegalFactsIds().stream().map(
-                            lfId -> LegalFactListElementV20.builder()
-                                    .taxId(readRecipientId(timeEl, notification))
-                                    .iun(iun)
-                                    .legalFactsId(LegalFactIdMapper.internalToExternal(lfId))
-                                    .build()
-                    ))
+                    .map(legalFactsIdIntWithRecIndex -> LegalFactListElementV20.builder()
+                            .taxId(readRecipientId(legalFactsIdIntWithRecIndex, notification))
+                            .iun(iun)
+                            .legalFactsId(LegalFactIdMapper.internalToExternal(legalFactsIdIntWithRecIndex))
+                            .build())
                     .toList();
 
             log.debug("legalFacts List={}", legalFacts);
@@ -208,26 +211,12 @@ public class GetLegalFactServiceImpl implements GetLegalFactService {
         }
     }
 
-    private boolean checkIfLegalFactCanBeViewed(NotificationInt notification, String senderReceiverId, CxTypeAuthFleet cxType, TimelineElementInternal timeEl) {
-        if (cxType == CxTypeAuthFleet.PA)
-            return true;
-        else if (timeEl.getDetails() instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
-            return senderReceiverId.equals(notification.getRecipients().get(recipientRelatedTimelineElementDetails.getRecIndex()).getInternalId());
-        } else
-            return true;
-    }
-
-    private String readRecipientId(TimelineElementInternal timelineElement, NotificationInt notification) {
+    private String readRecipientId(LegalFactsIdIntWithRecIndex legalFactsIdIntWithRecIndex, NotificationInt notification) {
         String recipientId = null;
 
-        if (timelineElement != null) {
-            TimelineElementDetailsInt details = timelineElement.getDetails();
-            if (details instanceof RecipientRelatedTimelineElementDetails recipientRelatedTimelineElementDetails) {
-
-                int recIndex = recipientRelatedTimelineElementDetails.getRecIndex();
-                NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, recIndex);
-                recipientId = recipient.getTaxId();
-            }
+        if (legalFactsIdIntWithRecIndex.getRecIndex() != null) {
+            NotificationRecipientInt recipient = notificationUtils.getRecipientFromIndex(notification, legalFactsIdIntWithRecIndex.getRecIndex());
+            recipientId = recipient.getTaxId();
         }
 
         return recipientId;

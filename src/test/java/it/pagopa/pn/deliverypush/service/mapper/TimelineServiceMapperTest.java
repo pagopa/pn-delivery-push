@@ -20,8 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class TimelineServiceMapperTest {
@@ -142,6 +141,52 @@ class TimelineServiceMapperTest {
         assertEquals("ELEM1", elem.getElementId());
         assertEquals(TimelineElementCategoryV28.NOTIFICATION_VIEWED, elem.getCategory());
         assertNotNull(elem.getDetails());
+    }
+
+    @Test
+    void toTimelineElementInternal_nullInput_returnsNull() {
+        assertNull(timelineServiceMapper.toTimelineElementInternal(null));
+    }
+
+    @Test
+    void toTimelineElementInternal_mapsAllFieldsCorrectly() {
+
+        NotificationViewedDetails details = new NotificationViewedDetails();
+        details.setRecIndex(0);
+        details.setEventTimestamp(Instant.now());
+
+        LegalFactsId legalFactsId = new LegalFactsId().key("key1").category(LegalFactsId.CategoryEnum.SENDER_ACK);
+        StatusInfo statusInfo = new StatusInfo().actual("DELIVERED").statusChangeTimestamp(Instant.now()).statusChanged(true);
+
+        TimelineElement timelineElement = new TimelineElement()
+                .iun("IUN_TEST")
+                .elementId("ELEM_ID")
+                .timestamp(Instant.now())
+                .paId("PA_ID")
+                .legalFactsIds(List.of(legalFactsId))
+                .category(TimelineCategory.NOTIFICATION_VIEWED)
+                .details(details)
+                .statusInfo(statusInfo)
+                .notificationSentAt(Instant.now())
+                .ingestionTimestamp(Instant.now())
+                .eventTimestamp(Instant.now());
+
+        TimelineElementInternal result = timelineServiceMapper.toTimelineElementInternal(timelineElement);
+
+        assertNotNull(result);
+        assertEquals("IUN_TEST", result.getIun());
+        assertEquals("ELEM_ID", result.getElementId());
+        assertEquals("PA_ID", result.getPaId());
+        assertEquals(TimelineElementCategoryInt.NOTIFICATION_VIEWED, result.getCategory());
+        assertEquals(1, result.getLegalFactsIds().size());
+        assertEquals(LegalFactCategoryInt.SENDER_ACK, result.getLegalFactsIds().getFirst().getCategory());
+        assertInstanceOf(NotificationViewedDetailsInt.class, result.getDetails());
+        assertEquals(details.getRecIndex(), ((NotificationViewedDetailsInt) result.getDetails()).getRecIndex());
+        assertNotNull(result.getStatusInfo());
+        assertEquals("DELIVERED", result.getStatusInfo().getActual());
+        assertNotNull(result.getNotificationSentAt());
+        assertNotNull(result.getIngestionTimestamp());
+        assertNotNull(result.getEventTimestamp());
     }
 
 }
