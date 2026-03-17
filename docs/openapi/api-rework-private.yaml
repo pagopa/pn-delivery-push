@@ -21,6 +21,7 @@ servers:
 
 tags:
   - name: ReworkV1
+  - name: NotificationRework
 
 paths:
   '/delivery-push-private/v1/notifications/{iun}/rework':
