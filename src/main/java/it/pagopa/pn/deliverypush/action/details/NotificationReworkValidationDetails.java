@@ -16,4 +16,5 @@ public class NotificationReworkValidationDetails {
     private String reworkRecIndex;
     private String reworkExpectedFinalStatus;
     private String reason;
+    private boolean restartAttempt;
 }
