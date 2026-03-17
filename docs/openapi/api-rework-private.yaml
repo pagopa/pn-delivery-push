@@ -78,7 +78,7 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '404':
-          description: Notification found
+          description: Notification not found
           content:
             application/problem+json:
               schema:
@@ -118,6 +118,47 @@ paths:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
         '404':
           description: Rework request not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+  '/delivery-push-private/v1/notifications/{iun}/restart-attempt':
+    put:
+      summary: Restart attempt notifica
+      description: >-
+        Permette il restart completo dell'attempt di una notifica
+      tags:
+        - NotificationRework
+      operationId: restartAttempt
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestartAttemptRequest'
+        required: true
+      responses:
+        '200':
+          description: Accepted - Richiesta di restart presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RestartAttemptResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Notification not found
           content:
             application/problem+json:
               schema:
@@ -299,3 +340,30 @@ components:
           statusTimestamp:
             description: required only for receivedStatusCode
             type: string
+
+    RestartAttemptRequest:
+      type: object
+      properties:
+        attemptId:
+          type: string
+          enum:
+            - ATTEMPT_0
+            - ATTEMPT_1
+        recIndex:
+          type: string
+          pattern: '^RECINDEX_([1-9][0-9]?|0)$'
+          example: 'RECINDEX_0'
+        reason:
+          type: string
+      required:
+        - attemptId
+        - reason
+
+    RestartAttemptResponse:
+      type: object
+      properties:
+        reworkId:
+          type: string
+        creationDate:
+          type: string
+          format: date-time
