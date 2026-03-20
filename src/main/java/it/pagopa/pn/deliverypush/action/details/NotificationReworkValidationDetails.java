@@ -1,5 +1,6 @@
 package it.pagopa.pn.deliverypush.action.details;
 
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +17,5 @@ public class NotificationReworkValidationDetails {
     private String reworkRecIndex;
     private String reworkExpectedFinalStatus;
     private String reason;
-    private boolean restartAttempt;
+    private RequestTypeEnum requestType;
 }

@@ -19,6 +19,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResp
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -250,6 +251,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setAttemptId(restartNotificationReworkRequestDto.getAttemptId());
         entity.setRecIndex(restartNotificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
+        entity.setRequestType(RequestTypeEnum.RESTART);
         return entity;
     }
 
@@ -258,7 +260,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkAttempt(restartAttemptRequestDto.getAttemptId());
         details.setReworkRecIndex(restartAttemptRequestDto.getRecIndex());
         details.setReworkId(reworkId);
-        details.setRestartAttempt(true);
+        details.setRequestType(RequestTypeEnum.RESTART);
         return details;
     }
 }
