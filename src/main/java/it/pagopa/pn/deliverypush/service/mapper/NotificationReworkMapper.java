@@ -2,10 +2,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusCodeItem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.UpdateReworkRequest;
+import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
@@ -87,6 +85,19 @@ public class NotificationReworkMapper {
         internal.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internal;
+    }
+
+    public static RestartAttemptRequestInternal externalToInternal(RestartAttemptRequest externalRequest, String iun) {
+        RestartAttemptRequestInternal internalRequest = new RestartAttemptRequestInternal();
+        internalRequest.setIun(iun);
+        internalRequest.setAttemptId(externalRequest.getAttemptId().getValue());
+        if (Objects.isNull(externalRequest.getRecIndex())) {
+            internalRequest.setRecIndex("RECINDEX_0");
+        } else {
+            internalRequest.setRecIndex(externalRequest.getRecIndex());
+        }
+        internalRequest.setReason(externalRequest.getReason());
+        return internalRequest;
     }
 
 }

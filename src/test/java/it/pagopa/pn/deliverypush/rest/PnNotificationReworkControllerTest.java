@@ -2,20 +2,19 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +24,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(PnNotificationReworkController.class)
@@ -33,10 +34,10 @@ public class PnNotificationReworkControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     NotificationReworkService service;
 
-    @MockBean
+    @MockitoBean
     PnDeliveryPushConfigs configs;
 
     private ReworkRequest getRequest() {
@@ -52,6 +53,21 @@ public class PnNotificationReworkControllerTest {
     private ReworkResponse seqResponse() {
         ReworkResponse response = new ReworkResponse();
         response.setReworkId("REWORK_0_"+ UUID.randomUUID());
+        response.setCreationDate(Instant.now());
+        return response;
+    }
+
+    private RestartAttemptRequest getRestartAttemptRequest() {
+        RestartAttemptRequest req = new RestartAttemptRequest();
+        req.setAttemptId(RestartAttemptRequest.AttemptIdEnum.values()[0]);
+        req.setRecIndex("RECINDEX_1");
+        req.setReason("REASON_RESTART");
+        return req;
+    }
+
+    private RestartAttemptResponse restartAttemptResponse() {
+        RestartAttemptResponse response = new RestartAttemptResponse();
+        response.setReworkId("RESTART_" + UUID.randomUUID());
         response.setCreationDate(Instant.now());
         return response;
     }
@@ -243,6 +259,57 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", internal.getIun());
         Assertions.assertEquals("RECRN002C", internal.getExpectedStatusCode());
         Assertions.assertEquals("M02", internal.getExpectedDeliveryFailureCause());
+    }
+
+    @Test
+    void restartAttemptRequest() {
+        RestartAttemptRequest request = getRestartAttemptRequest();
+
+        ArgumentCaptor<RestartAttemptRequestInternal> captor =
+                ArgumentCaptor.forClass(RestartAttemptRequestInternal.class);
+        when(service.createRestartAttemptRequest(captor.capture()))
+                .thenReturn(Mono.just(restartAttemptResponse()));
+        when(configs.isRestartAttemptEnabled()).thenReturn(true);
+
+        webTestClient.put()
+                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/restart-attempt")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), RestartAttemptRequest.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(RestartAttemptResponse.class).consumeWith(
+                        elem -> {
+                            RestartAttemptResponse response = elem.getResponseBody();
+                            assert response != null;
+                            Assertions.assertTrue(response.getReworkId().startsWith("RESTART_"));
+                            Assertions.assertNotNull(response.getCreationDate());
+                        }
+                );
+
+        RestartAttemptRequestInternal value = captor.getValue();
+        Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", value.getIun());
+        Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
+        Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
+        Assertions.assertEquals("REASON_RESTART", value.getReason());
+    }
+
+    @Test
+    void restartAttemptRequestWithFeatureFlagDisabled() {
+        RestartAttemptRequest request = getRestartAttemptRequest();
+        when(configs.isRestartAttemptEnabled()).thenReturn(false);
+
+        webTestClient.put()
+                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/restart-attempt")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), RestartAttemptRequest.class)
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+
+        verify(service, never()).createRestartAttemptRequest(any());
     }
 
 
