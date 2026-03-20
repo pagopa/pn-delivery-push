@@ -8,5 +8,4 @@ public class RestartAttemptRequestInternal {
     private String attemptId;
     private String recIndex;
     private String reason;
-    private String productType;
 }

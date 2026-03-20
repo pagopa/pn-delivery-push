@@ -224,10 +224,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     public Mono<RestartAttemptResponse> createRestartAttemptRequest(RestartAttemptRequestInternal restartAttemptRequestDto) {
         RestartAttemptResponse reworkResponse = new RestartAttemptResponse();
         return notificationService.getNotificationByIunReactive(restartAttemptRequestDto.getIun())
-                .flatMap(notificationInt -> {
-                    restartAttemptRequestDto.setProductType(resolveProductType(notificationInt.getPhysicalCommunicationType()));
-                    return retrieveAndEvaluateReworkRequest(restartAttemptRequestDto.getIun(), restartAttemptRequestDto.getRecIndex());
-                })
+                .flatMap(notificationInt -> retrieveAndEvaluateReworkRequest(restartAttemptRequestDto.getIun(), restartAttemptRequestDto.getRecIndex()))
                 .doOnNext(reworkResponse::setReworkId)
                 .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewRestartAttemptEntity(reworkId, restartAttemptRequestDto)))
                 .flatMap(entity ->
