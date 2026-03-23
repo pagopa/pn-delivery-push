@@ -1,4 +1,5 @@
 package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity;
+
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -35,6 +36,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_ATTEMPTID = "attemptId";
     public static final String FIELD_PCRETRY = "pcRetry";
     public static final String FIELD_RECINDEX = "recIndex";
+    public static final String FIELD_REQUEST_TYPE = "requestType";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
     private String iun;
@@ -83,6 +85,9 @@ public class NotificationReworksEntity {
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_RECINDEX)}))
     private String recIndex;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
+    private RequestTypeEnum requestType;
 
     public static class ReworkIdBuilder {
         private static final Pattern TRY_PATTERN = Pattern.compile("TRY_(\\d+)");
