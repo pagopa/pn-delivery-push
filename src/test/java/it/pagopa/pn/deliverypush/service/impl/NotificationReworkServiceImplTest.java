@@ -516,7 +516,7 @@ class NotificationReworkServiceImplTest {
         assertThat(action.getDetails()).contains("\"reworkId\":\"REWORK_0.TRY_0.RECINDEX_0\"");
         assertThat(action.getDetails()).contains("\"reworkAttempt\":\"ATTEMPT_0\"");
         assertThat(action.getDetails()).contains("\"reworkRecIndex\":\"RECINDEX_0\"");
-        assertThat(action.getDetails()).contains("\"restartAttempt\":true");
+        assertThat(action.getDetails()).contains("\"requestType\":\"RESTART\"");
     }
 
     @Test
