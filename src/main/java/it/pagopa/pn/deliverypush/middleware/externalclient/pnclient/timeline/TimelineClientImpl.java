@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.api.TimelineControllerApi;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+
+import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT;
 
 @CustomLog
 @RequiredArgsConstructor
@@ -61,14 +64,6 @@ public class TimelineClientImpl implements TimelineClient {
     }
 
     @Override
-    public TimelineElementDetailsInt getTimelineElementDetailForSpecificRecipient(String iun, Integer recIndex, Boolean confidentialInfoRequired, TimelineElementCategoryInt category) {
-        log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_DETAIL_FOR_SPECIFIC_RECIPIENT);
-
-        TimelineElementDetails timelineElementDetails = timelineControllerApi.getTimelineElementDetailForSpecificRecipient(iun, recIndex, confidentialInfoRequired, TimelineCategory.fromValue(category.name()));
-        return timelineServiceMapper.toTimelineElementDetailsInt(timelineElementDetails, category);
-    }
-
-    @Override
     public TimelineElementInternal getTimelineElementForSpecificRecipient(String iun, Integer recIndex, TimelineElementCategoryInt category) {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_ELEMENT_FOR_SPECIFIC_RECIPIENT);
 
@@ -92,5 +87,46 @@ public class TimelineClientImpl implements TimelineClient {
         log.logInvokingExternalService(CLIENT_NAME, GET_TIMELINE_AND_STATUS_HISTORY);
 
         return timelineControllerApi.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+    }
+
+    @Override
+    public Optional<RequestRefusedResponse> getRequestRefused(String iun) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_REQUEST_REFUSED);
+        try {
+            return Optional.of(timelineControllerApi.getRequestRefused(iun));
+        } catch (PnHttpResponseException pnHttpResponseException) {
+            if (isNotFoundError(pnHttpResponseException)) {
+                log.debug("Request refused information not found for iun: {}. Returning empty Optional.", iun);
+                return Optional.empty();
+            }
+
+            throw pnHttpResponseException;
+        }
+    }
+
+    private boolean isNotFoundError(PnHttpResponseException e) {
+        return e.getStatusCode() == HttpStatus.SC_NOT_FOUND
+                && e.getProblem().getErrors().getFirst().getCode().equals(ERROR_CODE_DELIVERYPUSH_TIMELINEELEMENTNOTPRESENT);
+    }
+
+    @Override
+    public Optional<AarResponse> getAarForRecipient(String iun, int recIndex) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_AAR_FOR_RECIPIENT);
+        try {
+            return Optional.of(timelineControllerApi.getAarForRecipient(iun, recIndex));
+        } catch (PnHttpResponseException pnHttpResponseException) {
+            if (isNotFoundError(pnHttpResponseException)) {
+                log.debug("AAR not found for iun: {}, recIndex: {}. Returning empty Optional.", iun, recIndex);
+                return Optional.empty();
+            }
+
+            throw pnHttpResponseException;
+        }
+    }
+
+    @Override
+    public LegalFactsResponse getLegalFacts(String iun, Integer recIndex) {
+        log.logInvokingExternalService(CLIENT_NAME, GET_LEGAL_FACTS);
+        return timelineControllerApi.getLegalFacts(iun, recIndex);
     }
 }

@@ -1,8 +1,7 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.AarGenerationDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendDigitalFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationRADDRetrievedDetailsInt;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,8 @@ class SmartMapperTest {
                 .elementId("elementid")
                 .iun("iun")
                 .timestamp(elementTimestamp)
-                .details(SendDigitalFeedbackDetailsInt.builder()
-                        .notificationDate(eventTimestamp)
+                .details(NotificationRADDRetrievedDetailsInt.builder()
+                        .eventTimestamp(eventTimestamp)
                         .build())
                 .build();
 
@@ -37,44 +36,21 @@ class SmartMapperTest {
         Assertions.assertEquals(eventTimestamp, ret.getTimestamp());
     }
 
-
     @Test
-    void testTimelineElementInternalMappingTransformerNo1(){
+    void testTimelineElementInternalMappingTransformer2(){
         Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
-
-        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
 
         TimelineElementInternal source = TimelineElementInternal.builder()
                 .elementId("elementid")
                 .iun("iun")
                 .timestamp(elementTimestamp)
-                .details(SendDigitalFeedbackDetailsInt.builder()
-                        .notificationDate(null)
+                .details(NotificationRADDRetrievedDetailsInt.builder()
                         .build())
                 .build();
 
         TimelineElementInternal ret = smartMapper.mapToClass(source, TimelineElementInternal.class);
 
-        Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
-    }
-
-    @Test
-    void testTimelineElementInternalMappingTransformerNo2(){
-        Instant elementTimestamp = Instant.EPOCH.plusMillis(100);
-
-        Instant eventTimestamp = Instant.EPOCH.plusMillis(10);
-
-        TimelineElementInternal source = TimelineElementInternal.builder()
-                .elementId("elementid")
-                .iun("iun")
-                .timestamp(elementTimestamp)
-                .details(AarGenerationDetailsInt.builder()
-                        .build())
-                .build();
-
-        TimelineElementInternal ret = smartMapper.mapToClass(source, TimelineElementInternal.class);
-
-
+        Assertions.assertSame(ret, source);
         Assertions.assertEquals(elementTimestamp, ret.getTimestamp());
     }
 
