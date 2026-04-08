@@ -10,12 +10,6 @@
     "MountEfs": "false",
     "PnCronAnalyzer": "-",
     "WireTapLogActivation": "false",
-    "CdcPnActionShards": "8",
-    "CdcPnFutureActionShards": "4",
-    "CdcPnActionStreamRetentionHours": "168",
-    "CdcPnFutureActionStreamRetentionHours": "168",
-    "CdcActionStandardAlarmThresholdsMs": "2000000",
-    "CdcActionOnCallAlarmThresholdsMs": "2000000",
     "AttemptTimeoutSec": "7",
     "NumRetry": "3"
     }

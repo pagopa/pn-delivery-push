@@ -1,33 +1,28 @@
 package it.pagopa.pn.deliverypush.service.impl;
 
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
-import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationRecipientInt;
+import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.dto.timeline.StatusInfoInternal;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
-import it.pagopa.pn.deliverypush.dto.timeline.details.ProbableDateAnalogWorkflowDetailsInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.SendAnalogFeedbackDetailsInt;
+import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
-import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
-import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ProbableSchedulingAnalogDateResponse;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import it.pagopa.pn.deliverypush.service.mapper.TimelineServiceMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -148,141 +143,6 @@ class TimelineServiceHttpImplTest {
     }
 
     @Test
-    void getTimelineElementDetailsReturnsMappedDetails() {
-        String iun = "iun123";
-        String timelineId = "timeline123";
-        TimelineElementDetailsInt timelineElementDetails = Mockito.mock(TimelineElementDetailsInt.class);
-
-        Mockito.when(timelineClient.getTimelineElementDetails(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(timelineElementDetails);
-
-        Optional<TimelineElementDetailsInt> result = timelineServiceHttp.getTimelineElementDetails(iun, timelineId, TimelineElementDetailsInt.class);
-
-        assertTrue(result.isPresent());
-    }
-
-    @Test
-    void getTimelineElementDetailForSpecificRecipientReturnsMappedDetails() {
-        String iun = "iun123";
-        int recIndex = 0;
-        boolean confidentialInfoRequired = true;
-        TimelineElementCategoryInt category = TimelineElementCategoryInt.AAR_GENERATION;
-        TimelineElementDetailsInt timelineElementDetails = Mockito.mock(TimelineElementDetailsInt.class);
-
-
-        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
-                iun,
-                recIndex,
-                confidentialInfoRequired,
-                category
-        )).thenReturn(timelineElementDetails);
-
-        Optional<TimelineElementDetailsInt> result = timelineServiceHttp.getTimelineElementDetailForSpecificRecipient(
-                iun, recIndex, confidentialInfoRequired, category, TimelineElementDetailsInt.class);
-
-        assertTrue(result.isPresent());
-    }
-
-    @Test
-    void getTimelineByIunTimelineIdReturnsMappedSet() {
-        String iun = "iunTest";
-        String timelineId = "timelineIdTest";
-        boolean confidentialInfoRequired = true;
-        TimelineElementInternal timelineElementInternal = new TimelineElementInternal();
-
-        Mockito.when(timelineClient.getTimeline(
-                iun,
-                confidentialInfoRequired,
-                false,
-                timelineId
-        )).thenReturn(Collections.singletonList(timelineElementInternal));
-
-        Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineByIunTimelineId(iun, timelineId, confidentialInfoRequired);
-
-        assertEquals(1, result.size());
-    }
-
-    @Test
-    void getTimelineByIunTimelineIdReturnsEmptySetWhenClientReturnsNull() {
-        String iun = "iunTest";
-        String timelineId = "timelineIdTest";
-        boolean confidentialInfoRequired = true;
-
-        Mockito.when(timelineClient.getTimeline(
-                iun,
-                confidentialInfoRequired,
-                false,
-                timelineId
-        )).thenReturn(null);
-
-        Set<TimelineElementInternal> result = timelineServiceHttp.getTimelineByIunTimelineId(iun, timelineId, confidentialInfoRequired);
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void getSchedulingAnalogDateOKTest() {
-        final String iun = "iun1";
-        final String recipientId = "cxId";
-
-        String timelineElementIdExpected = "PROBABLE_SCHEDULING_ANALOG_DATE_0";
-        Instant schedulingDate = Instant.now();
-        TimelineElementInternal timelineElementExpected = TimelineElementInternal.builder()
-                .elementId(timelineElementIdExpected)
-                .timestamp(schedulingDate)
-                .category(TimelineElementCategoryInt.PROBABLE_SCHEDULING_ANALOG_DATE)
-                .details(ProbableDateAnalogWorkflowDetailsInt.builder()
-                        .schedulingAnalogDate(schedulingDate)
-                        .recIndex(0)
-                        .build())
-                .build();
-
-        Mockito.when(notificationService.getNotificationByIunReactive(iun))
-                .thenReturn(Mono.just(NotificationInt.builder()
-                        .recipients(List.of(NotificationRecipientInt.builder()
-                                .internalId(recipientId)
-                                .build()))
-                        .build()));
-
-        ProbableDateAnalogWorkflowDetailsInt details = new ProbableDateAnalogWorkflowDetailsInt();
-        details.setSchedulingAnalogDate(schedulingDate);
-        details.setRecIndex(0);
-
-        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(details);
-
-        ProbableSchedulingAnalogDateResponse schedulingAnalogDateActual = timelineServiceHttp.getSchedulingAnalogDate(iun, recipientId).block();
-
-        assertNotNull(schedulingAnalogDateActual);
-        assertThat(schedulingAnalogDateActual.getSchedulingAnalogDate())
-                .isEqualTo(((ProbableDateAnalogWorkflowDetailsInt) timelineElementExpected.getDetails()).getSchedulingAnalogDate());
-
-        assertThat(schedulingAnalogDateActual.getIun()).isEqualTo(iun);
-        assertThat(schedulingAnalogDateActual.getRecIndex()).isZero();
-    }
-
-    @Test
-    void getSchedulingAnalogDateNotFoundTest() {
-        final String iun = "iun1";
-        final String recipientId = "cxId";
-
-        Mockito.when(notificationService.getNotificationByIunReactive(iun))
-                .thenReturn(Mono.just(NotificationInt.builder()
-                        .recipients(List.of(NotificationRecipientInt.builder()
-                                .internalId(recipientId)
-                                .build()))
-                        .build()));
-
-        Mockito.when(timelineClient.getTimelineElementDetailForSpecificRecipient(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())
-                )
-                .thenReturn(null);
-
-        Executable executable = () -> timelineServiceHttp.getSchedulingAnalogDate(iun, recipientId).block();
-        Assertions.assertThrows(PnNotFoundException.class, executable);
-    }
-
-    @Test
     void getTimelineAndStatusHistory_ReturnsMappedResponse() {
         String iun = "iunTest";
         int numberOfRecipients = 2;
@@ -369,6 +229,93 @@ class TimelineServiceHttpImplTest {
 
     }
 
+    @Test
+    void isNotificationRefused_whenRequestRefusedIsPresent_returnsTrue() {
+        // Arrange
+        String iun = "testIun123";
+        RequestRefusedResponse requestRefusedResponse = new RequestRefusedResponse();
+
+        when(timelineClient.getRequestRefused(iun)).thenReturn(Optional.of(requestRefusedResponse));
+
+        // Act
+        boolean result = timelineServiceHttp.isNotificationRefused(iun);
+
+        // Assert
+        assertTrue(result);
+        Mockito.verify(timelineClient).getRequestRefused(iun);
+    }
+
+    @Test
+    void isNotificationRefused_whenRequestRefusedIsNotPresent_returnsFalse() {
+        // Arrange
+        String iun = "testIun123";
+
+        when(timelineClient.getRequestRefused(iun)).thenReturn(Optional.empty());
+
+        // Act
+        boolean result = timelineServiceHttp.isNotificationRefused(iun);
+
+        // Assert
+        assertFalse(result);
+        Mockito.verify(timelineClient).getRequestRefused(iun);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarExists_returnsUrl() {
+        // Arrange
+        String iun = "testIun456";
+        int recIndex = 0;
+        String expectedUrl = "https://example.com/aar/document.pdf";
+
+        AarResponse aarResponse = new AarResponse();
+        aarResponse.setUrl(expectedUrl);
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.of(aarResponse));
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(expectedUrl, result.get());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarDoesNotExist_returnsEmpty() {
+        // Arrange
+        String iun = "testIun456";
+        int recIndex = 0;
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.empty());
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
+    @Test
+    void getRecipientAARUrl_whenAarExistsButUrlIsNull_returnsEmpty() {
+        // Arrange
+        String iun = "testIun789";
+        int recIndex = 1;
+
+        AarResponse aarResponse = new AarResponse();
+        aarResponse.setUrl(null);
+
+        when(timelineClient.getAarForRecipient(iun, recIndex)).thenReturn(Optional.of(aarResponse));
+
+        // Act
+        Optional<String> result = timelineServiceHttp.getRecipientAARUrl(iun, recIndex);
+
+        // Assert
+        assertFalse(result.isPresent());
+        Mockito.verify(timelineClient).getAarForRecipient(iun, recIndex);
+    }
+
     private TimelineElementInternal getTimelineElementInternal() {
         Instant timestamp = Instant.ofEpochMilli(1633072800000L);
         TimelineElementInternal element = new TimelineElementInternal();
@@ -378,11 +325,44 @@ class TimelineServiceHttpImplTest {
         element.setPaId("pa123");
         element.setLegalFactsIds(new ArrayList<>());
         element.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED);
-        element.setDetails(SendAnalogFeedbackDetailsInt.builder().build());
+        element.setDetails(NotificationViewedDetailsInt.builder().build());
         element.setStatusInfo(StatusInfoInternal.builder().actual("actual").build());
         element.setNotificationSentAt(timestamp);
         element.setIngestionTimestamp(timestamp);
         element.setEventTimestamp(timestamp);
         return element;
+    }
+
+    @Test
+    void getLegalFacts_returnsMappedLegalFacts() {
+        String iun = "IUN";
+        Integer recIndex = 1;
+
+        LegalFactWithRecIndex fact = new LegalFactWithRecIndex();
+        fact.setKey("key1");
+        fact.setRecIndex(recIndex);
+
+        LegalFactsResponse response = new LegalFactsResponse();
+        response.setLegalFacts(List.of(fact));
+
+        when(timelineClient.getLegalFacts(iun, recIndex)).thenReturn(response);
+
+        List<LegalFactsIdIntWithRecIndex> result = timelineServiceHttp.getLegalFacts(iun, recIndex);
+
+        assertEquals(1, result.size());
+        assertEquals("key1", result.getFirst().getKey());
+        assertEquals(recIndex, result.getFirst().getRecIndex());
+    }
+
+    @Test
+    void getLegalFacts_nullResponse_returnsEmptyList() {
+        String iun = "IUN";
+        Integer recIndex = 1;
+
+        when(timelineClient.getLegalFacts(iun, recIndex)).thenReturn(null);
+
+        List<LegalFactsIdIntWithRecIndex> result = timelineServiceHttp.getLegalFacts(iun, recIndex);
+
+        assertTrue(result.isEmpty());
     }
 }

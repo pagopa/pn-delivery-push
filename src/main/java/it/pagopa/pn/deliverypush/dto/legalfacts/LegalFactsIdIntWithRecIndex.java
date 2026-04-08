@@ -7,7 +7,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @Getter
 @ToString
-public class LegalFactsIdInt {
-    private String key;
-    private LegalFactCategoryInt category;
+public class LegalFactsIdIntWithRecIndex extends LegalFactsIdInt {
+    private Integer recIndex;
 }

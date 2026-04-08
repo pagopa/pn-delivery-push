@@ -143,7 +143,7 @@ public class TimelineServiceMapper {
         return legalFactsIdList.stream()
                 .map(legalFactsId -> {
                     assert legalFactsId.getCategory() != null;
-                    return LegalFactsIdInt.builder()
+                    return (LegalFactsIdInt) LegalFactsIdInt.builder()
                             .key(legalFactsId.getKey())
                             .category(LegalFactCategoryInt.valueOf(legalFactsId.getCategory().getValue()))
                             .build();

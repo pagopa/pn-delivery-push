@@ -1,11 +1,9 @@
 package it.pagopa.pn.deliverypush.dto.timeline;
 
-import static java.lang.Boolean.TRUE;
-
-import it.pagopa.pn.deliverypush.dto.address.CourtesyDigitalAddressInt;
-import it.pagopa.pn.deliverypush.dto.address.DigitalAddressSourceInt;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
+
+import static java.lang.Boolean.TRUE;
 
 
 /**
@@ -62,12 +60,6 @@ public class TimelineEventIdBuilder {
         return this;
     }
 
-    public TimelineEventIdBuilder withSource(@Nullable DigitalAddressSourceInt source) {
-        if(source != null)
-            this.source = DELIMITER.concat("SOURCE_").concat(source.getValue());
-        return this;
-    }
-
     public TimelineEventIdBuilder withSentAttemptMade(@Nullable Integer sentAttemptMade) {
         if(sentAttemptMade != null && sentAttemptMade >= 0)
             this.sentAttemptMade = DELIMITER.concat("ATTEMPT_").concat(sentAttemptMade + "");
@@ -84,12 +76,6 @@ public class TimelineEventIdBuilder {
     public TimelineEventIdBuilder withCorrelationId(@Nullable String correlationId) {
         if(correlationId != null)
             this.correlationId = DELIMITER.concat("CORRELATIONID_").concat(correlationId);
-        return this;
-    }
-
-    public TimelineEventIdBuilder withCourtesyAddressType(@Nullable CourtesyDigitalAddressInt.COURTESY_DIGITAL_ADDRESS_TYPE_INT courtesyAddressType) {
-        if(courtesyAddressType != null)
-            this.courtesyAddressType = DELIMITER.concat("COURTESYADDRESSTYPE_").concat(courtesyAddressType.getValue());
         return this;
     }
 

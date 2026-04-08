@@ -56,6 +56,8 @@ public class PnDeliveryPushConfigs {
 
     private boolean notificationReworkEnabled;
 
+    private String documentNumberOfPagesTagKey;
+
     @Data
     public static class FailedNotificationDao {
         private String tableName;

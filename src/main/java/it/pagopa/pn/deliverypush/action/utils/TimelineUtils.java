@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static it.pagopa.pn.deliverypush.dto.timeline.TimelineEventId.*;
@@ -160,9 +159,9 @@ public class TimelineUtils {
                         .iun(iun)
                         .build());
 
-        Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
+        Optional<TimelineElementInternal> notificationElement = timelineService.getTimelineElement(iun, elementId);
 
-        boolean isNotificationCancelled = notificationElements != null && !notificationElements.isEmpty();
+        boolean isNotificationCancelled = notificationElement.isPresent();
         log.debug("NotificationCancelled value is={}", isNotificationCancelled);
 
         return isNotificationCancelled;
@@ -187,20 +186,6 @@ public class TimelineUtils {
         }
         
         return false;
-    }
-
-    public boolean checkIsNotificationRefused(String iun) {
-        String elementId = REQUEST_REFUSED.buildEventId(
-                EventId.builder()
-                        .iun(iun)
-                        .build());
-
-        Set<TimelineElementInternal> notificationElements = timelineService.getTimelineByIunTimelineId(iun, elementId, false);
-
-        boolean isNotificationRefused = notificationElements != null && !notificationElements.isEmpty();
-        log.debug("NotificationRefused value is={}", isNotificationRefused);
-
-        return isNotificationRefused;
     }
 
     public TimelineElementInternal buildNotificationRaddRetrieveTimelineElement(
@@ -238,7 +223,7 @@ public class TimelineUtils {
         return timelineService.getTimelineElement(iun, elementId);
     }
 
-    public Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
+    private Optional<TimelineElementInternal> getNotificationViewCreationRequest(String iun, Integer recIndex) {
         String elementId = TimelineEventId.NOTIFICATION_VIEWED_CREATION_REQUEST.buildEventId(
                 EventId.builder()
                         .iun(iun)

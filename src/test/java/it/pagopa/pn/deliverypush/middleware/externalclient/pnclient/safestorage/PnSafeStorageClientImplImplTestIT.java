@@ -166,7 +166,7 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
                         .withStatusCode(200)
                 );
 
-        Mono<FileDownloadResponse> response = client.getFile(fileKey, true);
+        Mono<FileDownloadResponse> response = client.getFile(fileKey, true, false);
 
         FileDownloadResponse fileDownloadResponse = response.block();
         Assertions.assertNotNull(fileDownloadResponse);
@@ -198,7 +198,7 @@ class PnSafeStorageClientImplImplTestIT extends MockAWSObjectsTest {
                         .withContentType(MediaType.APPLICATION_JSON)
                         .withStatusCode(404)
                 );
-        Mono<FileDownloadResponse> fileDownloadResponseMono = client.getFile(fileKey, true);
+        Mono<FileDownloadResponse> fileDownloadResponseMono = client.getFile(fileKey, true, false);
 
         Assertions.assertThrows(RuntimeException.class, fileDownloadResponseMono::block);
     }
