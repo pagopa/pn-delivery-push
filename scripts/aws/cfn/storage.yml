@@ -194,6 +194,8 @@ Resources:
 
   TimelinesCounterTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
     Properties:
       TableName: !Sub '${ProjectName}-TimelinesCounters'
       AttributeDefinitions:
