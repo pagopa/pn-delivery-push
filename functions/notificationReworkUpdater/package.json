@@ -33,6 +33,6 @@
     "axios": "^1.6.8",
     "config": "^3.3.11",
     "pn-action-common": "file:../../functionsLib/actionCommon",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   }
 }
