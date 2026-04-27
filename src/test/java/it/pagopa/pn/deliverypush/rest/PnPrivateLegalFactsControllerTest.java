@@ -339,7 +339,7 @@ class PnPrivateLegalFactsControllerTest {
     void getLegalFactsGoneException() {
         Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(
                 anyString(), anyString(), anyString(), anyString(), any(), any()))
-            .thenThrow(new PnFileGoneException("File is gone", new RuntimeException()));
+                .thenReturn(Mono.error(new PnFileGoneException("File is gone", new RuntimeException())));
 
         String legalFactsId = "id100";
 
