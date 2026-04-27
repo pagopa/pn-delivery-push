@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
@@ -9,10 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -32,9 +33,9 @@ class PnPrivateLegalFactsControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private GetLegalFactService getLegalFactService;
-    @MockBean
+    @MockitoBean
     private TimelineUtils timelineUtils;
     @Test
     void getNotificationLegalFactsSuccess() {
@@ -332,5 +333,36 @@ class PnPrivateLegalFactsControllerTest {
             .expectStatus()
             .isOk();
         Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), anyString(), anyString(), anyString(), any(), any());
+    }
+
+    @Test
+    void getLegalFactsGoneException() {
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(
+                anyString(), anyString(), anyString(), anyString(), any(), any()))
+                .thenReturn(Mono.error(new PnFileGoneException("File is gone", new RuntimeException())));
+
+        String legalFactsId = "id100";
+
+        webTestClient.get()
+            .uri(uriBuilder ->
+                uriBuilder
+                    .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
+                    .queryParam("mandateId", "mandateId")
+                    .queryParam("recipientInternalId", "testRecipientInternalId")
+                    .queryParam("x-pagopa-pn-cx-type", "PF")
+                    .build())
+            .accept(MediaType.ALL)
+            .header(HttpHeaders.ACCEPT, "application/json")
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.GONE)
+            .expectBody(Problem.class)
+            .consumeWith(response -> {
+                Problem problem = response.getResponseBody();
+                assert problem != null;
+                Assertions.assertEquals(HttpStatus.GONE.value(), problem.getStatus());
+            });
+
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(
+            anyString(), anyString(), anyString(), anyString(), any(), any());
     }
 }
