@@ -2,7 +2,6 @@ package it.pagopa.pn.deliverypush.service;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
-import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RestartAttemptResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
@@ -16,5 +15,5 @@ public interface NotificationReworkService {
 
     Mono<Void> updateNotificationRework(String iun, NotificationUpdateReworkRequestInternal updateReworkRequest, String reworkId);
 
-    Mono<RestartAttemptResponse> createRestartAttemptRequest(RestartAttemptRequestInternal restartReworkRequestDto);
+    Mono<RestartAttemptResponse> createRestartAttemptRequest(NotificationReworkRequestInternal restartReworkRequestDto);
 }

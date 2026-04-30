@@ -6,7 +6,6 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
-import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
@@ -15,6 +14,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.S
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -196,6 +196,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getExpectedStatusCodes().get(0).getAttachments().get(0)).isEqualTo("Plico");
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+        assertThat(saved.getRequestType()).isNull();
 
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
@@ -507,6 +508,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getReason()).isEqualTo("RESTART_REASON");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getExpectedStatusCodes()).isNull();
+        assertThat(saved.getRequestType()).isEqualTo(RequestTypeEnum.RESTART);
 
         // Verifica action inviata
         NewAction action = actionCaptor.getValue();
@@ -540,12 +542,13 @@ class NotificationReworkServiceImplTest {
                 .updateStatusError(eq("IUN_123"), eq("REWORK_0.TRY_0.RECINDEX_0"), any());
     }
 
-    private RestartAttemptRequestInternal sampleRestartAttemptRequest() {
-        RestartAttemptRequestInternal req = new RestartAttemptRequestInternal();
+    private NotificationReworkRequestInternal sampleRestartAttemptRequest() {
+        NotificationReworkRequestInternal req = new NotificationReworkRequestInternal();
         req.setIun("IUN_123");
         req.setAttemptId("ATTEMPT_0");
         req.setRecIndex("RECINDEX_0");
         req.setReason("RESTART_REASON");
+        req.setRequestType(RequestTypeEnum.RESTART);
         return req;
     }
 

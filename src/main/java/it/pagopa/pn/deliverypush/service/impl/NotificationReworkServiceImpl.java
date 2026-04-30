@@ -8,7 +8,6 @@ import it.pagopa.pn.deliverypush.action.details.SequenceItemInternal;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
-import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
@@ -123,15 +122,18 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setReworkId(reworkId);
         entity.setIun(notificationReworkRequestDto.getIun());
         entity.setReason(notificationReworkRequestDto.getReason());
-        entity.setExpectedStatusCodes(mapToStatusCodeEntity(sequenceResponse.getSequence()));
+        if (Objects.nonNull(sequenceResponse)) {
+            entity.setExpectedStatusCodes(mapToStatusCodeEntity(sequenceResponse.getSequence()));
+            entity.setExpectedFinalStatus(Objects.nonNull(sequenceResponse.getFinalStatusCode()) ? sequenceResponse.getFinalStatusCode().getValue() : null);
+        }
         entity.setExpectedDeliveryFailureCause(notificationReworkRequestDto.getExpectedDeliveryFailureCause());
-        entity.setExpectedFinalStatus(Objects.nonNull(sequenceResponse.getFinalStatusCode()) ? sequenceResponse.getFinalStatusCode().getValue() : null);
         entity.setIdx(ReworkIdBuilder.extractReworkIdx(reworkId));
         entity.setCreatedAt(Instant.now());
         entity.setAttemptId(notificationReworkRequestDto.getAttemptId());
         entity.setPcRetry(notificationReworkRequestDto.getPcRetry());
         entity.setRecIndex(notificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
+        entity.setRequestType(notificationReworkRequestDto.getRequestType());
         return entity;
     }
 
@@ -169,10 +171,13 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         NotificationReworkValidationDetails details = new NotificationReworkValidationDetails();
         details.setReworkId(reworkId);
         details.setReworkAttempt(notificationReworkRequestDto.getAttemptId());
-        details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
-        details.setReworkExpectedFinalStatus(finalStatusCode);
-        details.setReason(notificationReworkRequestDto.getReason());
+        details.setRequestType(notificationReworkRequestDto.getRequestType());
+        if (!RequestTypeEnum.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
+            details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
+            details.setReworkExpectedFinalStatus(finalStatusCode);
+            details.setReason(notificationReworkRequestDto.getReason());
+        }
         return details;
     }
 
@@ -222,15 +227,15 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     }
 
     @Override
-    public Mono<RestartAttemptResponse> createRestartAttemptRequest(RestartAttemptRequestInternal restartAttemptRequestDto) {
+    public Mono<RestartAttemptResponse> createRestartAttemptRequest(NotificationReworkRequestInternal restartAttemptRequestDto) {
         RestartAttemptResponse reworkResponse = new RestartAttemptResponse();
         return notificationService.getNotificationByIunReactive(restartAttemptRequestDto.getIun())
                 .flatMap(notificationInt -> retrieveAndEvaluateReworkRequest(restartAttemptRequestDto.getIun(), restartAttemptRequestDto.getRecIndex()))
                 .doOnNext(reworkResponse::setReworkId)
-                .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewRestartAttemptEntity(reworkId, restartAttemptRequestDto)))
+                .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkId, restartAttemptRequestDto, null)))
                 .flatMap(entity ->
                         Mono.defer(() -> {
-                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity.getIun(), entity.getIun() + "_" + entity.getReworkId(), ActionType.NOTIFICATION_REWORK_VALIDATION, getValidationDetailsAsString(getRestartAttemptDetails(entity.getReworkId(), restartAttemptRequestDto))));
+                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity.getIun(), entity.getIun() + "_" + entity.getReworkId(), ActionType.NOTIFICATION_REWORK_VALIDATION, getValidationDetailsAsString(getNotificationReworkValidationDetails(entity.getReworkId(), restartAttemptRequestDto, null))));
                                     return Mono.just(entity);
                                 })
                                 .onErrorResume(ex -> notificationReworkDao.updateStatusError(restartAttemptRequestDto.getIun(), reworkResponse.getReworkId(), ex.getMessage())
@@ -239,28 +244,5 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                     reworkResponse.setCreationDate(notificationReworksEntity.getCreatedAt());
                     return reworkResponse;
                 });
-    }
-
-    private NotificationReworksEntity constructNewRestartAttemptEntity(String reworkId, RestartAttemptRequestInternal restartNotificationReworkRequestDto) {
-        NotificationReworksEntity entity = new NotificationReworksEntity();
-        entity.setReworkId(reworkId);
-        entity.setIun(restartNotificationReworkRequestDto.getIun());
-        entity.setReason(restartNotificationReworkRequestDto.getReason());
-        entity.setIdx(ReworkIdBuilder.extractReworkIdx(reworkId));
-        entity.setCreatedAt(Instant.now());
-        entity.setAttemptId(restartNotificationReworkRequestDto.getAttemptId());
-        entity.setRecIndex(restartNotificationReworkRequestDto.getRecIndex());
-        entity.setStatus(ReworkRequestStatus.CREATED);
-        entity.setRequestType(RequestTypeEnum.RESTART);
-        return entity;
-    }
-
-    private static NotificationReworkValidationDetails getRestartAttemptDetails(String reworkId, RestartAttemptRequestInternal restartAttemptRequestDto) {
-        NotificationReworkValidationDetails details = new NotificationReworkValidationDetails();
-        details.setReworkAttempt(restartAttemptRequestDto.getAttemptId());
-        details.setReworkRecIndex(restartAttemptRequestDto.getRecIndex());
-        details.setReworkId(reworkId);
-        details.setRequestType(RequestTypeEnum.RESTART);
-        return details;
     }
 }

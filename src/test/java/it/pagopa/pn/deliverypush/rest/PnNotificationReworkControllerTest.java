@@ -2,9 +2,9 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
-import it.pagopa.pn.deliverypush.dto.notificationrework.RestartAttemptRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -265,8 +265,8 @@ public class PnNotificationReworkControllerTest {
     void restartAttemptRequest() {
         RestartAttemptRequest request = getRestartAttemptRequest();
 
-        ArgumentCaptor<RestartAttemptRequestInternal> captor =
-                ArgumentCaptor.forClass(RestartAttemptRequestInternal.class);
+        ArgumentCaptor<NotificationReworkRequestInternal> captor =
+                ArgumentCaptor.forClass(NotificationReworkRequestInternal.class);
         when(service.createRestartAttemptRequest(captor.capture()))
                 .thenReturn(Mono.just(restartAttemptResponse()));
         when(configs.isRestartAttemptEnabled()).thenReturn(true);
@@ -288,11 +288,12 @@ public class PnNotificationReworkControllerTest {
                         }
                 );
 
-        RestartAttemptRequestInternal value = captor.getValue();
+        NotificationReworkRequestInternal value = captor.getValue();
         Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", value.getIun());
         Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("REASON_RESTART", value.getReason());
+        Assertions.assertEquals(RequestTypeEnum.RESTART, value.getRequestType());
     }
 
     @Test
