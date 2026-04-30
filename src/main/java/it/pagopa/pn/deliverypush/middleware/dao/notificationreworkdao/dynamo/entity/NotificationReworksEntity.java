@@ -87,7 +87,7 @@ public class NotificationReworksEntity {
     private String recIndex;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
-    private RequestTypeEnum requestType;
+    private RequestType requestType;
 
     public static class ReworkIdBuilder {
         private static final Pattern TRY_PATTERN = Pattern.compile("TRY_(\\d+)");
