@@ -2,5 +2,5 @@ package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.en
 
 public enum RequestType {
     REWORK,
-    RESTART,
+    RESTART
 }
