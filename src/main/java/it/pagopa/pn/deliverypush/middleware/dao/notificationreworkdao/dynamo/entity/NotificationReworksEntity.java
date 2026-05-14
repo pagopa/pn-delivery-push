@@ -37,6 +37,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_PCRETRY = "pcRetry";
     public static final String FIELD_RECINDEX = "recIndex";
     public static final String FIELD_REQUEST_TYPE = "requestType";
+    public static final String FIELD_TASK = "task";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
     private String iun;
@@ -87,7 +88,10 @@ public class NotificationReworksEntity {
     private String recIndex;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
-    private RequestType requestType;
+    private RequestTypeEnum requestType;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
+    private String task;
 
     public static class ReworkIdBuilder {
         private static final Pattern TRY_PATTERN = Pattern.compile("TRY_(\\d+)");
