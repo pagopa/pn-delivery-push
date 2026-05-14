@@ -1,10 +1,13 @@
 package it.pagopa.pn.deliverypush.exceptions;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
+import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 
-public class PnConflictException extends PnInternalException {
+import java.util.List;
+
+public class PnConflictException extends PnRuntimeException {
 
   public PnConflictException(String errorCode, String message) {
-    super(message, 409, errorCode);
+    super(message, errorCode, 409, List.of(ProblemError.builder().code(errorCode).detail(message).build()));
   }
 }
