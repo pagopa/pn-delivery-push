@@ -56,6 +56,8 @@ public class PnDeliveryPushConfigs {
 
     private boolean notificationReworkEnabled;
 
+    private boolean restartAttemptEnabled;
+
     private String documentNumberOfPagesTagKey;
 
     @Data

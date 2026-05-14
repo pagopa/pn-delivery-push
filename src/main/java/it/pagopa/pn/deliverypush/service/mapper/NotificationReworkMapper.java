@@ -2,10 +2,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.StatusCodeItem;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.UpdateReworkRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
@@ -17,20 +15,33 @@ import java.util.Objects;
 
 public class NotificationReworkMapper {
 
+    private static final String DEFAULT_REC_INDEX = "RECINDEX_0";
+    
     public static NotificationReworkRequestInternal externalToInternal(ReworkRequest externalRequest, String iun) {
         NotificationReworkRequestInternal internalRequest = new NotificationReworkRequestInternal();
         internalRequest.setIun(iun);
         internalRequest.setAttemptId(externalRequest.getAttemptId().getValue());
         internalRequest.setPcRetry(externalRequest.getPcRetry());
-        if (Objects.isNull(externalRequest.getRecIndex())) {
-            internalRequest.setRecIndex("RECINDEX_0");
-        } else {
-            internalRequest.setRecIndex(externalRequest.getRecIndex());
-        }
+        internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internalRequest;
+    }
+
+    public static NotificationReworkRequestInternal externalToInternal(RestartAttemptRequest externalRequest, String iun) {
+        NotificationReworkRequestInternal internalRequest = new NotificationReworkRequestInternal();
+        internalRequest.setIun(iun);
+        internalRequest.setAttemptId(externalRequest.getAttemptId().getValue());
+        internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
+        internalRequest.setReason(externalRequest.getReason());
+        internalRequest.setTask(externalRequest.getTask());
+        internalRequest.setRequestType(RequestTypeEnum.RESTART);
+        return internalRequest;
+    }
+
+    private static String resolveRecIndex(String recIndex) {
+        return Objects.isNull(recIndex) ? DEFAULT_REC_INDEX : recIndex;
     }
 
     public static List<ReworkItem> entityToExternal(List<NotificationReworksEntity> notificationReworksEntities) {
@@ -88,5 +99,6 @@ public class NotificationReworkMapper {
         internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internal;
     }
+    
 
 }

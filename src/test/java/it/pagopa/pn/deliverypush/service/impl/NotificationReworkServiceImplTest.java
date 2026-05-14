@@ -14,6 +14,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.S
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -71,6 +72,7 @@ class NotificationReworkServiceImplTest {
         NotificationReworkRequestInternal req = new NotificationReworkRequestInternal();
         req.setIun("IUN_123");
         req.setReason("REASON_X");
+        req.setTask("TESTTASK - 123");
         req.setAttemptId("ATTEMPT_0");
         req.setPcRetry("PCRETRY_0");
         req.setRecIndex("RECINDEX_0");
@@ -195,6 +197,8 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getExpectedStatusCodes().get(0).getAttachments().get(0)).isEqualTo("Plico");
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+        assertThat(saved.getRequestType()).isNull();
+        assertThat(saved.getTask()).isEqualTo("TESTTASK - 123");
 
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
@@ -476,5 +480,93 @@ class NotificationReworkServiceImplTest {
         verify(actionManagerClient, never()).addOnlyActionIfAbsent(any());
     }
 
+    @Test
+    void createRestartAttemptRequest_happyPath() {
+        var req = sampleRestartAttemptRequest();
+        var entity = getRestartAttemptEntity("REWORK_0.TRY_0.RECINDEX_0", 0);
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
+        ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
+        when(notificationReworkDao.putIfAbsent(entityCaptor.capture())).thenAnswer(inv -> Mono.just(entity));
+        ArgumentCaptor<NewAction> actionCaptor = ArgumentCaptor.forClass(NewAction.class);
+        doNothing().when(actionManagerClient).addOnlyActionIfAbsent(actionCaptor.capture());
+
+        StepVerifier.create(service.createRestartAttemptRequest(req))
+                .assertNext(resp -> {
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+                    assertThat(resp.getCreationDate()).isNotNull();
+                })
+                .verifyComplete();
+
+        // Verifica entity salvata
+        NotificationReworksEntity saved = entityCaptor.getValue();
+        assertThat(saved.getIun()).isEqualTo("IUN_123");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(saved.getAttemptId()).isEqualTo("ATTEMPT_0");
+        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_0");
+        assertThat(saved.getReason()).isEqualTo("RESTART_REASON");
+        assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+        assertThat(saved.getExpectedStatusCodes()).isNull();
+        assertThat(saved.getRequestType()).isEqualTo(RequestTypeEnum.RESTART);
+        assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
+
+        // Verifica action inviata
+        NewAction action = actionCaptor.getValue();
+        assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(action.getIun()).isEqualTo("IUN_123");
+        assertThat(action.getDetails()).contains("\"reworkId\":\"REWORK_0.TRY_0.RECINDEX_0\"");
+        assertThat(action.getDetails()).contains("\"reworkAttempt\":\"ATTEMPT_0\"");
+        assertThat(action.getDetails()).contains("\"reworkRecIndex\":\"RECINDEX_0\"");
+        assertThat(action.getDetails()).contains("\"requestType\":\"RESTART\"");
+    }
+
+    @Test
+    void createRestartAttemptRequest_error_insert_action() {
+        var req = sampleRestartAttemptRequest();
+        var entity = getRestartAttemptEntity("REWORK_0.TRY_0.RECINDEX_0", 0);
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
+        when(notificationReworkDao.putIfAbsent(any())).thenReturn(Mono.just(entity));
+        doThrow(RuntimeException.class).when(actionManagerClient).addOnlyActionIfAbsent(any());
+        when(notificationReworkDao.updateStatusError(eq("IUN_123"), eq("REWORK_0.TRY_0.RECINDEX_0"), any()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(service.createRestartAttemptRequest(req))
+                .verifyError(RuntimeException.class);
+
+        verify(notificationReworkDao, times(1))
+                .updateStatusError(eq("IUN_123"), eq("REWORK_0.TRY_0.RECINDEX_0"), any());
+    }
+
+    private NotificationReworkRequestInternal sampleRestartAttemptRequest() {
+        NotificationReworkRequestInternal req = new NotificationReworkRequestInternal();
+        req.setIun("IUN_123");
+        req.setAttemptId("ATTEMPT_0");
+        req.setRecIndex("RECINDEX_0");
+        req.setReason("RESTART_REASON");
+        req.setTask("RESTARTTASK - 456");
+        req.setRequestType(RequestTypeEnum.RESTART);
+        return req;
+    }
+
+    private NotificationReworksEntity getRestartAttemptEntity(String reworkId, int idx) {
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setReworkId(reworkId);
+        entity.setIun("IUN_123");
+        entity.setReason("RESTART_REASON");
+        entity.setIdx(idx);
+        entity.setCreatedAt(Instant.now());
+        entity.setAttemptId("ATTEMPT_0");
+        entity.setRecIndex("RECINDEX_0");
+        entity.setStatus(ReworkRequestStatus.CREATED);
+        return entity;
+    }
 
 }
