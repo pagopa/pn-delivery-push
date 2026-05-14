@@ -3,8 +3,8 @@ package it.pagopa.pn.deliverypush.service.mapper;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -36,7 +36,7 @@ public class NotificationReworkMapper {
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setTask(externalRequest.getTask());
-        internalRequest.setRequestType(RequestTypeEnum.RESTART);
+        internalRequest.setRequestType(RequestType.RESTART);
         return internalRequest;
     }
 

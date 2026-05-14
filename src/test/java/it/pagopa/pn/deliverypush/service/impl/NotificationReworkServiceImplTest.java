@@ -14,7 +14,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.S
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -510,7 +510,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getReason()).isEqualTo("RESTART_REASON");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getExpectedStatusCodes()).isNull();
-        assertThat(saved.getRequestType()).isEqualTo(RequestTypeEnum.RESTART);
+        assertThat(saved.getRequestType()).isEqualTo(RequestType.RESTART);
         assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
 
         // Verifica action inviata
@@ -552,7 +552,7 @@ class NotificationReworkServiceImplTest {
         req.setRecIndex("RECINDEX_0");
         req.setReason("RESTART_REASON");
         req.setTask("RESTARTTASK - 456");
-        req.setRequestType(RequestTypeEnum.RESTART);
+        req.setRequestType(RequestType.RESTART);
         return req;
     }
 

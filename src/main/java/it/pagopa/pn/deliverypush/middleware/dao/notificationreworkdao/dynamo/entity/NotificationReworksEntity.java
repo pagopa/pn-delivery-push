@@ -88,7 +88,7 @@ public class NotificationReworksEntity {
     private String recIndex;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
-    private RequestTypeEnum requestType;
+    private RequestType requestType;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
     private String task;

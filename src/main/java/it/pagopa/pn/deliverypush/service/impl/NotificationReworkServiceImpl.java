@@ -19,7 +19,6 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -175,7 +174,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkAttempt(notificationReworkRequestDto.getAttemptId());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
         details.setRequestType(notificationReworkRequestDto.getRequestType());
-        if (!RequestTypeEnum.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
+        if (!RequestType.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
             details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
             details.setReworkExpectedFinalStatus(finalStatusCode);
             details.setReason(notificationReworkRequestDto.getReason());
