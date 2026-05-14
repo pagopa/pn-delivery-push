@@ -225,11 +225,15 @@ components:
           type: string
         reason:
           type: string
+        task:
+          type: string
+          pattern: '^[a-zA-Z]+ - \d+$'
       required:
         - attemptId
         - pcRetry
         - expectedStatusCode
         - reason
+        - task
     ReworkResponse:
       type: object
       properties:
@@ -355,9 +359,13 @@ components:
           example: 'RECINDEX_0'
         reason:
           type: string
+        task:
+          type: string
+          pattern: '^[a-zA-Z]+ - \d+$'
       required:
         - attemptId
         - reason
+        - task
 
     RestartAttemptResponse:
       $ref: "#/components/schemas/ReworkResponse"
