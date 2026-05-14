@@ -65,7 +65,7 @@ paths:
               $ref: '#/components/schemas/ReworkRequest'
         required: true
       responses:
-        '200':
+        '202':
           description: Accepted - Richiesta di invalidazione presa in carico
           content:
             application/json:
@@ -145,7 +145,7 @@ paths:
               $ref: '#/components/schemas/RestartAttemptRequest'
         required: true
       responses:
-        '200':
+        '202':
           description: Accepted - Richiesta di restart presa in carico
           content:
             application/json:
@@ -227,7 +227,7 @@ components:
           type: string
         task:
           type: string
-          pattern: '^[a-zA-Z]+ - \d+$'
+          pattern: '^[a-zA-Z]+-\d+$'
       required:
         - attemptId
         - pcRetry
@@ -361,11 +361,12 @@ components:
           type: string
         task:
           type: string
-          pattern: '^[a-zA-Z]+ - \d+$'
+          pattern: '^[a-zA-Z]+-\d+$'
       required:
         - attemptId
         - reason
         - task
 
     RestartAttemptResponse:
-      $ref: "#/components/schemas/ReworkResponse"
+      allOf:
+        - $ref: "#/components/schemas/ReworkResponse"
