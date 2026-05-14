@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.dto.notificationrework;
 
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,7 +12,7 @@ public class NotificationReworkRequestInternal extends GenericRequestInternal {
     private String expectedStatusCode;
     private String expectedDeliveryFailureCause;
     private String productType;
-    private RequestTypeEnum requestType;
+    private RequestType requestType;
     private String task;
 
 }
