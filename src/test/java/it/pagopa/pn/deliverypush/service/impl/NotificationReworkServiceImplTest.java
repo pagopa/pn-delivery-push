@@ -34,7 +34,6 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.List;
 
-import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_REQUEST_TYPE_NOT_FOUND;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_UPDATE_ON_RESTART;
 import static it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
