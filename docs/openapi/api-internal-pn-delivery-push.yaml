@@ -267,7 +267,7 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet: # NO EXTERNAL
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/b65156a212040432a2c0f610d9ce390670ef0580/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
     cxIdAuthFleet: # NO EXTERNAL
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
     cxGroupsAuthFleet: # NO EXTERNAL
