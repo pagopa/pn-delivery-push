@@ -20,7 +20,7 @@ servers:
     description: Ambiente di collaudo UAT
 
 tags:
-  - name: ReworkV1
+  - name: NotificationRework
 
 paths:
   '/delivery-push-private/v1/notifications/{iun}/rework':
@@ -130,9 +130,9 @@ paths:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
   '/delivery-push-private/v1/notifications/{iun}/restart-attempt':
     put:
-      summary: Restart attempt notifica
+      summary: Permette il restart completo dell'attempt di una notifica
       description: >-
-        Permette il restart completo dell'attempt di una notifica
+        Questo endpoint permette di correggere le notifiche che presentano anomalie nel processo di stampa o imbustamento.
       tags:
         - NotificationRework
       operationId: restartAttempt
@@ -225,11 +225,15 @@ components:
           type: string
         reason:
           type: string
+        task:
+          type: string
+          pattern: '^[a-zA-Z]+-\d+$'
       required:
         - attemptId
         - pcRetry
         - expectedStatusCode
         - reason
+        - task
     ReworkResponse:
       type: object
       properties:
@@ -355,15 +359,14 @@ components:
           example: 'RECINDEX_0'
         reason:
           type: string
+        task:
+          type: string
+          pattern: '^[a-zA-Z]+-\d+$'
       required:
         - attemptId
         - reason
+        - task
 
     RestartAttemptResponse:
-      type: object
-      properties:
-        reworkId:
-          type: string
-        creationDate:
-          type: string
-          format: date-time
+      allOf:
+        - $ref: "#/components/schemas/ReworkResponse"

@@ -134,6 +134,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setRecIndex(notificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
         entity.setRequestType(notificationReworkRequestDto.getRequestType());
+        entity.setTask(notificationReworkRequestDto.getTask());
         return entity;
     }
 

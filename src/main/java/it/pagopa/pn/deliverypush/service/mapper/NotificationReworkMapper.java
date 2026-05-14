@@ -35,6 +35,7 @@ public class NotificationReworkMapper {
         internalRequest.setAttemptId(externalRequest.getAttemptId().getValue());
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
+        internalRequest.setTask(externalRequest.getTask());
         internalRequest.setRequestType(RequestTypeEnum.RESTART);
         return internalRequest;
     }

@@ -43,6 +43,7 @@ public class PnNotificationReworkControllerTest {
     private ReworkRequest getRequest() {
         ReworkRequest req = new ReworkRequest();
         req.setReason("REASON_X");
+        req.setTask("PN-19000");
         req.setAttemptId(ReworkRequest.AttemptIdEnum._0);
         req.setPcRetry("PCRETRY_0");
         req.setExpectedStatusCode("RECRN002C");
@@ -62,6 +63,7 @@ public class PnNotificationReworkControllerTest {
         req.setAttemptId(RestartAttemptRequest.AttemptIdEnum.values()[0]);
         req.setRecIndex("RECINDEX_1");
         req.setReason("REASON_RESTART");
+        req.setTask("PN-19000");
         return req;
     }
 

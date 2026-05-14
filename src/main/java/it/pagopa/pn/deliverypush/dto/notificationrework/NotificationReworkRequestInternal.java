@@ -13,5 +13,6 @@ public class NotificationReworkRequestInternal extends GenericRequestInternal {
     private String expectedDeliveryFailureCause;
     private String productType;
     private RequestTypeEnum requestType;
+    private String task;
 
 }

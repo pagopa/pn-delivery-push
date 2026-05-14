@@ -72,6 +72,7 @@ class NotificationReworkServiceImplTest {
         NotificationReworkRequestInternal req = new NotificationReworkRequestInternal();
         req.setIun("IUN_123");
         req.setReason("REASON_X");
+        req.setTask("TESTTASK - 123");
         req.setAttemptId("ATTEMPT_0");
         req.setPcRetry("PCRETRY_0");
         req.setRecIndex("RECINDEX_0");
@@ -197,6 +198,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getExpectedFinalStatus()).isEqualTo("OK");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getRequestType()).isNull();
+        assertThat(saved.getTask()).isEqualTo("TESTTASK - 123");
 
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
@@ -509,6 +511,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getExpectedStatusCodes()).isNull();
         assertThat(saved.getRequestType()).isEqualTo(RequestTypeEnum.RESTART);
+        assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
 
         // Verifica action inviata
         NewAction action = actionCaptor.getValue();
@@ -548,6 +551,7 @@ class NotificationReworkServiceImplTest {
         req.setAttemptId("ATTEMPT_0");
         req.setRecIndex("RECINDEX_0");
         req.setReason("RESTART_REASON");
+        req.setTask("RESTARTTASK - 456");
         req.setRequestType(RequestTypeEnum.RESTART);
         return req;
     }

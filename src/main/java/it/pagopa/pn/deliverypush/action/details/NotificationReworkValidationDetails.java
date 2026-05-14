@@ -18,4 +18,5 @@ public class NotificationReworkValidationDetails {
     private String reworkExpectedFinalStatus;
     private String reason;
     private RequestTypeEnum requestType;
+    private String task;
 }
