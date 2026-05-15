@@ -15,7 +15,7 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.S
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
@@ -382,7 +382,7 @@ class NotificationReworkServiceImplTest {
         updatedEntity.setIun(iun);
 
         NotificationReworksEntity reworkEntity = new NotificationReworksEntity();
-        reworkEntity.setRequestType(RequestTypeEnum.REWORK);
+        reworkEntity.setRequestType(RequestType.REWORK);
         when(notificationReworkDao.findByIunAndReworkId(iun, reworkId)).thenReturn(Mono.just(reworkEntity));
 
         when(notificationService.getNotificationByIunReactive(iun)).thenReturn(Mono.just(notificationInt));
@@ -432,7 +432,7 @@ class NotificationReworkServiceImplTest {
                 NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
 
         NotificationReworksEntity reworkEntity = new NotificationReworksEntity();
-        reworkEntity.setRequestType(RequestTypeEnum.REWORK);
+        reworkEntity.setRequestType(RequestType.REWORK);
         when(notificationReworkDao.findByIunAndReworkId(iun, reworkId)).thenReturn(Mono.just(reworkEntity));
 
         when(notificationService.getNotificationByIunReactive(iun))
@@ -471,7 +471,7 @@ class NotificationReworkServiceImplTest {
                         .build();
 
         NotificationReworksEntity reworkEntity = new NotificationReworksEntity();
-        reworkEntity.setRequestType(RequestTypeEnum.REWORK);
+        reworkEntity.setRequestType(RequestType.REWORK);
         when(notificationReworkDao.findByIunAndReworkId(iun, reworkId)).thenReturn(Mono.just(reworkEntity));
 
         when(notificationService.getNotificationByIunReactive(iun))
@@ -524,7 +524,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getReason()).isEqualTo("RESTART_REASON");
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getExpectedStatusCodes()).isNull();
-        assertThat(saved.getRequestType()).isEqualTo(RequestTypeEnum.RESTART);
+        assertThat(saved.getRequestType()).isEqualTo(RequestType.RESTART);
         assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
 
         // Verifica action inviata
@@ -566,7 +566,7 @@ class NotificationReworkServiceImplTest {
         req.setRecIndex("RECINDEX_0");
         req.setReason("RESTART_REASON");
         req.setTask("RESTARTTASK - 456");
-        req.setRequestType(RequestTypeEnum.RESTART);
+        req.setRequestType(RequestType.RESTART);
         return req;
     }
 
@@ -593,7 +593,7 @@ class NotificationReworkServiceImplTest {
         req.setExpectedDeliveryFailureCause("M02");
 
         NotificationReworksEntity entity = new NotificationReworksEntity();
-        entity.setRequestType(RequestTypeEnum.RESTART);
+        entity.setRequestType(RequestType.RESTART);
         when(notificationReworkDao.findByIunAndReworkId(iun, reworkId)).thenReturn(Mono.just(entity));
 
         StepVerifier.create(service.updateNotificationRework(iun, req, reworkId))
@@ -616,7 +616,7 @@ class NotificationReworkServiceImplTest {
         req.setExpectedDeliveryFailureCause("M02");
 
         NotificationReworksEntity reworkEntity = new NotificationReworksEntity();
-        reworkEntity.setRequestType(RequestTypeEnum.REWORK);
+        reworkEntity.setRequestType(RequestType.REWORK);
 
         NotificationInt notificationInt = NotificationInt.builder()
                 .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();

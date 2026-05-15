@@ -1,6 +1,6 @@
 package it.pagopa.pn.deliverypush.action.details;
 
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +17,6 @@ public class NotificationReworkValidationDetails {
     private String reworkRecIndex;
     private String reworkExpectedFinalStatus;
     private String reason;
-    private RequestTypeEnum requestType;
+    private RequestType requestType;
     private String task;
 }

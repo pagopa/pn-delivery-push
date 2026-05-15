@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestTypeEnum;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -295,7 +295,7 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("REASON_RESTART", value.getReason());
-        Assertions.assertEquals(RequestTypeEnum.RESTART, value.getRequestType());
+        Assertions.assertEquals(RequestType.RESTART, value.getRequestType());
     }
 
     @Test
