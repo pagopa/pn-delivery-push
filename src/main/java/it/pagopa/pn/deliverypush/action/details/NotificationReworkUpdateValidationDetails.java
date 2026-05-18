@@ -1,6 +1,5 @@
 package it.pagopa.pn.deliverypush.action.details;
 
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

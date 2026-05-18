@@ -4,10 +4,7 @@ import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.exceptions.PnNotImplementedException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.NotificationReworkApi;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkRequest;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.UpdateReworkRequest;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +32,7 @@ public class PnNotificationReworkController implements NotificationReworkApi {
                     }
                     return notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun));
                 })
-                .map(ResponseEntity::ok);
+                .map(response -> ResponseEntity.accepted().body(response));
     }
 
     @Override
@@ -52,5 +49,19 @@ public class PnNotificationReworkController implements NotificationReworkApi {
         return updateReworkRequest
                 .flatMap(request -> notificationReworkService.updateNotificationRework(iun, NotificationReworkMapper.updateExternalToInternal(request, iun), reworkId))
                 .thenReturn(ResponseEntity.noContent().build());
+    }
+
+    @Override
+    public Mono<ResponseEntity<RestartAttemptResponse>> restartAttempt(String iun, Mono<RestartAttemptRequest> restartAttemptRequest, final ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, "RESTART_ATTEMPT_" + iun);
+
+        return restartAttemptRequest
+                .flatMap(request -> {
+                    if (!configs.isRestartAttemptEnabled()) {
+                        return Mono.error(new PnNotImplementedException());
+                    }
+                    return notificationReworkService.createRestartAttemptRequest(NotificationReworkMapper.externalToInternal(request, iun));
+                })
+                .map(response -> ResponseEntity.accepted().body(response));
     }
 }
