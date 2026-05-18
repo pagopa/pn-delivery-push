@@ -1,6 +1,9 @@
 package it.pagopa.pn.deliverypush.rest;
 
+import it.pagopa.pn.common.rest.error.v1.dto.Problem;
+import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.deliverypush.action.utils.TimelineUtils;
+import it.pagopa.pn.deliverypush.exceptions.PnFileGoneException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotificationCancelledException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.LegalFactsPrivateApi;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
@@ -9,7 +12,9 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.LegalFactListEl
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import it.pagopa.pn.deliverypush.utils.LegalFactUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -23,10 +28,12 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
 
     private final GetLegalFactService getLegalFactService;
     private final TimelineUtils timelineUtils;
+    private final ExceptionHelper exceptionHelper;
 
-    public PnPrivateLegalFactsController(GetLegalFactService getLegalFactService, TimelineUtils timelineUtils) {
+    public PnPrivateLegalFactsController(GetLegalFactService getLegalFactService, TimelineUtils timelineUtils, ExceptionHelper exceptionHelper) {
         this.getLegalFactService = getLegalFactService;
         this.timelineUtils = timelineUtils;
+        this.exceptionHelper = exceptionHelper;
     }
     
     @Override
@@ -71,5 +78,12 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
                 return ResponseEntity.ok(fluxFacts);
             });
         }
+    }
+
+    @ExceptionHandler(PnFileGoneException.class)
+    public Mono<ResponseEntity<Problem>> handlePnFileGoneException(PnFileGoneException ex) {
+        Problem problem = exceptionHelper.handleException(ex);
+        problem.setStatus(HttpStatus.GONE.value());
+        return Mono.just(ResponseEntity.status(HttpStatus.GONE).body(problem));
     }
 }
