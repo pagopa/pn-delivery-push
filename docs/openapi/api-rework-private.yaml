@@ -233,7 +233,6 @@ components:
         - pcRetry
         - expectedStatusCode
         - reason
-        - task
     ReworkResponse:
       type: object
       properties:
@@ -365,7 +364,6 @@ components:
       required:
         - attemptId
         - reason
-        - task
 
     RestartAttemptResponse:
       allOf:
