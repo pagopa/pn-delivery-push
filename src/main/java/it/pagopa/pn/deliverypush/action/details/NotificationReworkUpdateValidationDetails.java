@@ -11,11 +11,12 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class NotificationReworkUpdateValidationDetails {
-    private String reworkId;
-    private String reworkExpectedDeliveryFailureCause;
-    private List<SequenceItemInternal> reworkExpectedStatusCodes;
-    private String reworkExpectedFinalStatus;
-    private String reworkAttempt;
-    private String reworkRecIndex;
+        private String reworkId;
+        private String reworkExpectedDeliveryFailureCause;
+        private List<SequenceItemInternal> reworkExpectedStatusCodes;
+        private String reworkExpectedFinalStatus;
+        private String reworkAttempt;
+        private String reworkRecIndex;
 }

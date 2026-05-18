@@ -109,6 +109,26 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                 });
     }
 
+    @Override
+    public Mono<RestartAttemptResponse> createRestartAttemptRequest(NotificationReworkRequestInternal restartAttemptRequestDto) {
+        RestartAttemptResponse reworkResponse = new RestartAttemptResponse();
+        return notificationService.getNotificationByIunReactive(restartAttemptRequestDto.getIun())
+                .flatMap(notificationInt -> retrieveAndEvaluateReworkRequest(restartAttemptRequestDto.getIun(), restartAttemptRequestDto.getRecIndex()))
+                .doOnNext(reworkResponse::setReworkId)
+                .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkId, restartAttemptRequestDto, null)))
+                .flatMap(entity ->
+                        Mono.defer(() -> {
+                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity.getIun(), entity.getIun() + "_" + entity.getReworkId(), ActionType.NOTIFICATION_REWORK_VALIDATION, getValidationDetailsAsString(getNotificationReworkValidationDetails(entity.getReworkId(), restartAttemptRequestDto, null))));
+                                    return Mono.just(entity);
+                                })
+                                .onErrorResume(ex -> notificationReworkDao.updateStatusError(restartAttemptRequestDto.getIun(), reworkResponse.getReworkId(), ex.getMessage())
+                                        .then(Mono.error(ex))))
+                .map(notificationReworksEntity -> {
+                    reworkResponse.setCreationDate(notificationReworksEntity.getCreatedAt());
+                    return reworkResponse;
+                });
+    }
+
     private String resolveProductType(ServiceLevelTypeInt physicalCommunicationType) {
         if (Objects.nonNull(physicalCommunicationType)) {
             return AR_REGISTERED_LETTER.equals(physicalCommunicationType) ? "AR" : "890";
@@ -190,11 +210,11 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkId(reworkId);
         details.setReworkAttempt(notificationReworkRequestDto.getAttemptId());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
+        details.setReason(notificationReworkRequestDto.getReason());
         details.setRequestType(notificationReworkRequestDto.getRequestType());
         if (!RequestType.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
             details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
             details.setReworkExpectedFinalStatus(finalStatusCode);
-            details.setReason(notificationReworkRequestDto.getReason());
         }
         return details;
     }
@@ -242,25 +262,5 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                     }
                 })
                 .switchIfEmpty(Mono.just(ReworkIdBuilder.build(0, 0, recIndex)));
-    }
-
-    @Override
-    public Mono<RestartAttemptResponse> createRestartAttemptRequest(NotificationReworkRequestInternal restartAttemptRequestDto) {
-        RestartAttemptResponse reworkResponse = new RestartAttemptResponse();
-        return notificationService.getNotificationByIunReactive(restartAttemptRequestDto.getIun())
-                .flatMap(notificationInt -> retrieveAndEvaluateReworkRequest(restartAttemptRequestDto.getIun(), restartAttemptRequestDto.getRecIndex()))
-                .doOnNext(reworkResponse::setReworkId)
-                .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkId, restartAttemptRequestDto, null)))
-                .flatMap(entity ->
-                        Mono.defer(() -> {
-                                    actionManagerClient.addOnlyActionIfAbsent(constructNewAction(entity.getIun(), entity.getIun() + "_" + entity.getReworkId(), ActionType.NOTIFICATION_REWORK_VALIDATION, getValidationDetailsAsString(getNotificationReworkValidationDetails(entity.getReworkId(), restartAttemptRequestDto, null))));
-                                    return Mono.just(entity);
-                                })
-                                .onErrorResume(ex -> notificationReworkDao.updateStatusError(restartAttemptRequestDto.getIun(), reworkResponse.getReworkId(), ex.getMessage())
-                                        .then(Mono.error(ex))))
-                .map(notificationReworksEntity -> {
-                    reworkResponse.setCreationDate(notificationReworksEntity.getCreatedAt());
-                    return reworkResponse;
-                });
     }
 }

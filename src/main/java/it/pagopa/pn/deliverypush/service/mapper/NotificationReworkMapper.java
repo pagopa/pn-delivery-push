@@ -27,6 +27,7 @@ public class NotificationReworkMapper {
         internalRequest.setTask(externalRequest.getTask());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
+        internalRequest.setRequestType(RequestType.REWORK);
         return internalRequest;
     }
 
@@ -100,6 +101,5 @@ public class NotificationReworkMapper {
         internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internal;
     }
-    
 
 }
