@@ -32,7 +32,7 @@ public class PnNotificationReworkController implements NotificationReworkApi {
                     }
                     return notificationReworkService.createNotificationReworkRequest(NotificationReworkMapper.externalToInternal(request, iun));
                 })
-                .map(ResponseEntity::ok);
+                .map(response -> ResponseEntity.accepted().body(response));
     }
 
     @Override
@@ -62,6 +62,6 @@ public class PnNotificationReworkController implements NotificationReworkApi {
                     }
                     return notificationReworkService.createRestartAttemptRequest(NotificationReworkMapper.externalToInternal(request, iun));
                 })
-                .map(ResponseEntity::ok);
+                .map(response -> ResponseEntity.accepted().body(response));
     }
 }

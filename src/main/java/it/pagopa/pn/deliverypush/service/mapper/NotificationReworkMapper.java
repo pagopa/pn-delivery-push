@@ -24,6 +24,7 @@ public class NotificationReworkMapper {
         internalRequest.setPcRetry(externalRequest.getPcRetry());
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
+        internalRequest.setTask(externalRequest.getTask());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internalRequest;

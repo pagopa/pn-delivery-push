@@ -91,7 +91,7 @@ public class PnNotificationReworkControllerTest {
                 .body(Mono.just(request), ReworkRequest.class)
                 .exchange()
                 .expectStatus()
-                .isOk()
+                .isAccepted()
                 .expectBody(ReworkResponse.class).consumeWith(
                         elem -> {
                             ReworkResponse response = elem.getResponseBody();
@@ -130,7 +130,7 @@ public class PnNotificationReworkControllerTest {
                 .body(Mono.just(request), ReworkRequest.class)
                 .exchange()
                 .expectStatus()
-                .isOk()
+                .isAccepted()
                 .expectBody(ReworkResponse.class).consumeWith(
                         elem -> {
                             ReworkResponse response = elem.getResponseBody();
@@ -280,7 +280,7 @@ public class PnNotificationReworkControllerTest {
                 .body(Mono.just(request), RestartAttemptRequest.class)
                 .exchange()
                 .expectStatus()
-                .isOk()
+                .isAccepted()
                 .expectBody(RestartAttemptResponse.class).consumeWith(
                         elem -> {
                             RestartAttemptResponse response = elem.getResponseBody();
