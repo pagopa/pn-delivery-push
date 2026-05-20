@@ -135,6 +135,7 @@ class NotificationReworkServiceImplTest {
         entity.setPcRetry("PCRETRY_0");
         entity.setRecIndex("RECINDEX_0");
         entity.setStatus(reworkRequestStatus);
+        entity.setRequestType(RequestType.REWORK);
         return entity;
     }
 
