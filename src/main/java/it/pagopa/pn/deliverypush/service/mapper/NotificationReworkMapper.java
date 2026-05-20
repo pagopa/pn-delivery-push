@@ -73,6 +73,7 @@ public class NotificationReworkMapper {
                     if(StringUtils.hasText(notificationReworksEntity.getAttemptId())) {
                         reworkItem.setAttemptId(ReworkItem.AttemptIdEnum.fromValue(notificationReworksEntity.getAttemptId()));
                     }
+                    reworkItem.setRequestType(ReworkItem.RequestTypeEnum.valueOf(notificationReworksEntity.getRequestType().name()));
                     return reworkItem;
                 }).toList();
     }
