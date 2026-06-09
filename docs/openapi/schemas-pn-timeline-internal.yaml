@@ -1413,6 +1413,7 @@ components:
           maxLength: 128
         taxId:
           x-field-extra-annotation: "@lombok.ToString.Exclude"
+          format: password # NO EXTERNAL
           type: string
           maxLength: 128
         operatorUuid:
@@ -1423,6 +1424,7 @@ components:
           maxLength: 128
         denomination:
           x-field-extra-annotation: "@lombok.ToString.Exclude"
+          format: password # NO EXTERNAL
           type: string
           maxLength: 128
         delegateType:

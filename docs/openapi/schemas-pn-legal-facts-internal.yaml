@@ -55,6 +55,7 @@ components:
       properties:
         taxId:
           x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          format: password # NO EXTERNAL
           description: Valorizzato se l'atto si riferisce a uno specifico destinatario
           type: string
           minLength: 11
