@@ -80,6 +80,40 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+  '/delivery-push-private/{iun}/informal/history':
+    get:
+      summary: Storico eventi notifica
+      description: >-
+        Legge e restituisce la timeline di una notifica, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getInformalNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationHistoryResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
   '/delivery-push-private/{iun}/viewed':
     post:
@@ -604,6 +638,20 @@ components:
           type: array
           items:
             $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/TimelineElementV28'
+
+    InformalNotificationHistoryResponse:
+      type: object
+      properties:
+        notificationStatus:
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusV26'
+        notificationStatusHistory:
+          $ref: './schemas-pn-status.yaml#/components/schemas/NotificationStatusHistoryV26'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+          type: array
+          items:
+            $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/InformalTimelineElementV1'
 
 
     ############################################################################################
