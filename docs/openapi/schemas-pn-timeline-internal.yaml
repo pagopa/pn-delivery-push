@@ -179,7 +179,7 @@ components:
               type: array
               items:
                 $ref: "./schemas-pn-legal-facts-internal.yaml#/components/schemas/LegalFactsIdV20"  # NO EXTERNAL
-    #            $ref: "./schemas-pn-legal-facts-external.yaml#/components/schemas/LegalFactsIdV20"  # ONLY EXTERNAL
+#                $ref: "./schemas-pn-legal-facts-external.yaml#/components/schemas/LegalFactsIdV20"  # ONLY EXTERNAL
               description: >-
                 Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
                 Questo elemento
