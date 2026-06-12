@@ -1597,3 +1597,65 @@ components:
             $ref: "#/components/schemas/NotificationStatusHistoryInvalidatedElement"
         categoryType: # NO EXTERNAL
           type: string # NO EXTERNAL
+
+    InformalTimelineElementCategoryV1:
+      type: string
+      description: >
+        categorie di timeline del dominio delle notifiche bonarie:
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `NATIONAL_REGISTRY_VALIDATION_CALL` - Richiesta ai registri nazionali per la validazione degli indirizzi
+          * `NATIONAL_REGISTRY_VALIDATION_RESPONSE` - Risposta dei registri nazionali sulla validazione degli indirizzi
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+      enum:
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - NATIONAL_REGISTRY_VALIDATION_CALL
+        - NATIONAL_REGISTRY_VALIDATION_RESPONSE
+        - REQUEST_ACCEPTED
+        - REQUEST_REFUSED
+
+    InformalTimelineElementDetailsV1:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - "$ref": "#/components/schemas/ValidateNormalizeAddressDetails"
+        - "$ref": "#/components/schemas/NormalizedAddressDetails"
+        - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetailsV28"
+        - "$ref": "#/components/schemas/RequestRefusedDetailsV27"
+      discriminator:
+        propertyName: "categoryType"
+
+    InformalTimelineElementV1:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica bonaria definisce in
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        category:
+          $ref: '#/components/schemas/InformalTimelineElementCategoryV1'
+        details:
+          $ref: '#/components/schemas/InformalTimelineElementDetailsV1'

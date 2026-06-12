@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.rest;
 
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.TimelineAndStatusApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.utils.MdcKey;
@@ -21,6 +22,23 @@ public class PnTimelineController implements TimelineAndStatusApi {
     private final TimelineService timelineService;
 
     public PnTimelineController(TimelineService timelineService) { this.timelineService = timelineService; }
+
+    @Override
+    public Mono<ResponseEntity<InformalNotificationHistoryResponse>> getInformalNotificationHistory(String iun,
+                                                                                                    Integer numberOfRecipients,
+                                                                                                    Instant createdAt,
+                                                                                                    ServerWebExchange exchange) {
+        log.debug("Received request getInformalTimelineAndStatusHistory - iun={} numberOfRecipients={} createdAt={}",
+                iun, numberOfRecipients, createdAt);
+        MDC.put(MDCUtils.MDC_PN_CTX_TOPIC, MdcKey.TIMELINE_KEY);
+
+        InformalNotificationHistoryResponse informalNotificationHistoryResponse = timelineService.getTimelineAndStatusHistoryForInformalNotification(
+                iun,
+                numberOfRecipients,
+                createdAt);
+
+        return Mono.just(ResponseEntity.ok(informalNotificationHistoryResponse));
+    }
 
     @Override
     public Mono<ResponseEntity<NotificationHistoryResponse>> getNotificationHistory(String iun, 

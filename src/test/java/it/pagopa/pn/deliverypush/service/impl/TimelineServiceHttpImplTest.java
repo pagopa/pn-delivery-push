@@ -143,6 +143,149 @@ class TimelineServiceHttpImplTest {
     }
 
     @Test
+    void getTimelineAndStatusHistoryForInformalNotification_filtersDiagnosticElements() {
+        String iun = "iun123";
+        int numberOfRecipients = 1;
+        Instant createdAt = Instant.now();
+
+        TimelineElement publicElement = new TimelineElement();
+        publicElement.setElementId("publicId");
+        publicElement.setCategory(TimelineCategory.REQUEST_ACCEPTED);
+
+        TimelineElement diagnosticElement = new TimelineElement();
+        diagnosticElement.setElementId("diagnosticId");
+        diagnosticElement.setCategory(TimelineCategory.VALIDATE_F24_REQUEST);
+
+        NotificationStatusHistoryElement statusHistory = new NotificationStatusHistoryElement();
+        statusHistory.setRelatedTimelineElements(new ArrayList<>(Arrays.asList("publicId", "diagnosticId")));
+
+        NotificationHistoryResponse clientResponse = new NotificationHistoryResponse();
+        clientResponse.setTimeline(new ArrayList<>(Arrays.asList(publicElement, diagnosticElement)));
+        clientResponse.setNotificationStatusHistory(new ArrayList<>(Collections.singletonList(statusHistory)));
+
+        when(timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt))
+                .thenReturn(clientResponse);
+
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse mappedResponse =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse();
+
+        when(timelineServiceMapper.toInformalNotificationHistoryResponseDto(Mockito.any()))
+                .thenReturn(mappedResponse);
+
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse result =
+                timelineServiceHttp.getTimelineAndStatusHistoryForInformalNotification(iun, numberOfRecipients, createdAt);
+
+        assertNotNull(result);
+
+        ArgumentCaptor<NotificationHistoryResponse> captor = ArgumentCaptor.forClass(NotificationHistoryResponse.class);
+        Mockito.verify(timelineServiceMapper).toInformalNotificationHistoryResponseDto(captor.capture());
+        Mockito.verify(timelineClient).getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+
+        NotificationHistoryResponse captured = captor.getValue();
+        assertNotNull(captured.getTimeline());
+        assertEquals(1, captured.getTimeline().size());
+        assertEquals("publicId", captured.getTimeline().get(0).getElementId());
+
+        assertNotNull(captured.getNotificationStatusHistory());
+        assertEquals(1, captured.getNotificationStatusHistory().size());
+        assertEquals(1, captured.getNotificationStatusHistory().get(0).getRelatedTimelineElements().size());
+        assertEquals("publicId", captured.getNotificationStatusHistory().get(0).getRelatedTimelineElements().get(0));
+    }
+
+    @Test
+    void getTimelineAndStatusHistoryForInformalNotification_ReturnsMappedResponse() {
+        String iun = "iunTest";
+        int numberOfRecipients = 2;
+        Instant createdAt = Instant.now();
+
+        NotificationHistoryResponse clientResponse = new NotificationHistoryResponse();
+
+        // BUILDING THE TIMELINE ELEMENTS
+        String elementId1 = "elementId1";
+        List<TimelineElement> setTimelineElement = new ArrayList<>();
+        Instant t = Instant.EPOCH.plus(1, ChronoUnit.DAYS);
+
+        TimelineElement elementDiagnostic = new TimelineElement();
+        elementDiagnostic.setIun(iun);
+        elementDiagnostic.setElementId(elementId1 + "DIAGNOSTIC");
+        elementDiagnostic.setTimestamp(t);
+        elementDiagnostic.setCategory(TimelineCategory.VALIDATE_F24_REQUEST);
+        setTimelineElement.add(elementDiagnostic);
+
+        TimelineElement elementAccepted = new TimelineElement();
+        elementAccepted.setIun(iun);
+        elementAccepted.setElementId(elementId1 + "ACCEPTED");
+        elementAccepted.setTimestamp(t);
+        elementAccepted.setCategory(TimelineCategory.REQUEST_ACCEPTED);
+        setTimelineElement.add(elementAccepted);
+
+        TimelineElement elementRefused = new TimelineElement();
+        elementRefused.setIun(iun);
+        elementRefused.setElementId(elementId1 + "REFUSED");
+        elementRefused.setTimestamp(t);
+        elementRefused.setCategory(TimelineCategory.REQUEST_REFUSED);
+        setTimelineElement.add(elementRefused);
+
+        clientResponse.setTimeline(setTimelineElement);
+
+        // BUILDING THE NOTIFICATION STATUS HISTORY ELEMENTS
+        Instant activeFromInValidation = Instant.now();
+        NotificationStatusHistoryElement inValidationElement = new NotificationStatusHistoryElement();
+        inValidationElement.status(NotificationStatus.IN_VALIDATION);
+        inValidationElement.activeFrom(activeFromInValidation);
+
+        Instant activeFromAccepted = activeFromInValidation.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement acceptedElementElement = new NotificationStatusHistoryElement();
+        acceptedElementElement.status(NotificationStatus.ACCEPTED);
+        acceptedElementElement.activeFrom(activeFromAccepted);
+
+        Instant activeFromDelivering = activeFromAccepted.plus(Duration.ofDays(1));
+
+        NotificationStatusHistoryElement deliveringElement = new NotificationStatusHistoryElement();
+        deliveringElement.status(NotificationStatus.DELIVERING);
+        deliveringElement.activeFrom(activeFromDelivering);
+
+        List<NotificationStatusHistoryElement> notificationStatusHistoryElements =
+                new ArrayList<>(List.of(inValidationElement, acceptedElementElement, deliveringElement));
+        clientResponse.setNotificationStatusHistory(notificationStatusHistoryElements);
+
+        // BUILDING THE NOTIFICATION STATUS
+        clientResponse.setNotificationStatus(NotificationStatus.DELIVERING);
+
+        Mockito.when(timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt))
+                .thenReturn(clientResponse);
+
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse mappedResponse =
+                new it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse();
+
+        Mockito.when(timelineServiceMapper.toInformalNotificationHistoryResponseDto(Mockito.any()))
+                .thenReturn(mappedResponse);
+
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse result =
+                timelineServiceHttp.getTimelineAndStatusHistoryForInformalNotification(iun, numberOfRecipients, createdAt);
+
+        assertNotNull(result);
+
+        ArgumentCaptor<NotificationHistoryResponse> captor =
+                ArgumentCaptor.forClass(NotificationHistoryResponse.class);
+        Mockito.verify(timelineServiceMapper).toInformalNotificationHistoryResponseDto(captor.capture());
+        Mockito.verify(timelineClient).getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+
+        NotificationHistoryResponse capturedClientResponse = captor.getValue();
+        assertNotNull(capturedClientResponse.getTimeline());
+        assertEquals(2, capturedClientResponse.getTimeline().size());
+        assertEquals("elementId1ACCEPTED", capturedClientResponse.getTimeline().get(0).getElementId());
+        assertEquals("elementId1REFUSED", capturedClientResponse.getTimeline().get(1).getElementId());
+
+        assertNotNull(capturedClientResponse.getNotificationStatusHistory());
+        assertEquals(3, capturedClientResponse.getNotificationStatusHistory().size());
+        assertEquals(NotificationStatus.IN_VALIDATION, capturedClientResponse.getNotificationStatusHistory().get(0).getStatus());
+        assertEquals(NotificationStatus.ACCEPTED, capturedClientResponse.getNotificationStatusHistory().get(1).getStatus());
+        assertEquals(NotificationStatus.DELIVERING, capturedClientResponse.getNotificationStatusHistory().get(2).getStatus());
+    }
+
+    @Test
     void getTimelineAndStatusHistory_ReturnsMappedResponse() {
         String iun = "iunTest";
         int numberOfRecipients = 2;
@@ -321,7 +464,7 @@ class TimelineServiceHttpImplTest {
         TimelineElementInternal element = new TimelineElementInternal();
         element.setIun("iun123");
         element.setElementId("element123");
-        element.setTimestamp(timestamp); // Example timestamp
+        element.setTimestamp(timestamp);
         element.setPaId("pa123");
         element.setLegalFactsIds(new ArrayList<>());
         element.setCategory(TimelineElementCategoryInt.NOTIFICATION_VIEWED);

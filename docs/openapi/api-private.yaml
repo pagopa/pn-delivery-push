@@ -81,6 +81,41 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  /delivery-push-private/{iun}/informal/history:
+    get:
+      summary: Storico eventi notifica bonaria
+      description: >-
+        Legge e restituisce la timeline di una notifica bonaria, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getInformalNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InformalNotificationHistoryResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
   '/delivery-push-private/{iun}/viewed':
     post:
       deprecated: true
@@ -604,6 +639,24 @@ components:
           type: array
           items:
             $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/TimelineElementV28'
+
+    ############################################################################################
+    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA BONARIA                 ###
+    ############################################################################################
+
+    InformalNotificationHistoryResponse:
+      type: object
+      properties:
+        informalNotificationStatus:
+          $ref: './schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusV1'
+        informalNotificationStatusHistory:
+          $ref: './schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica bonaria
+          type: array
+          items:
+            $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/InformalTimelineElementV1'
 
 
     ############################################################################################

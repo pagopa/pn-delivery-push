@@ -67,6 +67,50 @@ components:
           description: Eventi avvenuti nello stato
           items:
             $ref: "./schemas-pn-timeline-internal.yaml#/components/schemas/TimelineElementId"
+
+    InformalNotificationStatusV1:
+      type: string
+      description: >
+        stato di avanzamento del processo di notifica bonaria:
+          * `IN_VALIDATION` - Fase di validazione formale, sintattica (sincrona) ed asincrona (verifica allegati e coerenza della campagna)
+          * `PROCESSING` - Stato assunto non appena la validazione ha esito positivo e l'orchestratore avvia il workflow sequenziale di consegna sui canali
+          * `REACHED` - Il destinatario è stato raggiunto alla destinazione più vicina al cittadino, ma non è stato ancora ottenuto il feedback di arresto finale desiderato dall'ente; stato alternativo a `COMPLETED`
+          * `UNREACHED` - Stato finale assunto al termine del workflow se nessun canale ha fornito un feedback positivo di consegna
+          * `COMPLETED` - Stato finale di terminazione positiva; si raggiunge se si riscontra uno dei feedback desiderati esplicitamente impostati dall'ente nella campagna, oppure in caso di interruzione forzata via API
+          * `UNDELIVERABLE` - Stato di irreperibilità totale; raggiungibile solo se la validazione asincrona consente l'ingresso di notifiche prive di qualsiasi recapito utile o di profilo IO associato
+      enum:
+        - IN_VALIDATION
+        - PROCESSING
+        - REACHED
+        - UNREACHED
+        - COMPLETED
+        - UNDELIVERABLE
+
+    InformalNotificationStatusHistoryV1:
+      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
+      type: array
+      items:
+        $ref: "#/components/schemas/InformalNotificationStatusHistoryElementV1"
+
+    InformalNotificationStatusHistoryElementV1:
+      description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: "#/components/schemas/InformalNotificationStatusV1"
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: "./schemas-pn-timeline-internal.yaml#/components/schemas/TimelineElementId"
       
         
 
