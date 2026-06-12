@@ -65,6 +65,114 @@ class PnTimelineControllerTest {
     }
 
     @Test
+    void getInformalTimelineSuccess() {
+        var timelineElements = Collections.singletonList(InformalTimelineElementV1.builder()
+                .timestamp(Instant.now())
+                .elementId("element_id")
+                .category(InformalTimelineElementCategoryV1.REQUEST_ACCEPTED)
+                .details(NotificationRequestAcceptedDetailsV28.builder().build())
+                .build()
+        );
+
+        InformalNotificationHistoryResponse dto = InformalNotificationHistoryResponse.builder()
+                .timeline(timelineElements)
+                .build();
+
+        Mockito.when(service.getTimelineAndStatusHistoryForInformalNotification(
+                        Mockito.anyString(),
+                        Mockito.anyInt(),
+                        Mockito.any()))
+                .thenReturn(dto);
+
+        Instant createdAt = Instant.now();
+        int numberOfRecipients = 1;
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .queryParam("createdAt", createdAt)
+                                .queryParam("numberOfRecipients", numberOfRecipients)
+                                .build()
+                )
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(InformalNotificationHistoryResponse.class);
+
+        Mockito.verify(service).getTimelineAndStatusHistoryForInformalNotification(
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.any());
+    }
+
+    @Test
+    void getInformalTimelineKoRuntimeEx() {
+        Mockito.when(service.getTimelineAndStatusHistoryForInformalNotification(
+                        Mockito.anyString(),
+                        Mockito.anyInt(),
+                        Mockito.any()))
+                .thenThrow(new NullPointerException());
+
+        Instant createdAt = Instant.now();
+        int numberOfRecipients = 1;
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .queryParam("createdAt", createdAt)
+                                .queryParam("numberOfRecipients", numberOfRecipients)
+                                .build()
+                )
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .is5xxServerError()
+                .expectBody(Problem.class).consumeWith(elem -> {
+                    Problem problem = elem.getResponseBody();
+                    assert problem != null;
+                    Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
+                });
+
+        Mockito.verify(service).getTimelineAndStatusHistoryForInformalNotification(
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.any());
+    }
+
+    @Test
+    void getInformalTimelineKoBadRequest() {
+        Mockito.when(service.getTimelineAndStatusHistoryForInformalNotification(
+                        Mockito.anyString(),
+                        Mockito.anyInt(),
+                        Mockito.any()))
+                .thenThrow(new NullPointerException());
+
+        Instant createdAt = Instant.now();
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .queryParam("createdAt", createdAt)
+                                .build()
+                )
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .exchange()
+                .expectStatus()
+                .is4xxClientError()
+                .expectBody(Problem.class).consumeWith(elem -> {
+                    Problem problem = elem.getResponseBody();
+                    assert problem != null;
+                    Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
+                    Assertions.assertNotNull(problem.getDetail());
+                });
+    }
+
+    @Test
     void getTimelineKoRuntimeEx() {
         Mockito.when(service.getTimelineAndStatusHistory(Mockito.anyString(), Mockito.anyInt(), Mockito.any()))
                 .thenThrow( new NullPointerException() );

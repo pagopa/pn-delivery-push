@@ -7,6 +7,8 @@ import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.mode
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.LegalFactsResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationStatusHistoryElement;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.TimelineElement;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalTimelineElementCategoryV1;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.timeline.TimelineClient;
@@ -55,15 +57,26 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
-        removeDiagnosticElements(notificationHistoryResponse);
+        removeDiagnosticElements(notificationHistoryResponse,false);
         return timelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
     }
 
-    private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse) {
+    @Override
+    public InformalNotificationHistoryResponse getTimelineAndStatusHistoryForInformalNotification(String iun, int numberOfRecipients, Instant createdAt) {
+        log.debug("getTimelineAndStatusHistoryForInformalNotification - IUN={}, numberOfRecipients={}, createdAt={}", iun, numberOfRecipients, createdAt);
+
+        it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
+                timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
+        removeDiagnosticElements(notificationHistoryResponse, true);
+        return timelineServiceMapper.toInformalNotificationHistoryResponseDto(notificationHistoryResponse);
+    }
+
+    private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse,
+                                          boolean isInformalNotification) {
         if (notificationHistoryResponse.getTimeline() != null) {
             notificationHistoryResponse.setTimeline(
                     notificationHistoryResponse.getTimeline().stream()
-                            .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue()))
+                            .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue(), isInformalNotification))
                             .collect(Collectors.toList())
             );
             if (notificationHistoryResponse.getNotificationStatusHistory() != null) {
@@ -94,8 +107,12 @@ public class TimelineServiceHttpImpl implements TimelineService {
         statusHistoryElement.setRelatedTimelineElements(filteredRelated);
     }
 
-    private boolean isPublicElement(String elementCategory) {
-        return Arrays.stream(TimelineElementCategoryV28.values())
+    private boolean isPublicElement(String elementCategory, boolean isInformalNotification) {
+        if(!isInformalNotification){
+            return Arrays.stream(TimelineElementCategoryV28.values())
+                    .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
+        }
+        return Arrays.stream(InformalTimelineElementCategoryV1.values())
                 .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
     }
 
