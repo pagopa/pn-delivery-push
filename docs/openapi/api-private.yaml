@@ -93,7 +93,7 @@ paths:
         - TimelineAndStatus
       operationId: getInformalNotificationHistory
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathInformalIun'
         - $ref: '#/components/parameters/pathNumberOfRecipients'
         - $ref: '#/components/parameters/pathCreatedAt'
       responses:
@@ -437,13 +437,10 @@ components:
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
     ############################################################################################
     pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
+      $ref: 'remote-refs.yaml#/components/parameters/pathIun'
+
+    pathInformalIun:
+      $ref: 'remote-refs.yaml#/components/parameters/pathInformalIun'
 
     pathNumberOfRecipients:
       description: >-

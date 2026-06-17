@@ -108,11 +108,10 @@ public class TimelineServiceHttpImpl implements TimelineService {
     }
 
     private boolean isPublicElement(String elementCategory, boolean isInformalNotification) {
-        if(!isInformalNotification){
-            return Arrays.stream(TimelineElementCategoryV28.values())
-                    .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
-        }
-        return Arrays.stream(InformalTimelineElementCategoryV1.values())
+    return isInformalNotification
+            ? Arrays.stream(InformalTimelineElementCategoryV1.values())
+                .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory))
+            : Arrays.stream(TimelineElementCategoryV28.values())
                 .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
     }
 
