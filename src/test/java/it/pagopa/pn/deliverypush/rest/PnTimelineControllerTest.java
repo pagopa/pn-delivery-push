@@ -19,7 +19,8 @@ import java.util.Collections;
 @WebFluxTest(PnTimelineController.class)
 class PnTimelineControllerTest {
 
-    private static final String IUN = "test";
+    private static final String IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
+    private static final String IUN_BONARIE = "EMNZ-AMNX-TEWL-202606-Y-A";
 
     @Autowired
     WebTestClient webTestClient;
@@ -90,7 +91,7 @@ class PnTimelineControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .path("/delivery-push-private/" + IUN_BONARIE + "/informal/history")
                                 .queryParam("createdAt", createdAt)
                                 .queryParam("numberOfRecipients", numberOfRecipients)
                                 .build()
@@ -120,7 +121,7 @@ class PnTimelineControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .path("/delivery-push-private/" + IUN_BONARIE + "/informal/history")
                                 .queryParam("createdAt", createdAt)
                                 .queryParam("numberOfRecipients", numberOfRecipients)
                                 .build()
@@ -155,7 +156,7 @@ class PnTimelineControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/" + IUN + "/informal/history")
+                                .path("/delivery-push-private/" + IUN_BONARIE + "/informal/history")
                                 .queryParam("createdAt", createdAt)
                                 .build()
                 )
