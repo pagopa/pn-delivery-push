@@ -57,7 +57,7 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
-        removeDiagnosticElements(notificationHistoryResponse,false);
+        removeDiagnosticElements(notificationHistoryResponse, LEGAL_CATEGORIES);
         return timelineServiceMapper.toNotificationHistoryResponseDto(notificationHistoryResponse);
     }
 
@@ -67,16 +67,15 @@ public class TimelineServiceHttpImpl implements TimelineService {
 
         it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse =
                 timelineClient.getTimelineAndStatusHistory(iun, numberOfRecipients, createdAt);
-        removeDiagnosticElements(notificationHistoryResponse, true);
+        removeDiagnosticElements(notificationHistoryResponse, INFORMAL_CATEGORIES);
         return timelineServiceMapper.toInformalNotificationHistoryResponseDto(notificationHistoryResponse);
     }
 
-    private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse,
-                                          boolean isInformalNotification) {
+    private void removeDiagnosticElements(it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse notificationHistoryResponse, Set<String> publicCategories) {
         if (notificationHistoryResponse.getTimeline() != null) {
             notificationHistoryResponse.setTimeline(
                     notificationHistoryResponse.getTimeline().stream()
-                            .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue(), isInformalNotification))
+                            .filter(timelineElement -> isPublicElement(timelineElement.getCategory().getValue(),publicCategories ))
                             .collect(Collectors.toList())
             );
             if (notificationHistoryResponse.getNotificationStatusHistory() != null) {
@@ -107,12 +106,16 @@ public class TimelineServiceHttpImpl implements TimelineService {
         statusHistoryElement.setRelatedTimelineElements(filteredRelated);
     }
 
-    private boolean isPublicElement(String elementCategory, boolean isInformalNotification) {
-    return isInformalNotification
-            ? Arrays.stream(InformalTimelineElementCategoryV1.values())
-                .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory))
-            : Arrays.stream(TimelineElementCategoryV28.values())
-                .anyMatch(enumVal -> enumVal.getValue().equalsIgnoreCase(elementCategory));
+    private static final Set<String> INFORMAL_CATEGORIES = Arrays.stream(InformalTimelineElementCategoryV1.values())
+            .map(e -> e.getValue().toLowerCase())
+            .collect(Collectors.toSet());
+
+    private static final Set<String> LEGAL_CATEGORIES = Arrays.stream(TimelineElementCategoryV28.values())
+            .map(e -> e.getValue().toLowerCase())
+            .collect(Collectors.toSet());
+
+    private boolean isPublicElement(String elementCategory, Set<String> allowedCategories) {
+        return allowedCategories.contains(elementCategory.toLowerCase());
     }
 
     @Override
