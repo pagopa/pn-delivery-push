@@ -79,6 +79,7 @@ components:
           * `COMPLETED` - Stato finale di terminazione positiva; si raggiunge se si riscontra uno dei feedback desiderati esplicitamente impostati dall'ente nella campagna, oppure in caso di interruzione forzata via API
           * `UNDELIVERABLE` - Stato di irreperibilità totale; raggiungibile solo se la validazione asincrona consente l'ingresso di notifiche prive di qualsiasi recapito utile o di profilo IO associato
           * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `ACCEPTED` - Notifica accettato a seguito della validazione
       enum:
         - IN_VALIDATION
         - PROCESSING
@@ -87,6 +88,7 @@ components:
         - COMPLETED
         - UNDELIVERABLE
         - REFUSED
+        - ACCEPTED
 
     InformalNotificationStatusHistoryV1:
       description: elenco degli avanzamenti effettuati dal processo di notifica bonaria
