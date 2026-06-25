@@ -9,9 +9,9 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationStatusV26;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementCategoryV28;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.TimelineElementV28;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.ValidateNormalizeAddressDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class TimelineServiceMapperTest {
+
     @Autowired
     private SmartMapper smartMapper;
 
@@ -44,7 +45,10 @@ class TimelineServiceMapperTest {
                 .raddTransactionId("RADD123")
                 .notificationCost(1000L);
 
-        TimelineElementDetailsInt result = timelineServiceMapper.toTimelineElementDetailsInt(details, TimelineElementCategoryInt.NOTIFICATION_VIEWED);
+        TimelineElementDetailsInt result = timelineServiceMapper.toTimelineElementDetailsInt(
+                details,
+                TimelineElementCategoryInt.NOTIFICATION_VIEWED
+        );
         NotificationViewedDetailsInt notificationViewedDetailsInt = (NotificationViewedDetailsInt) result;
 
         assertNotNull(notificationViewedDetailsInt);
@@ -55,7 +59,6 @@ class TimelineServiceMapperTest {
 
     @Test
     void getNewTimelineElement_mapsFieldsCorrectly() {
-        // Arrange
         TimelineElementInternal timelineElementInternal = TimelineElementInternal.builder()
                 .iun("IUN_TEST")
                 .elementId("ELEM_ID")
@@ -69,14 +72,12 @@ class TimelineServiceMapperTest {
         NotificationInt notificationInt = NotificationInt.builder()
                 .iun("IUN_TEST")
                 .paProtocolNumber("PROT_123")
-                .sentAt(java.time.Instant.now())
-                .recipients(java.util.List.of(recipient1, recipient2))
+                .sentAt(Instant.now())
+                .recipients(List.of(recipient1, recipient2))
                 .build();
 
-        // Act
         NewTimelineElement result = timelineServiceMapper.getNewTimelineElement(timelineElementInternal, notificationInt);
 
-        // Assert
         assertNotNull(result);
         assertNotNull(result.getTimelineElement());
         assertNotNull(result.getNotificationInfo());
@@ -86,11 +87,11 @@ class TimelineServiceMapperTest {
         assertNotNull(result.getTimelineElement().getLegalFactsIds());
     }
 
-
     @Test
     void toNotificationHistoryResponseDto_returnsExpectedResponse() {
         TimelineElementDetails details = new NotificationViewedDetails().categoryType("NOTIFICATION_VIEWED");
         LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
+
         TimelineElement timelineElement = new TimelineElement()
                 .elementId("ELEM1")
                 .timestamp(Instant.now())
@@ -106,7 +107,8 @@ class TimelineServiceMapperTest {
                 .notificationStatusHistory(List.of())
                 .timeline(List.of(timelineElement));
 
-        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result = timelineServiceMapper.toNotificationHistoryResponseDto(input);
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse result =
+                timelineServiceMapper.toNotificationHistoryResponseDto(input);
 
         assertNotNull(result);
         assertEquals(NotificationStatusV26.DELIVERED, result.getNotificationStatus());
@@ -120,6 +122,7 @@ class TimelineServiceMapperTest {
     void getTimelineElementV28List_mapsFieldsCorrectly() {
         TimelineElementDetails details = new NotificationViewedDetails().categoryType("NOTIFICATION_VIEWED");
         LegalFactsId legalFactsId = new LegalFactsId().category(LegalFactsId.CategoryEnum.ANALOG_DELIVERY);
+
         TimelineElement timelineElement = new TimelineElement()
                 .elementId("ELEM1")
                 .timestamp(Instant.now())
@@ -141,6 +144,7 @@ class TimelineServiceMapperTest {
         assertEquals("ELEM1", elem.getElementId());
         assertEquals(TimelineElementCategoryV28.NOTIFICATION_VIEWED, elem.getCategory());
         assertNotNull(elem.getDetails());
+        assertNotNull(elem.getNotificationSentAt());
     }
 
     @Test
@@ -150,7 +154,6 @@ class TimelineServiceMapperTest {
 
     @Test
     void toTimelineElementInternal_mapsAllFieldsCorrectly() {
-
         NotificationViewedDetails details = new NotificationViewedDetails();
         details.setRecIndex(0);
         details.setEventTimestamp(Instant.now());
@@ -189,4 +192,95 @@ class TimelineServiceMapperTest {
         assertNotNull(result.getEventTimestamp());
     }
 
+    @Test
+    void toInformalNotificationHistoryResponseDto_mapsAllFieldsCorrectly() {
+        Instant now = Instant.now();
+
+        TimelineElementDetails details = new ValidateNormalizeAddressDetails()
+                .categoryType("VALIDATE_NORMALIZE_ADDRESSES_REQUEST");
+
+        TimelineElement timelineElement = new TimelineElement()
+                .elementId("INF_ELEM_1")
+                .timestamp(now)
+                .category(TimelineCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST)
+                .details(details)
+                .notificationSentAt(now)
+                .ingestionTimestamp(now)
+                .eventTimestamp(now);
+
+        NotificationStatusHistoryElement statusHistoryElement = new NotificationStatusHistoryElement()
+                .status(NotificationStatus.IN_VALIDATION)
+                .activeFrom(now)
+                .relatedTimelineElements(List.of("INF_ELEM_1"));
+
+        NotificationHistoryResponse source = new NotificationHistoryResponse()
+                .notificationStatus(NotificationStatus.IN_VALIDATION)
+                .notificationStatusHistory(List.of(statusHistoryElement))
+                .timeline(List.of(timelineElement));
+
+        InformalNotificationHistoryResponse result = timelineServiceMapper.toInformalNotificationHistoryResponseDto(source);
+
+        assertNotNull(result);
+        assertEquals(InformalNotificationStatusV1.IN_VALIDATION, result.getInformalNotificationStatus());
+
+        assertNotNull(result.getInformalNotificationStatusHistory());
+        assertEquals(1, result.getInformalNotificationStatusHistory().size());
+
+        InformalNotificationStatusHistoryElementV1 statusElem =
+                result.getInformalNotificationStatusHistory().getFirst();
+        assertEquals(InformalNotificationStatusV1.IN_VALIDATION, statusElem.getStatus());
+        assertEquals(now, statusElem.getActiveFrom());
+        assertEquals(List.of("INF_ELEM_1"), statusElem.getRelatedTimelineElements());
+
+        assertNotNull(result.getTimeline());
+        assertEquals(1, result.getTimeline().size());
+
+        InformalTimelineElementV1 timelineElem = result.getTimeline().getFirst();
+        assertEquals("INF_ELEM_1", timelineElem.getElementId());
+        assertEquals(
+                InformalTimelineElementCategoryV1.VALIDATE_NORMALIZE_ADDRESSES_REQUEST,
+                timelineElem.getCategory()
+        );
+        assertNotNull(timelineElem.getDetails());
+        assertNotNull(timelineElem.getNotificationSentAt());
+        assertNotNull(timelineElem.getIngestionTimestamp());
+        assertNotNull(timelineElem.getEventTimestamp());
+    }
+
+    @Test
+    void toInformalNotificationHistoryResponseDto_withNullNestedFields_mapsToNullCollectionsAndStatus() {
+        NotificationHistoryResponse source = new NotificationHistoryResponse()
+                .notificationStatus(null)
+                .notificationStatusHistory(null)
+                .timeline(null);
+
+        InformalNotificationHistoryResponse result = timelineServiceMapper.toInformalNotificationHistoryResponseDto(source);
+
+        assertNotNull(result);
+        assertNull(result.getInformalNotificationStatus());
+        assertNull(result.getInformalNotificationStatusHistory());
+        assertNull(result.getTimeline());
+    }
+
+    @Test
+    void toInformalNotificationHistoryResponseDto_withEmptyLists_mapsEmptyLists() {
+        NotificationHistoryResponse source = new NotificationHistoryResponse()
+                .notificationStatus(NotificationStatus.IN_VALIDATION)
+                .notificationStatusHistory(List.of())
+                .timeline(List.of());
+
+        InformalNotificationHistoryResponse result = timelineServiceMapper.toInformalNotificationHistoryResponseDto(source);
+
+        assertNotNull(result);
+        assertEquals(InformalNotificationStatusV1.IN_VALIDATION, result.getInformalNotificationStatus());
+        assertNotNull(result.getInformalNotificationStatusHistory());
+        assertTrue(result.getInformalNotificationStatusHistory().isEmpty());
+        assertNotNull(result.getTimeline());
+        assertTrue(result.getTimeline().isEmpty());
+    }
+
+    @Test
+    void toInformalNotificationHistoryResponseDto_nullInput_returnsNull() {
+        assertNull(timelineServiceMapper.toInformalNotificationHistoryResponseDto(null));
+    }
 }
