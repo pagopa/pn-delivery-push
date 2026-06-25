@@ -74,18 +74,16 @@ components:
         stato di avanzamento del processo di notifica bonaria:
           * `IN_VALIDATION` - Fase di validazione formale, sintattica (sincrona) ed asincrona (verifica allegati e coerenza della campagna)
           * `PROCESSING` - Stato assunto non appena la validazione ha esito positivo e l'orchestratore avvia il workflow sequenziale di consegna sui canali
-          * `REACHED` - Il destinatario è stato raggiunto alla destinazione più vicina al cittadino, ma non è stato ancora ottenuto il feedback di arresto finale desiderato dall'ente; stato alternativo a `COMPLETED`
-          * `UNREACHED` - Stato finale assunto al termine del workflow se nessun canale ha fornito un feedback positivo di consegna
-          * `COMPLETED` - Stato finale di terminazione positiva; si raggiunge se si riscontra uno dei feedback desiderati esplicitamente impostati dall'ente nella campagna, oppure in caso di interruzione forzata via API
+          * `COMPLETED_REACHED` - Stato finale di terminazione positiva; Il destinatario è stato raggiunto alla destinazione più vicina al cittadino, ma non è stato ancora ottenuto il feedback di arresto finale desiderato dall'ente;
+          * `COMPLETED_UNREACHED` - Stato finale di terminazione negativa; Il destinatario non è stato raggiunto alla destinazione più vicina al cittadino;
           * `UNDELIVERABLE` - Stato di irreperibilità totale; raggiungibile solo se la validazione asincrona consente l'ingresso di notifiche prive di qualsiasi recapito utile o di profilo IO associato
           * `REFUSED` - Notifica rifiutata a seguito della validazione
           * `ACCEPTED` - Notifica accettato a seguito della validazione
       enum:
         - IN_VALIDATION
         - PROCESSING
-        - REACHED
-        - UNREACHED
-        - COMPLETED
+        - COMPLETED_REACHED
+        - COMPLETED_UNREACHED
         - UNDELIVERABLE
         - REFUSED
         - ACCEPTED
