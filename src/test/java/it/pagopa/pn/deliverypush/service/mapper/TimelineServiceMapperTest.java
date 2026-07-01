@@ -9,8 +9,8 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.NotificationViewedDetailsI
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementCategoryInt;
 import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.InformalNotificationViewedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.ValidateNormalizeAddressDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -196,13 +196,13 @@ class TimelineServiceMapperTest {
     void toInformalNotificationHistoryResponseDto_mapsAllFieldsCorrectly() {
         Instant now = Instant.now();
 
-        TimelineElementDetails details = new ValidateNormalizeAddressDetails()
-                .categoryType("VALIDATE_NORMALIZE_ADDRESSES_REQUEST");
+        TimelineElementDetails details = new InformalNotificationViewedDetails()
+                .categoryType("INFORMAL_NOTIFICATION_VIEWED");
 
         TimelineElement timelineElement = new TimelineElement()
                 .elementId("INF_ELEM_1")
                 .timestamp(now)
-                .category(TimelineCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST)
+                .category(TimelineCategory.INFORMAL_NOTIFICATION_VIEWED)
                 .details(details)
                 .notificationSentAt(now)
                 .ingestionTimestamp(now)
@@ -238,7 +238,7 @@ class TimelineServiceMapperTest {
         InformalTimelineElementV1 timelineElem = result.getTimeline().getFirst();
         assertEquals("INF_ELEM_1", timelineElem.getElementId());
         assertEquals(
-                InformalTimelineElementCategoryV1.VALIDATE_NORMALIZE_ADDRESSES_REQUEST,
+                InformalTimelineElementCategoryV1.INFORMAL_NOTIFICATION_VIEWED,
                 timelineElem.getCategory()
         );
         assertNotNull(timelineElem.getDetails());
