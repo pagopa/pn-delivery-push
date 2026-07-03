@@ -1637,6 +1637,7 @@ components:
           $ref: '#/components/schemas/CategorizedAttachmentsResult'
         vat:
           type: integer
+          format: int32
 
     SendAnalogMessageProgressDetails:
       x-discriminator-value: "SEND_ANALOG_MESSAGE_PROGRESS"
