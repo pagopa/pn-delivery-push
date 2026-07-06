@@ -169,6 +169,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/v1/notifications/{iun}/invalidate-timeline-elements':
+    put:
+      summary: Permette di eseguire la correzione puntuale di una notifica
+      description: >-
+        Questo endpoint permette di correggere la timeline delle notifiche invalidando puntualmente gli elementi di timeline ricevuti in input
+      tags:
+        - NotificationRework
+      operationId: invalidateTimelineElements
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateTimelineElementsRequest'
+        required: true
+      responses:
+        '202':
+          description: Accepted - Richiesta di invalidazione elementi di timeline presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidateTimelineElementsResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Notification not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 components:
   parameters:
     pathIun:
@@ -241,6 +283,7 @@ components:
         creationDate:
           type: string
           format: date-time
+
     ReworkItemsResponse:
       type: object
       properties:
@@ -372,5 +415,17 @@ components:
         - reason
 
     RestartAttemptResponse:
+      allOf:
+        - $ref: "#/components/schemas/ReworkResponse"
+
+    InvalidateTimelineElementsRequest:
+      type: object
+      properties:
+        timelineElementIds:
+          type: array
+          items:
+            type: string
+
+    InvalidateTimelineElementsResponse:
       allOf:
         - $ref: "#/components/schemas/ReworkResponse"
