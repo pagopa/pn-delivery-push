@@ -359,12 +359,13 @@ components:
             - ERROR
             - DONE
           description: stato della richiesta di rework (CREATED = creata, READY = pronta a ricevere gli eventi correttivi dal recapitista, IN_PROGRESS = almeno un evento correttivo è già stato ricevuto, DONE = è stato ricevuto l'evento finale)
-        requestType:
+        reworkRequestType:
           type: string
           enum:
             - REWORK
             - RESTART
-          description: Tipo della richiesta di rework (RESTART, REWORK)
+            - INVALIDATE_ELEMENTS
+          description: Tipo della richiesta di rework (RESTART, REWORK, INVALIDATE_ELEMENTS)
     ReworkError:
       type: object
       properties:
@@ -421,10 +422,18 @@ components:
     InvalidateTimelineElementsRequest:
       type: object
       properties:
+        recIndex:
+          type: string
+          pattern: '^RECINDEX_([1-9][0-9]?|0)$'
+          example: 'RECINDEX_0'
         timelineElementIds:
           type: array
+          minItems: 1
           items:
             type: string
+      required:
+        - recIndex
+        - timelineElementIds
 
     InvalidateTimelineElementsResponse:
       allOf:

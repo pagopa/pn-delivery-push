@@ -1,7 +1,9 @@
 package it.pagopa.pn.deliverypush.dto.notificationrework;
 
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class NotificationReworkRequestInternal {
@@ -14,7 +16,8 @@ public class NotificationReworkRequestInternal {
     private String expectedStatusCode;
     private String expectedDeliveryFailureCause;
     private String productType;
-    private RequestType requestType;
+    private ReworkRequestType reworkRequestType;
     private String task;
+    private List<String> elementsToInvalidate;
 
 }
