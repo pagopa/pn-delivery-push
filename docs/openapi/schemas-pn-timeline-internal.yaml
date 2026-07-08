@@ -204,6 +204,119 @@ components:
       discriminator:  # NO EXTERNAL
         propertyName: "categoryType" # NO EXTERNAL
 
+    InformalTimelineElementCategoryV1:
+      type: string
+      description: >
+        Categorie degli elementi della timeline nel dominio delle notifiche bonarie:
+          * `PUBLIC_REGISTRY_VALIDATION_CALL` - Ricerca dell'indirizzo di spedizione in fase di validazione notifica
+          * `PUBLIC_REGISTRY_VALIDATION_RESPONSE` - Recupero dell'indirizzo di spedizione dai registri nazionali
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento dei controlli di validazione
+          * `COVERPAGE_CREATION_REQUEST` - Richiesta di generazione della pagina di copertina o dei moduli di pagamento
+          * `SEND_DIGITAL_MESSAGE` - Tentativo di invio del messaggio sui canali digitali (App IO, Email, SMS)
+          * `SEND_DIGITAL_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento dell'invio digitale
+          * `SEND_DIGITAL_MESSAGE_FEEDBACK` - Ricezione del feedback di consegna (esito) del messaggio digitale
+          * `SEND_DIGITAL_MESSAGE_SKIP` - Salto programmato dell'invio digitale (es. canale non disponibile)
+          * `PREPARE_ANALOG_DELIVERY` - Avvio della fase di preparazione per la spedizione cartacea/analogica
+          * `SEND_ANALOG_MESSAGE` - Affidamento della richiesta di spedizione al vettore analogico (es. Poste/vettore)
+          * `SEND_ANALOG_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento della spedizione analogica
+          * `SEND_ANALOG_MESSAGE_FEEDBACK` - Ricezione dell'esito o feedback di consegna della spedizione cartacea
+          * `DELIVERED` - Notifica o messaggio consegnato con successo al destinatario
+          * `INFORMAL_NOTIFICATION_VIEWED` - Presa visione o lettura della notifica bonaria da parte del destinatario
+          * `PAYMENT` - Registrazione del pagamento associato alla notifica bonaria
+          * `WORKFLOW_ENDED_REACHED` - Flusso terminato: il destinatario è stato raggiunto con successo
+          * `WORKFLOW_ENDED_UNREACHED` - Flusso terminato: il destinatario non è stato raggiunto nei tempi previsti
+          * `WORKFLOW_ENDED_UNDELIVERABLE` - Flusso terminato: la notifica è definitivamente irrecapitabile su ogni canale
+          * `WORKFLOW_DONE_REACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario raggiunto
+          * `WORKFLOW_DONE_UNREACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario non raggiunto
+      enum:
+        - PUBLIC_REGISTRY_VALIDATION_CALL
+        - PUBLIC_REGISTRY_VALIDATION_RESPONSE
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
+        - REQUEST_ACCEPTED
+        - REQUEST_REFUSED
+        - SEND_DIGITAL_MESSAGE
+        - SEND_DIGITAL_MESSAGE_PROGRESS
+        - SEND_DIGITAL_MESSAGE_FEEDBACK
+        - SEND_DIGITAL_MESSAGE_SKIP
+        - PREPARE_ANALOG_DELIVERY
+        - SEND_ANALOG_MESSAGE
+        - SEND_ANALOG_MESSAGE_PROGRESS
+        - SEND_ANALOG_MESSAGE_FEEDBACK
+        - DELIVERED
+        - WORKFLOW_ENDED_REACHED
+        - WORKFLOW_ENDED_UNREACHED
+        - WORKFLOW_ENDED_UNDELIVERABLE
+        - WORKFLOW_DONE_REACHED
+        - WORKFLOW_DONE_UNREACHED
+        - INFORMAL_NOTIFICATION_VIEWED
+        - COVERPAGE_CREATION_REQUEST
+        - PAYMENT
+
+    InformalTimelineElementDetailsV1:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - "$ref": "#/components/schemas/PublicRegistryValidationCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryValidationResponseDetails"
+        - "$ref": "#/components/schemas/ValidateNormalizeAddressDetails" # NO EXTERNAL
+        - "$ref": "#/components/schemas/NormalizedAddressDetails"
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetailsV28"
+        - "$ref": "#/components/schemas/RequestRefusedDetailsV27"
+        - "$ref": "#/components/schemas/SendDigitalMessageDetails"
+        - "$ref": "#/components/schemas/SendDigitalMessageProgressDetails"
+        - "$ref": "#/components/schemas/SendDigitalMessageFeedbackDetails"
+        - "$ref": "#/components/schemas/PrepareAnalogDeliveryDetails"
+        - "$ref": "#/components/schemas/SendAnalogMessageDetails"
+        - "$ref": "#/components/schemas/SendAnalogMessageProgressDetails"
+        - "$ref": "#/components/schemas/SendAnalogMessageFeedbackDetails"
+        - "$ref": "#/components/schemas/DeliveredDetails"
+        - "$ref": "#/components/schemas/WorkflowEndedReachedDetails"
+        - "$ref": "#/components/schemas/WorkflowEndedUnreachedDetails"
+        - "$ref": "#/components/schemas/WorkflowEndedUndeliverableDetails"
+        - "$ref": "#/components/schemas/WorkflowDoneReachedDetails"
+        - "$ref": "#/components/schemas/WorkflowDoneUnreachedDetails"
+        - "$ref": "#/components/schemas/InformalNotificationViewedDetails"
+        - "$ref": "#/components/schemas/CoverpageCreationRequestDetails"
+        - "$ref": "#/components/schemas/SendDigitalMessageSkipDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetailsV23"
+      discriminator:  # NO EXTERNAL
+        propertyName: "categoryType"  # NO EXTERNAL
+
+    InformalTimelineElementV1:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          maxLength: 512
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica bonaria definisce in
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          deprecated: true
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
+          format: date-time
+        ingestionTimestamp:
+          type: string
+          description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
+          format: date-time
+        eventTimestamp:
+          type: string
+          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
+          format: date-time
+        notificationSentAt:
+          type: string
+          description: Momento di ricezione della richiesta di notifica da parte di SEND
+          format: date-time
+        category:
+          $ref: '#/components/schemas/InformalTimelineElementCategoryV1'
+        details:
+          $ref: '#/components/schemas/InformalTimelineElementDetailsV1'
+
     ValidateNormalizeAddressDetails:  # NO EXTERNAL
       x-discriminator-value: "VALIDATE_NORMALIZE_ADDRESSES_REQUEST"  # NO EXTERNAL
       type: object  # NO EXTERNAL
@@ -1336,56 +1449,19 @@ components:
           type: string
           description: RequestId della richiesta di prepare
           maxLength: 512
-    NotificationPaidDetails:
-      x-discriminator-value: "PAYMENT"
-      type: object
-      required:
-        - recIndex
-        - recipientType
-        - paymentSourceChannel
-        - categoryType
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          type: integer
-          description: Index destinatario che ha effettuato il pagamento della notifica
-          format: int32
-        recipientType:
-          $ref: '#/components/schemas/RecipientType'
-        amount:
-          type: integer
-          description: Importo di pagamento in eurocent
-          format: int32
-        creditorTaxId:
-          $ref: 'remote-refs.yaml#/components/schemas/PaTaxId'
-        noticeCode:
-          $ref: 'remote-refs.yaml#/components/schemas/NoticeCode'
-        paymentSourceChannel:
-          type: string
-          description: Canale sorgente della richiesta di pagamento
-          maxLength: 512
-        uncertainPaymentDate:
-          deprecated: true
-          type: boolean
-          description: Indica se la data di pagamento é certa
-        eventTimestamp:
-          type: string
-          description: Data evento pagamento
-          format: date-time
 
     SendDigitalMessageDetails:
-      x-discriminator-value: "SEND_DIGITAL_MESSAGE"
+      x-discriminator-value: "SEND_DIGITAL_MESSAGE" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         digitalAddress:
           $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
         digitalAddressSource:
@@ -1402,13 +1478,13 @@ components:
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         channel:
           $ref: '#/components/schemas/DigitalChannels'
         digitalAddressSource:
@@ -1419,17 +1495,17 @@ components:
           format: int32
 
     SendDigitalMessageProgressDetails:
-      x-discriminator-value: "SEND_DIGITAL_MESSAGE_PROGRESS"
+      x-discriminator-value: "SEND_DIGITAL_MESSAGE_PROGRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - channel
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         deliveryDetail:
           $ref: '#/components/schemas/DigitalDeliveryDetail'
         digitalAddress:
@@ -1460,20 +1536,33 @@ components:
           maxLength: 20
           description: >
             Stato - Codice relativo all'evento - Descrizione:
+              - PROGRESS   SENT_TO_IO = MESSAGGIO INVIATO SU APP IO
+              - PROGRESS   DELIVERED_TO_USER = MESSAGGIO CONSEGNATO AL DESTINATARIO SU APP IO
+              - PROGRESS   READ = LETTURA MESSAGGIO DA PARTE DEL DESTINATARIO SU APP IO
+              - PROGRESS   PAID = PAGAMENTO POSIZIONE DEBITORIA SU APP IO
               - PROGRESS   C000 = PREACCETTAZIONE
               - PROGRESS   C001 = ACCETTAZIONE
               - PROGRESS   C005 = PRESA_IN_CARICO
               - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
-              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
-              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
-              - PROGRESS   READ = LETTURA MESSAGGIO DA PARTE DEL DESTINATARIO
-              - PROGRESS   PAID = PAGAMENTO POSIZIONE DEBITORIA
+              - PROGRESS   M003 = INVIATO
+              - PROGRESS   M004 = IN CONSEGNA
+              - PROGRESS   S003 = INVIATO
+              - ERROR      SENDER_NOT_ALLOWED = DESTINATARIO NON ABILITATO A RICEVERE NOTIFICHE SU IO
               - ERROR      C002 = NON_ACCETTAZIONE
               - ERROR      C004 = ERRORE_CONSEGNA
               - ERROR      C006 = RILEVAZIONE_VIRUS
               - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
               - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
               - ERROR      C010 = ERROR_INVIO_PEC
+              - ERROR      C011 = ERRORE_INDIRIZZO
+              - ERROR      M005 = RIMBALZO
+              - ERROR      M006 = SPAM
+              - ERROR      M008 = ERRORE
+              - ERROR      M009 = RIFIUTATO
+              - ERROR      M010 = ERRORE_INTERNO
+              - ERROR      M011 = ERRORE_SISTEMA
+              - ERROR      S008 = ERRORE
+              - ERROR      S010 = ERRORE
               - OK         C003 = AVVENUTA_CONSEGNA
         failureCause:
           type: string
@@ -1485,18 +1574,18 @@ components:
           format: date-time
 
     SendDigitalMessageFeedbackDetails:
-      x-discriminator-value: "SEND_DIGITAL_MESSAGE_FEEDBACK"
+      x-discriminator-value: "SEND_DIGITAL_MESSAGE_FEEDBACK" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - digitalAddress
         - responseStatus
         - notificationDate
-        - categoryType
+        - categoryType # NO EXTERNAL
         - channel
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         digitalAddress:
@@ -1526,12 +1615,12 @@ components:
       type: string
       description: >
         Canale di invio digitale per il quale è stato ricevuto il feedback
-        __APPIO__: invio tramite App IO
+        __IO__: invio tramite App IO
         __PEC__: invio tramite PEC
         __EMAIL__: invio tramite email
         __SMS__: invio tramite SMS
       enum:
-        - APPIO
+        - IO
         - PEC
         - EMAIL
         - SMS
@@ -1542,11 +1631,11 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - categoryType
+        - categoryType # NO EXTERNAL
         - deliveryType
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -1580,11 +1669,11 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - categoryType
+        - categoryType # NO EXTERNAL
         - deliveryType
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -1629,26 +1718,20 @@ components:
           type: string
           description: request id della relativa richiesta di prepare
           maxLength: 512
-        f24Attachments:
-          type: array
-          items:
-            type: string
-        categorizedAttachmentsResult:
-          $ref: '#/components/schemas/CategorizedAttachmentsResult'
         vat:
           type: integer
           format: int32
 
     SendAnalogMessageProgressDetails:
-      x-discriminator-value: "SEND_ANALOG_MESSAGE_PROGRESS"
+      x-discriminator-value: "SEND_ANALOG_MESSAGE_PROGRESS" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - deliveryType
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         notificationDate:
@@ -1736,18 +1819,18 @@ components:
           format: date-time
 
     SendAnalogMessageFeedbackDetails:
-      x-discriminator-value: "SEND_ANALOG_MESSAGE_FEEDBACK"
+      x-discriminator-value: "SEND_ANALOG_MESSAGE_FEEDBACK" # NO EXTERNAL
       type: object
       required:
         - recIndex
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - categoryType
+        - categoryType # NO EXTERNAL
         - deliveryType
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         physicalAddress:
@@ -1789,20 +1872,22 @@ components:
           maxLength: 128
 
     DeliveredDetails:
-      x-discriminator-value: "DELIVERED"
+      x-discriminator-value: "DELIVERED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - channel
+        - sourceElementId
+        - categoryType # NO EXTERNAL
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         channel:
           type: string
           description: >
-            __Canale di raggiungimento del destinatario__
+            __Canale di consegna al destinatario__
             - __APPIO__
             - __PEC__
             - __EMAIL__
@@ -1810,64 +1895,63 @@ components:
             - __ANALOG__
         sourceElementId:
           type: string
-          description: Id dell'elemento che ha generato il raggiungimento
+          description: Id dell'elemento che ha generato la consegna al destinatario
           maxLength: 512
-
-    WorkflowEndedReachedDetails:
-      x-discriminator-value: "WORKFLOW_ENDED_REACHED"
-      type: object
-      required:
-        - recIndex
-        - categoryType
-        - sourceElementId
-      properties:
-        categoryType:
-          type: string
-        recIndex:
-          $ref: '#/components/schemas/RecIndex'
-        sourceElementId:
-          type: string
         notificationDate:
-          description: data del primo evento di raggiungimento del destinatario
+          description: data di consegna al destinatario
           type: string
           format: date-time
 
-    WorkflowEndedUnreachedDetails:
-      x-discriminator-value: "WORKFLOW_ENDED_UNREACHED"
+    WorkflowEndedReachedDetails:
+      x-discriminator-value: "WORKFLOW_ENDED_REACHED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - sourceElementId
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
           type: string
 
-    WorkflowEndedUndeliverableDetails:
-      x-discriminator-value: "WORKFLOW_ENDED_UNDELIVERABLE"
+    WorkflowEndedUnreachedDetails:
+      x-discriminator-value: "WORKFLOW_ENDED_UNREACHED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
+        - sourceElementId
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
+        recIndex:
+          $ref: '#/components/schemas/RecIndex'
+
+    WorkflowEndedUndeliverableDetails:
+      x-discriminator-value: "WORKFLOW_ENDED_UNDELIVERABLE" # NO EXTERNAL
+      type: object
+      required:
+        - recIndex
+        - categoryType # NO EXTERNAL
+      properties:
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
 
     WorkflowDoneReachedDetails:
-      x-discriminator-value: "WORKFLOW_DONE_REACHED "
+      x-discriminator-value: "WORKFLOW_DONE_REACHED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - sourceElementId
+        - categoryType # NO EXTERNAL
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
@@ -1876,14 +1960,15 @@ components:
           maxLength: 512
 
     WorkflowDoneUnreachedDetails:
-      x-discriminator-value: "WORKFLOW_DONE_UNREACHED "
+      x-discriminator-value: "WORKFLOW_DONE_UNREACHED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - sourceElementId
+        - categoryType # NO EXTERNAL
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           $ref: '#/components/schemas/RecIndex'
         sourceElementId:
@@ -1892,16 +1977,16 @@ components:
           maxLength: 512
 
     InformalNotificationViewedDetails:
-      x-discriminator-value: "INFORMAL_NOTIFICATION_VIEWED"
+      x-discriminator-value: "INFORMAL_NOTIFICATION_VIEWED" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - eventTimestamp
         - sourceChannel
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1914,7 +1999,7 @@ components:
           type: string
           description: >
             Canale di provenienza della richiesta di visualizzazione notifica bonaria
-            - __APPIO__: richiesta tramite App IO
+            - __IO__: richiesta tramite App IO
             - __WEB__: richiesta tramite Portale WEB
         sourceChannelDetails:
           type: string
@@ -1922,15 +2007,15 @@ components:
             Dettaglio del canale di provenienza della richiesta di visualizzazione notifica bonaria
 
     CoverpageCreationRequestDetails:
-      x-discriminator-value: "COVERPAGE_CREATION_REQUEST"
+      x-discriminator-value: "COVERPAGE_CREATION_REQUEST" # NO EXTERNAL
       type: object
       required:
         - recIndex
-        - categoryType
+        - categoryType # NO EXTERNAL
         - fileKey
       properties:
-        categoryType:
-          type: string
+        categoryType: # NO EXTERNAL
+          type: string # NO EXTERNAL
         recIndex:
           type: integer
           description: Index destinatario notifica digitale
@@ -1958,33 +2043,6 @@ components:
       enum:
         - PF
         - PG
-
-    CategorizedAttachmentsResult:
-      type: object
-      properties:
-        acceptedAttachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultFilter'
-        discardedAttachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultFilter'
-    ResultFilter:
-      type: object
-      properties:
-        fileKey:
-          type: string
-        result:
-          type: string
-          enum:
-            - SUCCESS
-            - DISCARD
-            - NEXT
-        reasonCode:
-          type: string
-        reasonDescription:
-          type: string
 
     ServiceLevel:
       type: string
@@ -2240,104 +2298,3 @@ components:
             $ref: "#/components/schemas/NotificationStatusHistoryInvalidatedElement"
         categoryType: # NO EXTERNAL
           type: string # NO EXTERNAL
-
-    InformalTimelineElementCategoryV1:
-      type: string
-      description: >
-        Categorie degli elementi della timeline nel dominio delle notifiche bonarie:
-          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
-          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento dei controlli di validazione
-          * `COVERPAGE_CREATION_REQUEST` - Richiesta di generazione della pagina di copertina o dei moduli di pagamento
-          * `SEND_DIGITAL_MESSAGE` - Tentativo di invio del messaggio sui canali digitali (App IO, Email, SMS)
-          * `SEND_DIGITAL_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento dell'invio digitale
-          * `SEND_DIGITAL_MESSAGE_FEEDBACK` - Ricezione del feedback di consegna (esito) del messaggio digitale
-          * `SEND_DIGITAL_MESSAGE_SKIP` - Salto programmato dell'invio digitale (es. canale non configurato o non disponibile)
-          * `PREPARE_ANALOG_DELIVERY` - Avvio della fase di preparazione per la spedizione cartacea/analogica
-          * `SEND_ANALOG_MESSAGE` - Affidamento della richiesta di spedizione al vettore analogico (es. Poste/vettore)
-          * `SEND_ANALOG_MESSAGE_PROGRESS` - Aggiornamento sullo stato di avanzamento della spedizione analogica
-          * `SEND_ANALOG_MESSAGE_FEEDBACK` - Ricezione dell'esito o feedback di consegna della spedizione cartacea
-          * `DELIVERED` - Notifica o messaggio consegnato con successo al destinatario
-          * `INFORMAL_NOTIFICATION_VIEWED` - Presa visione o lettura della notifica bonaria da parte del destinatario
-          * `PAYMENT` - Registrazione del pagamento associato alla notifica bonaria
-          * `WORKFLOW_ENDED_REACHED` - Flusso terminato: il destinatario è stato raggiunto con successo
-          * `WORKFLOW_ENDED_UNREACHED` - Flusso terminato: il destinatario non è stato raggiunto nei tempi previsti
-          * `WORKFLOW_ENDED_UNDELIVERABLE` - Flusso terminato: la notifica è definitivamente irrecapitabile su ogni canale
-          * `WORKFLOW_DONE_REACHED` - Elaborazione del workflow completata con esito positivo (destinatario raggiunto)
-          * `WORKFLOW_DONE_UNREACHED` - Elaborazione del workflow completata con esito negativo (destinatario non raggiunto)
-      enum:
-        - SEND_DIGITAL_MESSAGE
-        - SEND_DIGITAL_MESSAGE_PROGRESS
-        - SEND_DIGITAL_MESSAGE_FEEDBACK
-        - PREPARE_ANALOG_DELIVERY
-        - SEND_ANALOG_MESSAGE
-        - SEND_ANALOG_MESSAGE_PROGRESS
-        - SEND_ANALOG_MESSAGE_FEEDBACK
-        - DELIVERED
-        - WORKFLOW_ENDED_REACHED
-        - WORKFLOW_ENDED_UNREACHED
-        - WORKFLOW_ENDED_UNDELIVERABLE
-        - WORKFLOW_DONE_REACHED
-        - WORKFLOW_DONE_UNREACHED
-        - INFORMAL_NOTIFICATION_VIEWED
-        - COVERPAGE_CREATION_REQUEST
-        - SEND_DIGITAL_MESSAGE_SKIP
-        - PAYMENT
-        - REQUEST_ACCEPTED
-        - REQUEST_REFUSED
-
-    InformalTimelineElementDetailsV1:
-      description: The raw event payload that will be different based on the event.
-      oneOf:
-        - "$ref": "#/components/schemas/SendDigitalMessageDetails"
-        - "$ref": "#/components/schemas/SendDigitalMessageProgressDetails"
-        - "$ref": "#/components/schemas/SendDigitalMessageFeedbackDetails"
-        - "$ref": "#/components/schemas/PrepareAnalogDeliveryDetails"
-        - "$ref": "#/components/schemas/SendAnalogMessageDetails"
-        - "$ref": "#/components/schemas/SendAnalogMessageProgressDetails"
-        - "$ref": "#/components/schemas/SendAnalogMessageFeedbackDetails"
-        - "$ref": "#/components/schemas/DeliveredDetails"
-        - "$ref": "#/components/schemas/WorkflowEndedReachedDetails"
-        - "$ref": "#/components/schemas/WorkflowEndedUnreachedDetails"
-        - "$ref": "#/components/schemas/WorkflowEndedUndeliverableDetails"
-        - "$ref": "#/components/schemas/WorkflowDoneReachedDetails"
-        - "$ref": "#/components/schemas/WorkflowDoneUnreachedDetails"
-        - "$ref": "#/components/schemas/InformalNotificationViewedDetails"
-        - "$ref": "#/components/schemas/CoverpageCreationRequestDetails"
-        - "$ref": "#/components/schemas/SendDigitalMessageSkipDetails"
-        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetailsV28"
-        - "$ref": "#/components/schemas/RequestRefusedDetailsV27"
-        - "$ref": "#/components/schemas/NotificationPaidDetails"
-      discriminator:
-        propertyName: "categoryType"
-
-    InformalTimelineElementV1:
-      type: object
-      additionalProperties: false
-      properties:
-        elementId:
-          type: string
-          maxLength: 512
-          description: >-
-            Identificativo dell'elemento di timeline: insieme allo IUN della notifica bonaria definisce in
-            maniera univoca l'elemento di timeline
-        timestamp:
-          type: string
-          deprecated: true
-          description: Istante in cui avviene l'evento descritto in questo elemento di timeline (deprecato, fare riferimento al campo eventTimestamp)
-          format: date-time
-        ingestionTimestamp:
-          type: string
-          description: Istante in cui l'evento descritto in questo elemento di timeline è gestito da SEND
-          format: date-time
-        eventTimestamp:
-          type: string
-          description: Istante in cui avviene l'evento descritto in questo elemento di timeline
-          format: date-time
-        notificationSentAt:
-          type: string
-          description: Momento di ricezione della richiesta di notifica da parte di SEND
-          format: date-time
-        category:
-          $ref: '#/components/schemas/InformalTimelineElementCategoryV1'
-        details:
-          $ref: '#/components/schemas/InformalTimelineElementDetailsV1'
