@@ -1709,6 +1709,7 @@ components:
       required:
         - recIndex
         - sourceElementId
+        - completionFeedback
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
@@ -1716,12 +1717,15 @@ components:
           type: string
           description: Id dell'elemento che ha generato la conclusione del workflow
           maxLength: 512
+        completionFeedback:
+          $ref: '#/components/schemas/CompletionFeedback'
 
     WorkflowDoneUnreachedDetails:
       type: object
       required:
         - recIndex
         - sourceElementId
+        - completionFeedback
       properties:
         recIndex:
           $ref: '#/components/schemas/RecIndex'
@@ -1729,6 +1733,8 @@ components:
           type: string
           description: Id dell'elemento che ha generato la conclusione del workflow
           maxLength: 512
+        completionFeedback:
+          $ref: '#/components/schemas/CompletionFeedback'
 
     InformalNotificationViewedDetails:
       type: object
@@ -1789,6 +1795,21 @@ components:
       enum:
         - PF
         - PG
+
+    CompletionFeedback:
+      type: string
+      description:  >
+        Feedback desiderato per la conclusione del workflow di notificazione
+        - __SENT__
+        - __RECEIVED__
+        - __READ__
+        - __PAID__
+        - __SKIP__
+
+      enum:
+          - DELIVERED
+          - UNDELIVERABLE
+          - UNREACHED
 
     ServiceLevel:
       type: string
