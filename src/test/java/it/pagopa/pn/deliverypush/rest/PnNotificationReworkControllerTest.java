@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.config.PnDeliveryPushConfigs;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(PnNotificationReworkController.class)
 public class PnNotificationReworkControllerTest {
@@ -295,7 +293,7 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("REASON_RESTART", value.getReason());
-        Assertions.assertEquals(RequestType.RESTART, value.getRequestType());
+        Assertions.assertEquals(ReworkRequestType.RESTART, value.getReworkRequestType());
     }
 
     @Test
@@ -313,6 +311,72 @@ public class PnNotificationReworkControllerTest {
                 .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
 
         verify(service, never()).createRestartAttemptRequest(any());
+    }
+
+    private InvalidateTimelineElementsRequest getInvalidateTimelineElementsRequest() {
+        InvalidateTimelineElementsRequest req = new InvalidateTimelineElementsRequest();
+        req.setRecIndex("RECINDEX_2");
+        req.setTimelineElementIds(List.of("TIMELINE_1", "TIMELINE_2"));
+        return req;
+    }
+
+    private InvalidateTimelineElementsResponse invalidateTimelineElementsResponse() {
+        InvalidateTimelineElementsResponse response = new InvalidateTimelineElementsResponse();
+        response.setReworkId("INVALIDATE_" + UUID.randomUUID());
+        response.setCreationDate(Instant.now());
+        return response;
+    }
+
+    @Test
+    void invalidateTimelineElementsRequest() {
+        InvalidateTimelineElementsRequest request = getInvalidateTimelineElementsRequest();
+
+        ArgumentCaptor<NotificationReworkRequestInternal> captor =
+                ArgumentCaptor.forClass(NotificationReworkRequestInternal.class);
+
+        when(service.createInvalidateTimelineElementsRequest(captor.capture()))
+                .thenReturn(Mono.just(invalidateTimelineElementsResponse()));
+        when(configs.isNotificationReworkEnabled()).thenReturn(true);
+
+        webTestClient.put()
+                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), InvalidateTimelineElementsRequest.class)
+                .exchange()
+                .expectStatus()
+                .isAccepted()
+                .expectBody(InvalidateTimelineElementsResponse.class).consumeWith(
+                        elem -> {
+                            InvalidateTimelineElementsResponse response = elem.getResponseBody();
+                            assert response != null;
+                            Assertions.assertTrue(response.getReworkId().startsWith("INVALIDATE_"));
+                            Assertions.assertNotNull(response.getCreationDate());
+                        }
+                );
+
+        NotificationReworkRequestInternal value = captor.getValue();
+        Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", value.getIun());
+        Assertions.assertEquals("RECINDEX_2", value.getRecIndex());
+        Assertions.assertEquals(List.of("TIMELINE_1", "TIMELINE_2"), value.getElementsToInvalidate());
+        Assertions.assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, value.getReworkRequestType());
+    }
+
+    @Test
+    void invalidateTimelineElementsRequestWithFeatureFlagDisabled() {
+        InvalidateTimelineElementsRequest request = getInvalidateTimelineElementsRequest();
+        when(configs.isNotificationReworkEnabled()).thenReturn(false);
+
+        webTestClient.put()
+                .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
+                .accept(MediaType.ALL)
+                .header(HttpHeaders.ACCEPT, "application/json")
+                .body(Mono.just(request), InvalidateTimelineElementsRequest.class)
+                .exchange()
+                .expectStatus()
+                .isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+
+        verify(service, never()).createInvalidateTimelineElementsRequest(any());
     }
 
 

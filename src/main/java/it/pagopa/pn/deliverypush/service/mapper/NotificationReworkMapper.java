@@ -4,7 +4,7 @@ import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkReques
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,7 +27,7 @@ public class NotificationReworkMapper {
         internalRequest.setTask(externalRequest.getTask());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
-        internalRequest.setRequestType(RequestType.REWORK);
+        internalRequest.setReworkRequestType(ReworkRequestType.REWORK);
         return internalRequest;
     }
 
@@ -38,7 +38,16 @@ public class NotificationReworkMapper {
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setTask(externalRequest.getTask());
-        internalRequest.setRequestType(RequestType.RESTART);
+        internalRequest.setReworkRequestType(ReworkRequestType.RESTART);
+        return internalRequest;
+    }
+
+    public static NotificationReworkRequestInternal externalToInternal(InvalidateTimelineElementsRequest invalidateTimelineElementsRequest, String iun) {
+        NotificationReworkRequestInternal internalRequest = new NotificationReworkRequestInternal();
+        internalRequest.setIun(iun);
+        internalRequest.setRecIndex(resolveRecIndex(invalidateTimelineElementsRequest.getRecIndex()));
+        internalRequest.setElementsToInvalidate(invalidateTimelineElementsRequest.getTimelineElementIds());
+        internalRequest.setReworkRequestType(ReworkRequestType.INVALIDATE_ELEMENTS);
         return internalRequest;
     }
 
@@ -73,7 +82,7 @@ public class NotificationReworkMapper {
                     if(StringUtils.hasText(notificationReworksEntity.getAttemptId())) {
                         reworkItem.setAttemptId(ReworkItem.AttemptIdEnum.fromValue(notificationReworksEntity.getAttemptId()));
                     }
-                    reworkItem.setReworkRequestType(ReworkItem.ReworkRequestTypeEnum.valueOf(notificationReworksEntity.getRequestType().name()));
+                    reworkItem.setReworkRequestType(ReworkItem.ReworkRequestTypeEnum.valueOf(notificationReworksEntity.getReworkRequestType().name()));
                     return reworkItem;
                 }).toList();
     }
@@ -102,5 +111,4 @@ public class NotificationReworkMapper {
         internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internal;
     }
-
 }

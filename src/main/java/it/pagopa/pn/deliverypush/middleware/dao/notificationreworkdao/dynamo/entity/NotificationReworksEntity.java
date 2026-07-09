@@ -23,6 +23,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_REWORK_ID = "reworkId";
     public static final String FIELD_INVALIDATED_TIMELINE_ELEMENT_IDS = "invalidatedTimelineElementIds";
+    public static final String FIELD_ELEMENTS_TO_INVALIDATE = "elementsToInvalidate";
     public static final String FIELD_REASON = "reason";
     public static final String FIELD_IDX = "idx";
     public static final String FIELD_EXPECTED_STATUS_CODES = "expectedStatusCodes";
@@ -36,7 +37,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_ATTEMPTID = "attemptId";
     public static final String FIELD_PCRETRY = "pcRetry";
     public static final String FIELD_RECINDEX = "recIndex";
-    public static final String FIELD_REQUEST_TYPE = "requestType";
+    public static final String FIELD_REWORK_REQUEST_TYPE = "reworkRequestType";
     public static final String FIELD_TASK = "task";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
@@ -47,6 +48,9 @@ public class NotificationReworksEntity {
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_INVALIDATED_TIMELINE_ELEMENT_IDS)}))
     private List<String> invalidatedTimelineElementIds;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_ELEMENTS_TO_INVALIDATE)}))
+    private List<String> elementsToInvalidate;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REASON)}))
     private String reason;
@@ -87,8 +91,8 @@ public class NotificationReworksEntity {
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_RECINDEX)}))
     private String recIndex;
 
-    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
-    private RequestType requestType;
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REWORK_REQUEST_TYPE)}))
+    private ReworkRequestType reworkRequestType;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
     private String task;

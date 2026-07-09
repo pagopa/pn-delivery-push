@@ -1,6 +1,7 @@
 package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity;
 
-public enum RequestType {
+public enum ReworkRequestType {
     REWORK,
-    RESTART
+    RESTART,
+    INVALIDATE_ELEMENTS
 }
