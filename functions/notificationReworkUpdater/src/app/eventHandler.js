@@ -30,7 +30,10 @@ exports.handleEvent = async (event) => {
           console.warn("[NOTIFICATION_REWORK] unexpected condition fail on ERROR", { iun, reworkId });
         }
       } else if (msg.operation === "UPDATE") {
-        const { item, expectedStates } = await processRecord(msg);
+        let { item, expectedStates } = await processRecord(msg);
+        if (msg.category === "NOTIFICATION_TIMELINE_REWORKED" && msg.reworkRequestType === "INVALIDATE_ELEMENTS") {
+            item.status = "DONE";
+        }
         const res = await updateRework(item, expectedStates);
         if (res?.ok === false && res?.reason === "CONDITION_FAILED") {
           console.warn(

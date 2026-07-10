@@ -644,6 +644,7 @@ Resources:
             "iun": <$.data.dynamodb.NewImage.iun.S>,
             "reworkId": <$.data.dynamodb.NewImage.reworkId.S>,
             "category": <$.data.dynamodb.NewImage.category.S>,
+            "reworkRequestType": <$.data.dynamodb.NewImage.reworkRequestType.S>,
             "timelineElementIds": <$.data.dynamodb.NewImage.details.M.invalidatedTimelineAndStatusHistory.L[*].M>,
             "operation": "UPDATE"
           }
