@@ -336,7 +336,7 @@ public class PnNotificationReworkControllerTest {
 
         when(service.createInvalidateTimelineElementsRequest(captor.capture()))
                 .thenReturn(Mono.just(invalidateTimelineElementsResponse()));
-        when(configs.isNotificationReworkEnabled()).thenReturn(true);
+        when(configs.isInvalidateTimelineElementsEnabled()).thenReturn(true);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
@@ -365,7 +365,7 @@ public class PnNotificationReworkControllerTest {
     @Test
     void invalidateTimelineElementsRequestWithFeatureFlagDisabled() {
         InvalidateTimelineElementsRequest request = getInvalidateTimelineElementsRequest();
-        when(configs.isNotificationReworkEnabled()).thenReturn(false);
+        when(configs.isInvalidateTimelineElementsEnabled()).thenReturn(false);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
