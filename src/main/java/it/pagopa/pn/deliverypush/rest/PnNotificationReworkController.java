@@ -71,7 +71,7 @@ public class PnNotificationReworkController implements NotificationReworkApi {
 
         return invalidateTimelineElementsRequest
                 .flatMap(request -> {
-                    if (!configs.isNotificationReworkEnabled()) {
+                    if (!configs.isInvalidateTimelineElementsEnabled()) {
                         return Mono.error(new PnNotImplementedException());
                     }
                     return notificationReworkService.createInvalidateTimelineElementsRequest(NotificationReworkMapper.externalToInternal(request, iun));
