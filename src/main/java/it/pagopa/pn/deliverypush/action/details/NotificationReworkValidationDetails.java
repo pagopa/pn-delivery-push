@@ -1,10 +1,12 @@
 package it.pagopa.pn.deliverypush.action.details;
 
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -17,6 +19,7 @@ public class NotificationReworkValidationDetails {
     private String reworkRecIndex;
     private String reworkExpectedFinalStatus;
     private String reason;
-    private RequestType requestType;
+    private ReworkRequestType reworkRequestType;
     private String task;
+    private List<String> elementsToInvalidate;
 }

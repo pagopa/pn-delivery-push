@@ -64,4 +64,18 @@ public class PnNotificationReworkController implements NotificationReworkApi {
                 })
                 .map(response -> ResponseEntity.accepted().body(response));
     }
+
+    @Override
+    public Mono<ResponseEntity<InvalidateTimelineElementsResponse>> invalidateTimelineElements(String iun, Mono<InvalidateTimelineElementsRequest> invalidateTimelineElementsRequest,  final ServerWebExchange exchange) {
+        MDC.put(MDCUtils.MDC_PN_CTX_REQUEST_ID, "NOTIFICATION_INVALIDATE_" + iun);
+
+        return invalidateTimelineElementsRequest
+                .flatMap(request -> {
+                    if (!configs.isNotificationReworkEnabled()) {
+                        return Mono.error(new PnNotImplementedException());
+                    }
+                    return notificationReworkService.createInvalidateTimelineElementsRequest(NotificationReworkMapper.externalToInternal(request, iun));
+                })
+                .map(response -> ResponseEntity.accepted().body(response));
+    }
 }
