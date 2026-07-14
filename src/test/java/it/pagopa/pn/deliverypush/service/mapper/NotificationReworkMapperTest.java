@@ -23,7 +23,7 @@ class NotificationReworkMapperTest {
         assertEquals("IUN_123", internal.getIun());
         assertEquals("RECINDEX_3", internal.getRecIndex());
         assertEquals(List.of("TL_1", "TL_2"), internal.getElementsToInvalidate());
-        assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, internal.getReworkRequestType());
+        assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, internal.getRequestType());
         assertNull(internal.getAttemptId());
         assertNull(internal.getPcRetry());
         assertNull(internal.getReason());

@@ -5,8 +5,8 @@ import it.pagopa.pn.deliverypush.LocalStackTestConfig;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.NotificationReworkDaoDynamo;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -336,7 +336,7 @@ class NotificationReworkDaoDynamoTestIT {
         entity.setReason("Reason di prova");
         entity.setStatus(ReworkRequestStatus.CREATED);
         entity.setCreatedAt(Instant.now());
-        entity.setReworkRequestType(ReworkRequestType.REWORK);
+        entity.setRequestType(ReworkRequestType.REWORK);
         StatusCodeEntity sequenceItem = new StatusCodeEntity();
         sequenceItem.setStatusCode("RECRN001A");
         entity.setExpectedStatusCodes(List.of(sequenceItem));
@@ -363,7 +363,7 @@ class NotificationReworkDaoDynamoTestIT {
         Assertions.assertEquals("PCRETRY_0", result.getPcRetry());
         Assertions.assertEquals("ATTEMPTID_0", result.getAttemptId());
         Assertions.assertEquals("RECINDEX_0", result.getRecIndex());
-        Assertions.assertEquals(ReworkRequestType.REWORK, result.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.REWORK, result.getRequestType());
     }
 
     @Test
@@ -376,7 +376,7 @@ class NotificationReworkDaoDynamoTestIT {
         entity.setReason("Reason di prova");
         entity.setStatus(ReworkRequestStatus.CREATED);
         entity.setCreatedAt(Instant.now());
-        entity.setReworkRequestType(ReworkRequestType.RESTART);
+        entity.setRequestType(ReworkRequestType.RESTART);
         StatusCodeEntity sequenceItem = new StatusCodeEntity();
         sequenceItem.setStatusCode("RECRN001A");
         entity.setExpectedStatusCodes(List.of(sequenceItem));
@@ -391,7 +391,7 @@ class NotificationReworkDaoDynamoTestIT {
         NotificationReworksEntity result = notificationReworksDaoDynamo.findByIunAndReworkId(iun, reworkId).block();
 
         assert result != null;
-        Assertions.assertEquals(ReworkRequestType.RESTART, result.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.RESTART, result.getRequestType());
     }
 
     @Test
@@ -404,7 +404,7 @@ class NotificationReworkDaoDynamoTestIT {
         entity.setReason("Reason di prova");
         entity.setStatus(ReworkRequestStatus.READY);
         entity.setCreatedAt(Instant.now());
-        entity.setReworkRequestType(ReworkRequestType.REWORK);
+        entity.setRequestType(ReworkRequestType.REWORK);
         StatusCodeEntity sequenceItem = new StatusCodeEntity();
         sequenceItem.setStatusCode("RECRN001A");
         entity.setExpectedStatusCodes(List.of(sequenceItem));
@@ -422,7 +422,7 @@ class NotificationReworkDaoDynamoTestIT {
 
         assert updated != null;
         Assertions.assertEquals(ReworkRequestStatus.PENDING_UPDATE, updated.getStatus());
-        Assertions.assertEquals(ReworkRequestType.REWORK, updated.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.REWORK, updated.getRequestType());
         Assertions.assertEquals("Reason di prova", updated.getReason());
         Assertions.assertEquals(0, updated.getIdx());
         Assertions.assertEquals("PCRETRY_0", updated.getPcRetry());
@@ -440,7 +440,7 @@ class NotificationReworkDaoDynamoTestIT {
         entity.setReason("Reason di prova");
         entity.setStatus(ReworkRequestStatus.CREATED);
         entity.setCreatedAt(Instant.now());
-        entity.setReworkRequestType(ReworkRequestType.RESTART);
+        entity.setRequestType(ReworkRequestType.RESTART);
         StatusCodeEntity sequenceItem = new StatusCodeEntity();
         sequenceItem.setStatusCode("RECRN001A");
         entity.setExpectedStatusCodes(List.of(sequenceItem));
@@ -458,7 +458,7 @@ class NotificationReworkDaoDynamoTestIT {
 
         assert updatedResult != null;
         Assertions.assertEquals(ReworkRequestStatus.ERROR, updatedResult.getStatus());
-        Assertions.assertEquals(ReworkRequestType.RESTART, updatedResult.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.RESTART, updatedResult.getRequestType());
         Assertions.assertEquals("Reason di prova", updatedResult.getReason());
         Assertions.assertEquals(0, updatedResult.getIdx());
         Assertions.assertEquals("PCRETRY_0", updatedResult.getPcRetry());
