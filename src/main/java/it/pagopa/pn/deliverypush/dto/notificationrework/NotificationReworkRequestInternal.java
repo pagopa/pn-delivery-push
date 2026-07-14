@@ -16,7 +16,7 @@ public class NotificationReworkRequestInternal {
     private String expectedStatusCode;
     private String expectedDeliveryFailureCause;
     private String productType;
-    private ReworkRequestType reworkRequestType;
+    private ReworkRequestType requestType;
     private String task;
     private List<String> elementsToInvalidate;
 
