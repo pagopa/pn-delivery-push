@@ -359,7 +359,7 @@ components:
             - ERROR
             - DONE
           description: stato della richiesta di rework (CREATED = creata, READY = pronta a ricevere gli eventi correttivi dal recapitista, IN_PROGRESS = almeno un evento correttivo è già stato ricevuto, DONE = è stato ricevuto l'evento finale)
-        reworkRequestType:
+        requestType:
           type: string
           enum:
             - REWORK

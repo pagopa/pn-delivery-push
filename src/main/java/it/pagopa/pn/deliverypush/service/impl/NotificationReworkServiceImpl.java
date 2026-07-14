@@ -78,7 +78,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                                 ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED))
                 )
                 .flatMap(notificationReworksEntity -> {
-                    if(ReworkRequestType.RESTART.equals(notificationReworksEntity.getReworkRequestType())){
+                    if(ReworkRequestType.RESTART.equals(notificationReworksEntity.getRequestType())){
                         return Mono.error(new PnRestartException("A restart request cannot be updated", ERROR_CODE_UPDATE_ON_RESTART, HttpStatus.BAD_REQUEST.value()));
                     }
                     return Mono.empty();
@@ -188,7 +188,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setPcRetry(notificationReworkRequestDto.getPcRetry());
         entity.setRecIndex(notificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
-        entity.setReworkRequestType(notificationReworkRequestDto.getReworkRequestType());
+        entity.setRequestType(notificationReworkRequestDto.getRequestType());
         entity.setTask(notificationReworkRequestDto.getTask());
         return entity;
     }
@@ -229,9 +229,9 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkAttempt(notificationReworkRequestDto.getAttemptId());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
         details.setReason(notificationReworkRequestDto.getReason());
-        details.setReworkRequestType(notificationReworkRequestDto.getReworkRequestType());
+        details.setRequestType(notificationReworkRequestDto.getRequestType());
         details.setElementsToInvalidate(notificationReworkRequestDto.getElementsToInvalidate());
-        if (!ReworkRequestType.RESTART.equals(notificationReworkRequestDto.getReworkRequestType())) {
+        if (!ReworkRequestType.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
             details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
             details.setReworkExpectedFinalStatus(finalStatusCode);
         }

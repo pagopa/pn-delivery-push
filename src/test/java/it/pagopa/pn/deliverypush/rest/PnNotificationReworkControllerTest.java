@@ -293,7 +293,7 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("REASON_RESTART", value.getReason());
-        Assertions.assertEquals(ReworkRequestType.RESTART, value.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.RESTART, value.getRequestType());
     }
 
     @Test
@@ -336,7 +336,7 @@ public class PnNotificationReworkControllerTest {
 
         when(service.createInvalidateTimelineElementsRequest(captor.capture()))
                 .thenReturn(Mono.just(invalidateTimelineElementsResponse()));
-        when(configs.isNotificationReworkEnabled()).thenReturn(true);
+        when(configs.isInvalidateTimelineElementsEnabled()).thenReturn(true);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
@@ -359,13 +359,13 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", value.getIun());
         Assertions.assertEquals("RECINDEX_2", value.getRecIndex());
         Assertions.assertEquals(List.of("TIMELINE_1", "TIMELINE_2"), value.getElementsToInvalidate());
-        Assertions.assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, value.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, value.getRequestType());
     }
 
     @Test
     void invalidateTimelineElementsRequestWithFeatureFlagDisabled() {
         InvalidateTimelineElementsRequest request = getInvalidateTimelineElementsRequest();
-        when(configs.isNotificationReworkEnabled()).thenReturn(false);
+        when(configs.isInvalidateTimelineElementsEnabled()).thenReturn(false);
 
         webTestClient.put()
                 .uri("/delivery-push-private/v1/notifications/KWKU-JHXN-HJXM-202304-U-1/invalidate-timeline-elements")
