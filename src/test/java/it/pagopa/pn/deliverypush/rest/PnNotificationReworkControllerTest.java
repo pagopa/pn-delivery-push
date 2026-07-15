@@ -293,7 +293,7 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals(request.getAttemptId().getValue(), value.getAttemptId());
         Assertions.assertEquals("RECINDEX_1", value.getRecIndex());
         Assertions.assertEquals("REASON_RESTART", value.getReason());
-        Assertions.assertEquals(ReworkRequestType.RESTART, value.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.RESTART, value.getRequestType());
     }
 
     @Test
@@ -359,7 +359,7 @@ public class PnNotificationReworkControllerTest {
         Assertions.assertEquals("KWKU-JHXN-HJXM-202304-U-1", value.getIun());
         Assertions.assertEquals("RECINDEX_2", value.getRecIndex());
         Assertions.assertEquals(List.of("TIMELINE_1", "TIMELINE_2"), value.getElementsToInvalidate());
-        Assertions.assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, value.getReworkRequestType());
+        Assertions.assertEquals(ReworkRequestType.INVALIDATE_ELEMENTS, value.getRequestType());
     }
 
     @Test

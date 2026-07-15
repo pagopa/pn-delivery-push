@@ -5,20 +5,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.deliverypush.action.details.NotificationReworkUpdateValidationDetails;
 import it.pagopa.pn.deliverypush.action.details.NotificationReworkValidationDetails;
 import it.pagopa.pn.deliverypush.action.details.SequenceItemInternal;
+import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineEventIdParser;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnRestartException;
+import it.pagopa.pn.deliverypush.exceptions.PnReworkException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InvalidateTimelineElementsResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RestartAttemptResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItemsResponse;
-import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.NotificationReworkDao;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestStatus;
@@ -28,6 +28,7 @@ import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanage
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker.PaperTrackerClient;
 import it.pagopa.pn.deliverypush.service.NotificationReworkService;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import it.pagopa.pn.deliverypush.service.mapper.NotificationReworkMapper;
 import it.pagopa.pn.deliverypush.utils.ReworkUtils;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt.AR_REGISTERED_LETTER;
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.*;
@@ -57,6 +59,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     private final ActionManagerClient actionManagerClient;
     private final NotificationReworkDao notificationReworkDao;
     private final ObjectMapper objectMapper;
+    private final TimelineService timelineService;
 
 
     @Override
@@ -78,8 +81,8 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                                 ERROR_CODE_DELIVERYPUSH_NOTIFICATIONFAILED))
                 )
                 .flatMap(notificationReworksEntity -> {
-                    if(ReworkRequestType.RESTART.equals(notificationReworksEntity.getReworkRequestType())){
-                        return Mono.error(new PnRestartException("A restart request cannot be updated", ERROR_CODE_UPDATE_ON_RESTART, HttpStatus.BAD_REQUEST.value()));
+                    if(ReworkRequestType.RESTART.equals(notificationReworksEntity.getRequestType())){
+                        return Mono.error(new PnReworkException("A restart request cannot be updated", ERROR_CODE_UPDATE_ON_RESTART, HttpStatus.BAD_REQUEST.value()));
                     }
                     return Mono.empty();
                 });
@@ -112,7 +115,8 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
 
     @Override
     public Mono<RestartAttemptResponse> createRestartAttemptRequest(NotificationReworkRequestInternal restartAttemptRequestDto) {
-        return initializeReworkRequestAndSendAction(restartAttemptRequestDto)
+        return notificationService.getNotificationByIunReactive(restartAttemptRequestDto.getIun())
+                .flatMap(notificationInt -> initializeReworkRequestAndSendAction(restartAttemptRequestDto, notificationInt))
                 .map(notificationReworksEntity -> {
                     RestartAttemptResponse reworkResponse = new RestartAttemptResponse();
                     reworkResponse.setReworkId(notificationReworksEntity.getReworkId());
@@ -123,8 +127,12 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
     }
 
     @Override
-    public Mono<InvalidateTimelineElementsResponse> createInvalidateTimelineElementsRequest(NotificationReworkRequestInternal invalidateTimelineElementsRequestDto) {
-        return initializeReworkRequestAndSendAction(invalidateTimelineElementsRequestDto)
+    public Mono<InvalidateTimelineElementsResponse> createInvalidateTimelineElementsRequest(NotificationReworkRequestInternal requestDto) {
+        return notificationService.getNotificationByIunReactive(requestDto.getIun())
+                .flatMap(notificationInt -> evaluateTimelineElementIdsToInvalidate(requestDto, notificationInt)
+                        .doOnNext(reworkAttempt -> requestDto.setAttemptId("ATTEMPT_" + reworkAttempt))
+                        .thenReturn(notificationInt))
+                .flatMap(notificationInt -> initializeReworkRequestAndSendAction(requestDto, notificationInt))
                 .map(notificationReworksEntity -> {
                     InvalidateTimelineElementsResponse reworkResponse = new InvalidateTimelineElementsResponse();
                     reworkResponse.setReworkId(notificationReworksEntity.getReworkId());
@@ -133,8 +141,8 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                 });
     }
 
-    private Mono<NotificationReworksEntity> initializeReworkRequestAndSendAction(NotificationReworkRequestInternal requestDto) {
-        return notificationService.getNotificationByIunReactive(requestDto.getIun())
+    private Mono<NotificationReworksEntity> initializeReworkRequestAndSendAction(NotificationReworkRequestInternal requestDto, NotificationInt notification) {
+        return Mono.just(notification)
                 .flatMap(notificationInt -> retrieveAndEvaluateReworkRequest(requestDto.getIun(), requestDto.getRecIndex()))
                 .flatMap(reworkId -> notificationReworkDao.putIfAbsent(constructNewEntity(reworkId, requestDto, null)))
                 .flatMap(entity ->
@@ -144,6 +152,36 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
                                 })
                                 .onErrorResume(ex -> notificationReworkDao.updateStatusError(requestDto.getIun(), entity.getReworkId(), ex.getMessage())
                                         .then(Mono.error(ex))));
+    }
+
+    private Mono<Integer> evaluateTimelineElementIdsToInvalidate(NotificationReworkRequestInternal requestDto, NotificationInt notificationInt) {
+
+        Set<Integer> attempts = requestDto.getElementsToInvalidate().stream()
+                .map(this::extractAttempt)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (attempts.size() > 1) {
+            return Mono.error(new PnReworkException("Gli elementi da invalidare devono appartenere allo stesso attempt", ERROR_CODE_INVALIDATEELEMENTS_INVALIDATTEMPT, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        Integer attempt = attempts.stream().findAny().orElse(null);
+        if (attempt != null) {
+            return Mono.just(attempt);
+        }
+
+        int reworkAttempt = timelineService.getTimeline(notificationInt.getIun(), false).stream()
+                .map(TimelineElementInternal::getElementId)
+                .map(this::extractAttempt)
+                .anyMatch(Integer.valueOf(1)::equals) ? 1 : 0;
+
+        return Mono.just(reworkAttempt);
+    }
+
+    private Integer extractAttempt(String timelineElementId) {
+        return TimelineEventIdParser.parse(timelineElementId)
+                .sentAttemptMade()
+                .orElse(null);
     }
 
     private String resolveProductType(ServiceLevelTypeInt physicalCommunicationType) {
@@ -188,7 +226,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setPcRetry(notificationReworkRequestDto.getPcRetry());
         entity.setRecIndex(notificationReworkRequestDto.getRecIndex());
         entity.setStatus(ReworkRequestStatus.CREATED);
-        entity.setReworkRequestType(notificationReworkRequestDto.getReworkRequestType());
+        entity.setRequestType(notificationReworkRequestDto.getRequestType());
         entity.setTask(notificationReworkRequestDto.getTask());
         return entity;
     }
@@ -229,9 +267,9 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReworkAttempt(notificationReworkRequestDto.getAttemptId());
         details.setReworkRecIndex(notificationReworkRequestDto.getRecIndex());
         details.setReason(notificationReworkRequestDto.getReason());
-        details.setReworkRequestType(notificationReworkRequestDto.getReworkRequestType());
+        details.setRequestType(notificationReworkRequestDto.getRequestType());
         details.setElementsToInvalidate(notificationReworkRequestDto.getElementsToInvalidate());
-        if (!ReworkRequestType.RESTART.equals(notificationReworkRequestDto.getReworkRequestType())) {
+        if (!ReworkRequestType.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
             details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
             details.setReworkExpectedFinalStatus(finalStatusCode);
         }
