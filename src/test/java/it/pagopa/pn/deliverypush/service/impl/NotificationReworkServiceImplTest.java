@@ -6,6 +6,7 @@ import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
+import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.exceptions.PnReworkException;
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 
 import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.ERROR_CODE_UPDATE_ON_RESTART;
@@ -563,8 +565,8 @@ class NotificationReworkServiceImplTest {
     }
 
     @Test
-    void createInvalidateTimelineElementsRequest_happyPath() {
-        var req = sampleInvalidateTimelineElementsRequest();
+    void createInvalidateTimelineElementsRequest_singleAttempt() {
+        var req = sampleInvalidateTimelineElementsRequest(List.of("SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_0"));
         var entity = getInvalidateTimelineElementsEntity("REWORK_0.TRY_0.RECINDEX_2", 0);
         NotificationInt notificationInt = NotificationInt.builder()
                 .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
@@ -585,9 +587,10 @@ class NotificationReworkServiceImplTest {
 
         NotificationReworksEntity saved = entityCaptor.getValue();
         assertThat(saved.getIun()).isEqualTo("IUN_123");
-        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_2");
-        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_2");
-        assertThat(saved.getElementsToInvalidate()).containsExactly("TL_1", "TL_2");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_0");
+        assertThat(saved.getAttemptId()).isEqualTo("ATTEMPT_0");
+        assertThat(saved.getElementsToInvalidate()).containsExactly("SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_0");
         assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.INVALIDATE_ELEMENTS);
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
 
@@ -595,6 +598,167 @@ class NotificationReworkServiceImplTest {
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
         assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_2");
         assertThat(action.getIun()).isEqualTo("IUN_123");
+    }
+
+    @Test
+    void createInvalidateTimelineElementsRequest_multipleValidAttempt() {
+        var req = sampleInvalidateTimelineElementsRequest(List.of("PREPARE_ANALOG_DOMICILE.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_1",
+                "PREPARE_ANALOG_DOMICILE_FAILURE.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0"));
+        var entity = getInvalidateTimelineElementsEntity("REWORK_0.TRY_0.RECINDEX_2", 0);
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
+        ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
+        when(notificationReworkDao.putIfAbsent(entityCaptor.capture())).thenAnswer(inv -> Mono.just(entity));
+        ArgumentCaptor<NewAction> actionCaptor = ArgumentCaptor.forClass(NewAction.class);
+        doNothing().when(actionManagerClient).addOnlyActionIfAbsent(actionCaptor.capture());
+
+        StepVerifier.create(service.createInvalidateTimelineElementsRequest(req))
+                .assertNext(resp -> {
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_2");
+                    assertThat(resp.getCreationDate()).isNotNull();
+                })
+                .verifyComplete();
+
+        NotificationReworksEntity saved = entityCaptor.getValue();
+        assertThat(saved.getIun()).isEqualTo("IUN_123");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_0");
+        assertThat(saved.getAttemptId()).isEqualTo("ATTEMPT_1");
+        assertThat(saved.getElementsToInvalidate()).containsExactly("PREPARE_ANALOG_DOMICILE.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_1",
+                "PREPARE_ANALOG_DOMICILE_FAILURE.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0");
+        assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.INVALIDATE_ELEMENTS);
+        assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+
+        NewAction action = actionCaptor.getValue();
+        assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_2");
+        assertThat(action.getIun()).isEqualTo("IUN_123");
+    }
+
+    @Test
+    void createInvalidateTimelineElementsRequest_lastAttempt() {
+        var req = sampleInvalidateTimelineElementsRequest(List.of("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0",
+                "NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0"));
+        var entity = getInvalidateTimelineElementsEntity("REWORK_0.TRY_0.RECINDEX_2", 0);
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
+        ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
+        when(notificationReworkDao.putIfAbsent(entityCaptor.capture())).thenAnswer(inv -> Mono.just(entity));
+        ArgumentCaptor<NewAction> actionCaptor = ArgumentCaptor.forClass(NewAction.class);
+        doNothing().when(actionManagerClient).addOnlyActionIfAbsent(actionCaptor.capture());
+
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
+                .elementId("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0")
+                .build();
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.builder()
+                .elementId("NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0")
+                .build();
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_0")
+                .build();
+
+        when(timelineService.getTimeline(any(), anyBoolean())).thenReturn(new HashSet<>(List.of(timelineElement1, timelineElement2, timelineElement3)));
+
+        StepVerifier.create(service.createInvalidateTimelineElementsRequest(req))
+                .assertNext(resp -> {
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_2");
+                    assertThat(resp.getCreationDate()).isNotNull();
+                })
+                .verifyComplete();
+
+        NotificationReworksEntity saved = entityCaptor.getValue();
+        assertThat(saved.getIun()).isEqualTo("IUN_123");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_0");
+        assertThat(saved.getElementsToInvalidate()).containsExactly("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0",
+                "NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0");
+        assertThat(saved.getAttemptId()).isEqualTo("ATTEMPT_0");
+        assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.INVALIDATE_ELEMENTS);
+        assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+
+        NewAction action = actionCaptor.getValue();
+        assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_2");
+        assertThat(action.getIun()).isEqualTo("IUN_123");
+    }
+
+
+    @Test
+    void createInvalidateTimelineElementsRequest_lastAttempt2() {
+        var req = sampleInvalidateTimelineElementsRequest(List.of("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0",
+                "NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0"));
+        var entity = getInvalidateTimelineElementsEntity("REWORK_0.TRY_0.RECINDEX_2", 0);
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+        when(notificationReworkDao.findByIun("IUN_123")).thenReturn(Flux.empty());
+        ArgumentCaptor<NotificationReworksEntity> entityCaptor = ArgumentCaptor.forClass(NotificationReworksEntity.class);
+        when(notificationReworkDao.putIfAbsent(entityCaptor.capture())).thenAnswer(inv -> Mono.just(entity));
+        ArgumentCaptor<NewAction> actionCaptor = ArgumentCaptor.forClass(NewAction.class);
+        doNothing().when(actionManagerClient).addOnlyActionIfAbsent(actionCaptor.capture());
+
+        TimelineElementInternal timelineElement1 = TimelineElementInternal.builder()
+                .elementId("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0")
+                .build();
+        TimelineElementInternal timelineElement2 = TimelineElementInternal.builder()
+                .elementId("NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0")
+                .build();
+        TimelineElementInternal timelineElement3 = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_0")
+                .build();
+        TimelineElementInternal timelineElement4 = TimelineElementInternal.builder()
+                .elementId("SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_1")
+                .build();
+
+        when(timelineService.getTimeline(any(), anyBoolean())).thenReturn(new HashSet<>(List.of(timelineElement1, timelineElement2, timelineElement3, timelineElement4)));
+
+        StepVerifier.create(service.createInvalidateTimelineElementsRequest(req))
+                .assertNext(resp -> {
+                    assertThat(resp.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_2");
+                    assertThat(resp.getCreationDate()).isNotNull();
+                })
+                .verifyComplete();
+
+        NotificationReworksEntity saved = entityCaptor.getValue();
+        assertThat(saved.getIun()).isEqualTo("IUN_123");
+        assertThat(saved.getReworkId()).isEqualTo("REWORK_0.TRY_0.RECINDEX_0");
+        assertThat(saved.getRecIndex()).isEqualTo("RECINDEX_0");
+        assertThat(saved.getElementsToInvalidate()).containsExactly("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0",
+                "NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0");
+        assertThat(saved.getAttemptId()).isEqualTo("ATTEMPT_1");
+        assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.INVALIDATE_ELEMENTS);
+        assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
+
+        NewAction action = actionCaptor.getValue();
+        assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
+        assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_2");
+        assertThat(action.getIun()).isEqualTo("IUN_123");
+    }
+
+
+    @Test
+    void createInvalidateTimelineElementsRequest_invalidElementsAttempt() {
+        var req = sampleInvalidateTimelineElementsRequest(List.of("NOTIFICATION_VIEWED_CREATION_REQUEST.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0",
+                "NOTIFICATION_VIEWED.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0", "SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_0",
+                "SEND_ANALOG_PROGRESS.IUN_XLJE-VRQM-VKNQ-202507-K-1.RECINDEX_0.ATTEMPT_1"));
+        NotificationInt notificationInt = NotificationInt.builder()
+                .physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
+
+        when(notificationService.getNotificationByIunReactive("IUN_123")).thenReturn(Mono.just(notificationInt));
+
+        StepVerifier.create(service.createInvalidateTimelineElementsRequest(req))
+                .verifyErrorMatches(throwable ->
+                        throwable instanceof PnReworkException &&
+                                ((PnReworkException) throwable).getStatus() == 400
+                );
+
     }
 
     private NotificationReworkRequestInternal sampleRestartAttemptRequest() {
@@ -608,11 +772,11 @@ class NotificationReworkServiceImplTest {
         return req;
     }
 
-    private NotificationReworkRequestInternal sampleInvalidateTimelineElementsRequest() {
+    private NotificationReworkRequestInternal sampleInvalidateTimelineElementsRequest(List<String> elementsToInvalidate) {
         NotificationReworkRequestInternal req = new NotificationReworkRequestInternal();
         req.setIun("IUN_123");
-        req.setRecIndex("RECINDEX_2");
-        req.setElementsToInvalidate(List.of("TL_1", "TL_2"));
+        req.setRecIndex("RECINDEX_0");
+        req.setElementsToInvalidate(elementsToInvalidate);
         req.setRequestType(ReworkRequestType.INVALIDATE_ELEMENTS);
         return req;
     }
