@@ -8,7 +8,7 @@ import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkReques
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.exceptions.PnConflictException;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.exceptions.PnRestartException;
+import it.pagopa.pn.deliverypush.exceptions.PnReworkException;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.ActionType;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.actionmanager.model.NewAction;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.papertracker.model.SequenceItem;
@@ -21,6 +21,7 @@ import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.ent
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.actionmanager.ActionManagerClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.papertracker.PaperTrackerClient;
 import it.pagopa.pn.deliverypush.service.NotificationService;
+import it.pagopa.pn.deliverypush.service.TimelineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,13 +59,16 @@ class NotificationReworkServiceImplTest {
     @Mock
     private NotificationReworkDao notificationReworkDao;
 
+    @Mock
+    private TimelineService timelineService;
+
     private NotificationReworkServiceImpl service;
 
     @BeforeEach
     void setUp() {
         ObjectMapper objectMapper = new ObjectMapper();
         service = new NotificationReworkServiceImpl(
-                notificationService, paperTrackerClient, actionManagerClient, notificationReworkDao, objectMapper
+                notificationService, paperTrackerClient, actionManagerClient, notificationReworkDao, objectMapper, timelineService
         );
     }
 
@@ -654,10 +658,10 @@ class NotificationReworkServiceImplTest {
 
         StepVerifier.create(service.updateNotificationRework(iun, req, reworkId))
                 .verifyErrorMatches(throwable ->
-                        throwable instanceof PnRestartException &&
+                        throwable instanceof PnReworkException &&
                                 ERROR_CODE_UPDATE_ON_RESTART.equals(
-                                        ((PnRestartException) throwable).getProblem().getDetail())
-                                && ((PnRestartException) throwable).getProblem().getErrors().getFirst().getDetail().contains("A restart request cannot be updated"));
+                                        ((PnReworkException) throwable).getProblem().getDetail())
+                                && ((PnReworkException) throwable).getProblem().getErrors().getFirst().getDetail().contains("A restart request cannot be updated"));
 
         verify(notificationService, never()).getNotificationByIunReactive(any());
     }
