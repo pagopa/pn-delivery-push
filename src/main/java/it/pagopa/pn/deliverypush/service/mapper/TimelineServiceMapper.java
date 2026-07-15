@@ -104,6 +104,64 @@ public class TimelineServiceMapper {
         return notificationStatus;
     }
 
+    public it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse toInformalNotificationHistoryResponseDto(
+            it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse source) {
+
+        if (source == null) {
+            return null;
+        }
+
+        return it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse.builder()
+                .informalNotificationStatus(getInformalNotificationStatusV1(source))
+                .informalNotificationStatusHistory(getInformalNotificationStatusHistoryElementV1List(source))
+                .timeline(getInformalTimelineElementV1List(source))
+                .build();
+    }
+
+    private static InformalNotificationStatusV1 getInformalNotificationStatusV1(NotificationHistoryResponse source) {
+        InformalNotificationStatusV1 informalNotificationStatus = null;
+        if (source.getNotificationStatus() != null) {
+            informalNotificationStatus = InformalNotificationStatusV1.valueOf(source.getNotificationStatus().getValue());
+        }
+        return informalNotificationStatus;
+    }
+
+    private static List<InformalNotificationStatusHistoryElementV1> getInformalNotificationStatusHistoryElementV1List(NotificationHistoryResponse source) {
+        List<InformalNotificationStatusHistoryElementV1> informalNotificationStatusHistory = null;
+        if (source.getNotificationStatusHistory() != null) {
+            informalNotificationStatusHistory = source.getNotificationStatusHistory().stream()
+                    .map(item -> InformalNotificationStatusHistoryElementV1.builder()
+                            .status(InformalNotificationStatusV1.valueOf(item.getStatus().getValue()))
+                            .activeFrom(item.getActiveFrom())
+                            .relatedTimelineElements(item.getRelatedTimelineElements())
+                            .build())
+                    .toList();
+        }
+        return informalNotificationStatusHistory;
+    }
+
+    private List<InformalTimelineElementV1> getInformalTimelineElementV1List(NotificationHistoryResponse source) {
+        List<InformalTimelineElementV1> timeline = null;
+        if (source.getTimeline() != null) {
+            timeline = source.getTimeline().stream()
+                    .map(item -> InformalTimelineElementV1.builder()
+                            .elementId(item.getElementId())
+                            .timestamp(item.getTimestamp())
+                            .category(InformalTimelineElementCategoryV1.valueOf(item.getCategory().getValue()))
+                            .details(toInformalTimelineElementDetailsV1(item.getDetails()))
+                            .notificationSentAt(item.getNotificationSentAt())
+                            .ingestionTimestamp(item.getIngestionTimestamp())
+                            .eventTimestamp(item.getEventTimestamp())
+                            .build())
+                    .toList();
+        }
+        return timeline;
+    }
+
+    private InformalTimelineElementDetailsV1 toInformalTimelineElementDetailsV1(TimelineElementDetails details) {
+        return smartMapper.mapToClassWithObjectMapper(details, InformalTimelineElementDetailsV1.class);
+    }
+
     private static NotificationInfo toNotificationInfo(NotificationInt notificationInt) {
         return new NotificationInfo()
                 .iun(notificationInt.getIun())
