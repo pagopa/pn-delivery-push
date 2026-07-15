@@ -228,6 +228,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         entity.setStatus(ReworkRequestStatus.CREATED);
         entity.setRequestType(notificationReworkRequestDto.getRequestType());
         entity.setTask(notificationReworkRequestDto.getTask());
+        entity.setCanInvalidateViewed(notificationReworkRequestDto.isCanInvalidateViewed());
         return entity;
     }
 
@@ -269,6 +270,7 @@ public class NotificationReworkServiceImpl implements NotificationReworkService 
         details.setReason(notificationReworkRequestDto.getReason());
         details.setRequestType(notificationReworkRequestDto.getRequestType());
         details.setElementsToInvalidate(notificationReworkRequestDto.getElementsToInvalidate());
+        details.setCanInvalidateViewed(notificationReworkRequestDto.isCanInvalidateViewed());
         if (!ReworkRequestType.RESTART.equals(notificationReworkRequestDto.getRequestType())) {
             details.setReworkPcRetry(notificationReworkRequestDto.getPcRetry());
             details.setReworkExpectedFinalStatus(finalStatusCode);

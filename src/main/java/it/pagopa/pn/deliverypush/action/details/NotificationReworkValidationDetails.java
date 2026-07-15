@@ -22,4 +22,5 @@ public class NotificationReworkValidationDetails {
     private ReworkRequestType requestType;
     private String task;
     private List<String> elementsToInvalidate;
+    private boolean canInvalidateViewed;
 }

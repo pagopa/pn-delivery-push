@@ -174,6 +174,7 @@ class NotificationReworkServiceImplTest {
     @Test
     void createNotificationReworkRequest_happyPath() {
         var req = sampleRequest();
+        req.setCanInvalidateViewed(true);
         var seq = seqResponse();
         var entity = getEntity(0, 0);
         NotificationInt notificationInt = NotificationInt.builder().physicalCommunicationType(ServiceLevelTypeInt.AR_REGISTERED_LETTER).build();
@@ -206,12 +207,15 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getStatus()).isEqualTo(ReworkRequestStatus.CREATED);
         assertThat(saved.getRequestType()).isNull();
         assertThat(saved.getTask()).isEqualTo("TESTTASK - 123");
+        assertThat(saved.isCanInvalidateViewed());
 
         // Asserzioni su NewAction inviata
         NewAction action = actionCaptor.getValue();
         assertThat(action.getType()).isEqualTo(ActionType.NOTIFICATION_REWORK_VALIDATION);
         assertThat(action.getActionId()).isEqualTo("IUN_123_REWORK_0.TRY_0.RECINDEX_0");
         assertThat(action.getIun()).isEqualTo("IUN_123");
+
+        assertThat(action.getDetails()).contains("\"canInvalidateViewed\":true");
     }
 
     @Test
@@ -531,6 +535,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getExpectedStatusCodes()).isNull();
         assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.RESTART);
         assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
+        assertThat(!saved.isCanInvalidateViewed());
 
         // Verifica action inviata
         NewAction action = actionCaptor.getValue();
@@ -541,6 +546,7 @@ class NotificationReworkServiceImplTest {
         assertThat(action.getDetails()).contains("\"reworkAttempt\":\"ATTEMPT_0\"");
         assertThat(action.getDetails()).contains("\"reworkRecIndex\":\"RECINDEX_0\"");
         assertThat(action.getDetails()).contains("\"requestType\":\"RESTART\"");
+        assertThat(action.getDetails()).contains("\"canInvalidateViewed\":false");
     }
 
     @Test
