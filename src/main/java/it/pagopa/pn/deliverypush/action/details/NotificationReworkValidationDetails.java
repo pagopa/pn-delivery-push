@@ -19,7 +19,7 @@ public class NotificationReworkValidationDetails {
     private String reworkRecIndex;
     private String reworkExpectedFinalStatus;
     private String reason;
-    private ReworkRequestType reworkRequestType;
+    private ReworkRequestType requestType;
     private String task;
     private List<String> elementsToInvalidate;
 }

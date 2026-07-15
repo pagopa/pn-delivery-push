@@ -27,7 +27,7 @@ public class NotificationReworkMapper {
         internalRequest.setTask(externalRequest.getTask());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
-        internalRequest.setReworkRequestType(ReworkRequestType.REWORK);
+        internalRequest.setRequestType(ReworkRequestType.REWORK);
         return internalRequest;
     }
 
@@ -38,7 +38,7 @@ public class NotificationReworkMapper {
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setTask(externalRequest.getTask());
-        internalRequest.setReworkRequestType(ReworkRequestType.RESTART);
+        internalRequest.setRequestType(ReworkRequestType.RESTART);
         return internalRequest;
     }
 
@@ -47,7 +47,7 @@ public class NotificationReworkMapper {
         internalRequest.setIun(iun);
         internalRequest.setRecIndex(resolveRecIndex(invalidateTimelineElementsRequest.getRecIndex()));
         internalRequest.setElementsToInvalidate(invalidateTimelineElementsRequest.getTimelineElementIds());
-        internalRequest.setReworkRequestType(ReworkRequestType.INVALIDATE_ELEMENTS);
+        internalRequest.setRequestType(ReworkRequestType.INVALIDATE_ELEMENTS);
         return internalRequest;
     }
 
@@ -82,7 +82,7 @@ public class NotificationReworkMapper {
                     if(StringUtils.hasText(notificationReworksEntity.getAttemptId())) {
                         reworkItem.setAttemptId(ReworkItem.AttemptIdEnum.fromValue(notificationReworksEntity.getAttemptId()));
                     }
-                    reworkItem.setReworkRequestType(ReworkItem.ReworkRequestTypeEnum.valueOf(notificationReworksEntity.getReworkRequestType().name()));
+                    reworkItem.setRequestType(ReworkItem.RequestTypeEnum.valueOf(notificationReworksEntity.getRequestType().name()));
                     return reworkItem;
                 }).toList();
     }

@@ -37,7 +37,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_ATTEMPTID = "attemptId";
     public static final String FIELD_PCRETRY = "pcRetry";
     public static final String FIELD_RECINDEX = "recIndex";
-    public static final String FIELD_REWORK_REQUEST_TYPE = "reworkRequestType";
+    public static final String FIELD_REQUEST_TYPE = "requestType";
     public static final String FIELD_TASK = "task";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
@@ -91,8 +91,8 @@ public class NotificationReworksEntity {
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_RECINDEX)}))
     private String recIndex;
 
-    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REWORK_REQUEST_TYPE)}))
-    private ReworkRequestType reworkRequestType;
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_REQUEST_TYPE)}))
+    private ReworkRequestType requestType;
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
     private String task;
