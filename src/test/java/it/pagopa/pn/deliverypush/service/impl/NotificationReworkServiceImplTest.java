@@ -535,7 +535,7 @@ class NotificationReworkServiceImplTest {
         assertThat(saved.getExpectedStatusCodes()).isNull();
         assertThat(saved.getRequestType()).isEqualTo(ReworkRequestType.RESTART);
         assertThat(saved.getTask()).isEqualTo("RESTARTTASK - 456");
-        assertThat(!saved.isCanInvalidateViewed()).isFalse();
+        assertThat(saved.isCanInvalidateViewed()).isFalse();
 
         // Verifica action inviata
         NewAction action = actionCaptor.getValue();
