@@ -28,6 +28,7 @@ public class NotificationReworkMapper {
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         internalRequest.setRequestType(ReworkRequestType.REWORK);
+        internalRequest.setCanInvalidateViewed(Boolean.TRUE.equals(externalRequest.getCanInvalidateViewed()));
         return internalRequest;
     }
 
@@ -39,6 +40,7 @@ public class NotificationReworkMapper {
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setTask(externalRequest.getTask());
         internalRequest.setRequestType(ReworkRequestType.RESTART);
+        internalRequest.setCanInvalidateViewed(Boolean.TRUE.equals(externalRequest.getCanInvalidateViewed()));
         return internalRequest;
     }
 
@@ -66,6 +68,7 @@ public class NotificationReworkMapper {
                     reworkItem.setReason(notificationReworksEntity.getReason());
                     reworkItem.setPcRetry(notificationReworksEntity.getPcRetry());
                     reworkItem.setRecIndex(notificationReworksEntity.getRecIndex());
+                    reworkItem.setCanInvalidateViewed(notificationReworksEntity.isCanInvalidateViewed());
 
                     if(Objects.nonNull(notificationReworksEntity.getCreatedAt())) {
                         reworkItem.setCreatedAt(notificationReworksEntity.getCreatedAt().toString());

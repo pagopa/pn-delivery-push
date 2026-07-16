@@ -248,6 +248,8 @@ components:
     ReworkRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:
@@ -296,6 +298,8 @@ components:
     ReworkItem:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         reworkId:
           type: string
           description: identificativo univoco della richiesta di rework
@@ -397,6 +401,8 @@ components:
     RestartAttemptRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:

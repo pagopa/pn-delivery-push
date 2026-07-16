@@ -39,6 +39,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_RECINDEX = "recIndex";
     public static final String FIELD_REQUEST_TYPE = "requestType";
     public static final String FIELD_TASK = "task";
+    public static final String FIELD_CANINVALIDATEVIEWED = "canInvalidateViewed";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
     private String iun;
@@ -96,6 +97,9 @@ public class NotificationReworksEntity {
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
     private String task;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_CANINVALIDATEVIEWED)}))
+    private boolean canInvalidateViewed;
 
     public static class ReworkIdBuilder {
         private static final Pattern TRY_PATTERN = Pattern.compile("TRY_(\\d+)");
