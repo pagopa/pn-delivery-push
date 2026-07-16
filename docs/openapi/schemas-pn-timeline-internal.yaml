@@ -2060,11 +2060,6 @@ components:
         - __PAID__
         - __SKIP__
 
-      enum:
-          - DELIVERED
-          - UNDELIVERABLE
-          - UNREACHED
-
     ServiceLevel:
       type: string
       description: Livello Servizio
