@@ -18,6 +18,14 @@ components:
     cxTaxIdAuthFleet:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
 
+    ############################################################################################
+    ###                     PARAMETRI NOTIFICA E NOTIFICA BONARIA                            ###
+    ############################################################################################
+    pathInformalIun:
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/aa195a3e4be5c0b58e2e2419645ca14714dc4767/docs/openapi/parameters-notification-search.yaml#/components/parameters/pathInformalIun"
+    pathIun:
+      $ref: "https://raw.githubusercontent.com/pagopa/pn-delivery/aa195a3e4be5c0b58e2e2419645ca14714dc4767/docs/openapi/parameters-notification-search.yaml#/components/parameters/pathIun"
+
   schemas:
     ############################################################################################
     ###                     PARAMETRI NOTIFICA                                               ###

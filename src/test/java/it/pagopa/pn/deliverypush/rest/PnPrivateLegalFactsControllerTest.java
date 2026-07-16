@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 @WebFluxTest(PnPrivateLegalFactsController.class)
 class PnPrivateLegalFactsControllerTest {
 
-    private static final String IUN = "fake_iun";
+    private static final String IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
 
     @Autowired
     WebTestClient webTestClient;

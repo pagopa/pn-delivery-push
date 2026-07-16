@@ -3,6 +3,7 @@ package it.pagopa.pn.deliverypush.service;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.legalfacts.LegalFactsIdIntWithRecIndex;
 import it.pagopa.pn.deliverypush.dto.timeline.TimelineElementInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalNotificationHistoryResponse;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationHistoryResponse;
 
 import java.time.Instant;
@@ -19,6 +20,8 @@ public interface TimelineService {
     Set<TimelineElementInternal> getTimeline(String iun, boolean confidentialInfoRequired);
 
     NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
+
+    InformalNotificationHistoryResponse getTimelineAndStatusHistoryForInformalNotification(String iun, int numberOfRecipients, Instant createdAt);
 
     boolean isNotificationRefused(String iun);
 

@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @WebFluxTest(PnNotificationViewController.class)
 class PnNotificationViewControllerTest {
 
-    private static final String FAKE_IUN = "fake_iun";
+    private static final String FAKE_IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
 
     @MockBean
     private NotificationService notificationService;

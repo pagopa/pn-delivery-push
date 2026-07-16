@@ -25,6 +25,8 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @WebFluxTest(PnNotificationProcessCostController.class)
 class PnNotificationProcessCostControllerTest {
 
+    private static final String IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
+
     @Autowired
     WebTestClient webTestClient;
 
@@ -36,7 +38,6 @@ class PnNotificationProcessCostControllerTest {
 
     @Test
     void notificationProcessCost() {
-        String iun = "testIun";
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
         Boolean applyCost = true;
@@ -54,15 +55,15 @@ class PnNotificationProcessCostControllerTest {
                 .sendFee(100)
                 .build();
 
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(false);
 
-        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat))
+        Mockito.when(service.notificationProcessCost(IUN, recIndex, notificationFeePolicy, applyCost, paFee, vat))
                 .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
+                                .path("/delivery-push-private/"+ IUN +"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .queryParam("applyCost", applyCost)
                                 .queryParam("paFee", paFee)
@@ -91,16 +92,15 @@ class PnNotificationProcessCostControllerTest {
 
     @Test
     void notificationProcessCostCancelled404() {
-        String iun = "testIun";
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
 
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
+                                .path("/delivery-push-private/"+ IUN +"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .queryParam("applyCost", true)
                                 .build())
