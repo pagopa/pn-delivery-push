@@ -1823,7 +1823,6 @@ components:
       type: object
       required:
         - recIndex
-        - serviceLevel
         - sentAttemptMade
         - responseStatus
         - categoryType # NO EXTERNAL
