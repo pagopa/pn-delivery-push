@@ -383,6 +383,7 @@ components:
             - EXPIRED_ANALOG_ADDRESS
             - INVALID_ANALOG_ADDRESS
             - INVALID_EXPECTED_STATUS_CODE
+            - INVALID_VIEWED_ELEMENTS
         description:
           type: string
     StatusCodeItem:
