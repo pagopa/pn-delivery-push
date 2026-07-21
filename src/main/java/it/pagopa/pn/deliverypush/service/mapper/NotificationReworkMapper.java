@@ -4,6 +4,7 @@ import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkReques
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksErrorEntity;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
@@ -69,6 +70,7 @@ public class NotificationReworkMapper {
                     reworkItem.setPcRetry(notificationReworksEntity.getPcRetry());
                     reworkItem.setRecIndex(notificationReworksEntity.getRecIndex());
                     reworkItem.setCanInvalidateViewed(notificationReworksEntity.isCanInvalidateViewed());
+                    reworkItem.setErrors(mapToErrorItems(notificationReworksEntity.getErrors()));
 
                     if(Objects.nonNull(notificationReworksEntity.getCreatedAt())) {
                         reworkItem.setCreatedAt(notificationReworksEntity.getCreatedAt().toString());
@@ -88,6 +90,20 @@ public class NotificationReworkMapper {
                     reworkItem.setRequestType(ReworkItem.RequestTypeEnum.valueOf(notificationReworksEntity.getRequestType().name()));
                     return reworkItem;
                 }).toList();
+    }
+
+    private static List<ReworkError> mapToErrorItems(List<NotificationReworksErrorEntity> errorEntities) {
+        if (CollectionUtils.isEmpty(errorEntities)) {
+            return Collections.emptyList();
+        }
+        return errorEntities.stream()
+                .map(errorEntity -> {
+                    ReworkError errorItem = new ReworkError();
+                    errorItem.setCause(ReworkError.CauseEnum.valueOf(errorEntity.getCause().name()));
+                    errorItem.setDescription(errorEntity.getDescription());
+                    return errorItem;
+                })
+                .toList();
     }
 
     private static List<StatusCodeItem> mapToStatusCodeItems(List<StatusCodeEntity> receivedStatusCodes) {
