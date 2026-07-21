@@ -31,7 +31,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE = "expectedDeliveryFailureCause";
     public static final String FIELD_EXPECTED_FINAL_STATUS = "expectedFinalStatus";
     public static final String FILED_STATUS = "status";
-    public static final String FIELD_ERRORS = "errors";
+    public static final String FIELD_ERRORS = "error";
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_UPDATED_AT = "updatedAt";
     public static final String FIELD_ATTEMPTID = "attemptId";
