@@ -1277,7 +1277,6 @@ components:
           format: int32
 
     SendDigitalMessageSkipDetails:
-      x-discriminator-value: "SEND_DIGITAL_MESSAGE_SKIP"
       type: object
       required:
         - recIndex
@@ -1423,7 +1422,6 @@ components:
         - __ANALOG__: invio tramite posta cartacea
 
     PrepareAnalogDeliveryDetails:
-      x-discriminator-value: "PREPARE_ANALOG_DELIVERY"
       type: object
       required:
         - recIndex
@@ -1458,7 +1456,6 @@ components:
         - RS
 
     SendAnalogMessageDetails:
-      x-discriminator-value: "SEND_ANALOG_MESSAGE"
       type: object
       required:
         - recIndex
