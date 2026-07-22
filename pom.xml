@@ -695,7 +695,7 @@
                         </goals>
                         <configuration>
                             <inputSpec>
-                                https://raw.githubusercontent.com/pagopa/pn-timeline-service/fd10dfbbb31e274499c3d9505db4668234274dce/docs/openapi/pn-timeline-service-private.yaml
+                                https://raw.githubusercontent.com/pagopa/pn-timeline-service/bb521c4ad6f6a4532dc3cb993614eac42d622bc0/docs/openapi/pn-timeline-service-private.yaml
                             </inputSpec>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/7.4.0/client</templateDirectory>
                             <generatorName>java</generatorName>

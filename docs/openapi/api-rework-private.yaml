@@ -248,6 +248,8 @@ components:
     ReworkRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:
@@ -296,6 +298,8 @@ components:
     ReworkItem:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         reworkId:
           type: string
           description: identificativo univoco della richiesta di rework
@@ -372,13 +376,14 @@ components:
         cause:
           type: string
           enum:
-            - EXPIRED_ATTACHMENT,
-            - INVALID_ATTACHMENT,
-            - INVALID_NOTIFICATION_STATUS,
-            - INVALID_TIMELINE_ELEMENT,
-            - EXPIRED_ANALOG_ADDRESS,
-            - INVALID_ANALOG_ADDRESS,
+            - EXPIRED_ATTACHMENT
+            - INVALID_ATTACHMENT
+            - INVALID_NOTIFICATION_STATUS
+            - INVALID_TIMELINE_ELEMENT
+            - EXPIRED_ANALOG_ADDRESS
+            - INVALID_ANALOG_ADDRESS
             - INVALID_EXPECTED_STATUS_CODE
+            - INVALID_VIEWED_ELEMENTS
         description:
           type: string
     StatusCodeItem:
@@ -397,6 +402,8 @@ components:
     RestartAttemptRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:

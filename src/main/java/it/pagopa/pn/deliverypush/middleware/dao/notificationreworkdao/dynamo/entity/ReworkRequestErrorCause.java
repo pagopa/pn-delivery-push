@@ -2,6 +2,7 @@ package it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.en
 
 public enum ReworkRequestErrorCause {
     NOTIFICATION_CANCELLED,
+    ERROR_INSER_ACTION,
     INVALID_RECINDEX,
     INVALID_NOTIFICATION_STATUS,
     EXPIRED_ATTACHMENT,
@@ -25,6 +26,5 @@ public enum ReworkRequestErrorCause {
     INVALID_ELEMENTS_TO_INVALIDATE,
     INVALID_VIEWED_ELEMENTS,
     ATTACHMENTS_EXIST_ONVIEWED;
-
 }
 

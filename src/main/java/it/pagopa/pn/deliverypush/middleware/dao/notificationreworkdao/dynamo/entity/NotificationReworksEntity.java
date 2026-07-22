@@ -31,7 +31,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_EXPECTED_DELIVERY_FAILURE_CAUSE = "expectedDeliveryFailureCause";
     public static final String FIELD_EXPECTED_FINAL_STATUS = "expectedFinalStatus";
     public static final String FILED_STATUS = "status";
-    public static final String FIELD_ERRORS = "errors";
+    public static final String FIELD_ERRORS = "error";
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_UPDATED_AT = "updatedAt";
     public static final String FIELD_ATTEMPTID = "attemptId";
@@ -39,6 +39,7 @@ public class NotificationReworksEntity {
     public static final String FIELD_RECINDEX = "recIndex";
     public static final String FIELD_REQUEST_TYPE = "requestType";
     public static final String FIELD_TASK = "task";
+    public static final String FIELD_CANINVALIDATEVIEWED = "canInvalidateViewed";
 
     @Getter(onMethod = @__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)}))
     private String iun;
@@ -96,6 +97,9 @@ public class NotificationReworksEntity {
 
     @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_TASK)}))
     private String task;
+
+    @Getter(onMethod = @__({@DynamoDbAttribute(FIELD_CANINVALIDATEVIEWED)}))
+    private boolean canInvalidateViewed;
 
     public static class ReworkIdBuilder {
         private static final Pattern TRY_PATTERN = Pattern.compile("TRY_(\\d+)");

@@ -1,7 +1,12 @@
 package it.pagopa.pn.deliverypush.service.mapper;
 
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkRequestInternal;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkItem;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ReworkError;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InvalidateTimelineElementsRequest;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksErrorEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestErrorCause;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import org.junit.jupiter.api.Test;
 
@@ -37,5 +42,24 @@ class NotificationReworkMapperTest {
         NotificationReworkRequestInternal internal = NotificationReworkMapper.externalToInternal(request, "IUN_123");
 
         assertEquals("RECINDEX_0", internal.getRecIndex());
+    }
+
+    @Test
+    void entityToExternal_mapsErrorListCorrectly() {
+        NotificationReworksErrorEntity errorEntity = new NotificationReworksErrorEntity();
+        errorEntity.setCause(ReworkRequestErrorCause.EXPIRED_ATTACHMENT);
+        errorEntity.setDescription("Attachment expired");
+
+        NotificationReworksEntity entity = new NotificationReworksEntity();
+        entity.setRequestType(ReworkRequestType.REWORK);
+        entity.setErrors(List.of(errorEntity));
+
+        List<ReworkItem> result = NotificationReworkMapper.entityToExternal(List.of(entity));
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getErrors().size());
+        assertEquals(ReworkItem.RequestTypeEnum.REWORK, result.get(0).getRequestType());
+        assertEquals(ReworkError.CauseEnum.EXPIRED_ATTACHMENT, result.get(0).getErrors().get(0).getCause());
+        assertEquals("Attachment expired", result.get(0).getErrors().get(0).getDescription());
     }
 }
