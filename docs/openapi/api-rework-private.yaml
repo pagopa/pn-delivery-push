@@ -376,14 +376,31 @@ components:
         cause:
           type: string
           enum:
+            - NOTIFICATION_CANCELLED
+            - ERROR_INSER_ACTION
+            - INVALID_RECINDEX
+            - INVALID_NOTIFICATION_STATUS
             - EXPIRED_ATTACHMENT
             - INVALID_ATTACHMENT
-            - INVALID_NOTIFICATION_STATUS
-            - INVALID_TIMELINE_ELEMENT
-            - EXPIRED_ANALOG_ADDRESS
-            - INVALID_ANALOG_ADDRESS
             - INVALID_EXPECTED_STATUS_CODE
+            - INVALID_ATTEMPT_ID
+            - INVALID_TIMELINE_ELEMENT
+            - INVALID_ANALOG_ADDRESS
+            - EXPIRED_ANALOG_ADDRESS
+            - DUPLICATED_ACTION_ERROR
+            - REWORK_REQUESTED_PHASE_ERROR
+            - INVALID_ELEMENT_CATEGORY
+            - INVALID_CATEGORY_TO_INVALIDATE
+            - INVALID_REC_INDEX
+            - INVALID_ATTEMPT1_ELEMENT
+            - INVALID_ATTEMPT0_ELEMENT
+            - INVALID_PROGRESS_ELEMENT
+            - INVALID_ATTEMPT1_ELEMENTS
+            - INVALID_VIEWED_ELEMENT
+            - INVALID_ELEMENT_TO_INVALIDATE
+            - INVALID_ELEMENTS_TO_INVALIDATE
             - INVALID_VIEWED_ELEMENTS
+            - ATTACHMENTS_EXIST_ONVIEWED
         description:
           type: string
     StatusCodeItem:
