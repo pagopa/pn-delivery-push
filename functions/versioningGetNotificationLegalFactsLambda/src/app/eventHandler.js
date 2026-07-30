@@ -1,5 +1,6 @@
 // converte la risposta V2.x a V1
 const { transformFromV20ToV1 } = require('./mapper/mapperV20ToV1.js');
+const { transformFromV28ToV20 } = require('./mapper/mapperV28ToV20.js');
 
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
@@ -46,12 +47,15 @@ exports.versioning = async (event, context) => {
 
     let transformedObject = response.data;
     switch (version) {
-      case 10:
-        transformedObject = transformFromV20ToV1(response.data);
-        break;
-      default:
-        console.error('Invalid version ', version)
-        break;
+          case 10:
+            transformedObject = transformFromV20ToV1(transformFromV28ToV20(response.data));
+            break;
+          case 20:
+            transformedObject = transformFromV28ToV20(response.data);
+            break;
+          default:
+            console.error('Invalid version ', version)
+            break;
     }
 
     const ret = {
