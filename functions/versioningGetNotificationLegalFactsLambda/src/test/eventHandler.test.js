@@ -165,4 +165,40 @@ describe("eventHandler tests", function () {
     expect(response.statusCode).to.equal(200);
   });
 
+  it("statusCode 200 v2.0", async () => {
+      const responseJSON = fs.readFileSync("./src/test/response.json");
+      let responseObj = JSON.parse(responseJSON);
+
+      process.env = Object.assign(process.env, {
+        PN_DELIVERYPUSH_URL: "https://api.dev.notifichedigitali.it/delivery-push",
+      });
+
+      const iunValue = "12345";
+
+      let url = `${process.env.PN_DELIVERYPUSH_URL}/${iunValue}/legal-facts`;
+
+      mock.onGet(url).reply(200, responseObj, { "Content-Type": "application/json" });
+
+      const event = {
+        pathParameters: { iun: iunValue },
+        headers: {},
+        requestContext: {
+          authorizer: {},
+        },
+        resource: `/delivery-push/${iunValue}/legal-facts`,
+        path: "/delivery-push/v2.0/MOCK_IUN/legal-facts",
+        httpMethod: "GET",
+      };
+      const context = {};
+
+      const response = await versioning(event, context);
+
+      expect(response.statusCode).to.equal(200);
+      let resJson = JSON.parse(response.body);
+      let isAnalogDeliveryTimeoutPresent = resJson.some(element => element.legalFactsId.category === 'ANALOG_DELIVERY_TIMEOUT');
+      let isNotificationCancelledPresent = resJson.some(element => element.legalFactsId.category === 'NOTIFICATION_CANCELLED');
+      expect(isNotificationCancelledPresent).to.be.true;
+      expect(isAnalogDeliveryTimeoutPresent).to.be.false;
+    });
+
 });
