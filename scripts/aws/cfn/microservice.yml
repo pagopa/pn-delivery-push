@@ -397,6 +397,7 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+        CpuArchitecture: !Ref CpuArchitecture
 
   # Grant operational rights to PN-Delivery-push microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
