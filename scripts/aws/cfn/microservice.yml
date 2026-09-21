@@ -329,6 +329,16 @@ Parameters:
     Type: String
     Description: "ARN of dynamodb table containing notification refused verification"
 
+  CpuArchitecture:
+    Type: String
+    Default: 'ARM'
+    Description: CPU architecture for the Fargate tasks
+
+  JavaToolOptions:
+    Type: String
+    Default: '-Dreactor.netty.ioWorkerCount=50'
+    Description: Java tool options for the Fargate tasks
+
 Resources:
   # PN-Delivery-push microservice
   DeliveryPushMicroservice:
@@ -375,7 +385,7 @@ Resources:
         ApplicativeEnvFileChecksum: !Ref ApplicativeEnvFileChecksum
         ContainerSecret1: !Sub 'PN_DELIVERYPUSH_ADDRESSMANAGERAPIKEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-DeliveryPush-Secrets:AddressManagerApiKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-DeliveryPush-Secrets
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50'
+        JavaToolOptions: !Ref JavaToolOptions
         MappedPaths: '/delivery-push/*,/delivery-push-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Join [ ',', !Ref SubnetsIds ]
@@ -387,6 +397,7 @@ Resources:
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
         LogAlarmStrategyV1: !Ref LogAlarmStrategy
+        CpuArchitecture: !Ref CpuArchitecture
 
   # Grant operational rights to PN-Delivery-push microservice
   DeliveryPushMicroserviceTaskManagedPolicy:
