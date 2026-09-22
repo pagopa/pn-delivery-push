@@ -217,6 +217,10 @@ components:
           * `WORKFLOW_ENDED_UNDELIVERABLE` - Flusso terminato: la notifica è definitivamente irrecapitabile su ogni canale
           * `WORKFLOW_DONE_REACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario raggiunto
           * `WORKFLOW_DONE_UNREACHED` - Elaborazione del workflow completata per riscontro su un feedback desiderato e destinatario non raggiunto
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
       enum:
         - PUBLIC_REGISTRY_VALIDATION_CALL
         - PUBLIC_REGISTRY_VALIDATION_RESPONSE
@@ -241,6 +245,10 @@ components:
         - INFORMAL_NOTIFICATION_VIEWED
         - COVERPAGE_CREATION_REQUEST
         - PAYMENT
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SEND_COURTESY_MESSAGE
 
     InformalTimelineElementDetailsV1:
       description: The raw event payload that will be different based on the event.
@@ -267,6 +275,10 @@ components:
         - "$ref": "#/components/schemas/CoverpageCreationRequestDetails"
         - "$ref": "#/components/schemas/SendDigitalMessageSkipDetails"
         - "$ref": "#/components/schemas/NotificationPaidDetailsV23"
+        - "$ref": "#/components/schemas/InformalGetAddressInfoDetails"
+        - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+        - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+        - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
 
     InformalTimelineElementV1:
       type: object
@@ -1286,8 +1298,6 @@ components:
           $ref: '#/components/schemas/RecIndex'
         channel:
           $ref: '#/components/schemas/DigitalNotificationChannel'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
           type: integer
           description: numero dei tentativi effettuati
@@ -2025,3 +2035,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NotificationStatusHistoryInvalidatedElement"
+
+    InformalGetAddressInfoDetails:
+      allOf:
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - type: object
+          properties:
+            isTosAccepted:
+              type: boolean
+              description: Indica se l'utente ha accettato i termini di servizio per la consultazione dell'indirizzo
+            digitalAddress:
+              $ref: "./schemas-addresses.yaml#/components/schemas/DigitalAddress"
+            channel:
+              $ref: '#/components/schemas/DigitalNotificationChannel'
