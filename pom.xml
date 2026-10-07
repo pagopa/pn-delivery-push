@@ -20,6 +20,7 @@
     <properties>
         <jacoco.min.line.cover.ratio>0.70</jacoco.min.line.cover.ratio>
         <pagopa.codegen.version>v01.06.01</pagopa.codegen.version>
+        <java.version>25</java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -163,7 +164,6 @@
                     <image>
                         <env>
                             <JAVA_TOOL_OPTIONS>--add-modules=java.instrument --add-opens=java.base/java.lang=ALL-UNNAMED</JAVA_TOOL_OPTIONS>
-                            <BP_JVM_TYPE>JDK</BP_JVM_TYPE>
                         </env>
                     </image>
                 </configuration>
