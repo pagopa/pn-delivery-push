@@ -6,7 +6,10 @@ import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.service.GetLegalFactService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -37,8 +40,18 @@ class PnPrivateLegalFactsControllerTest {
     private GetLegalFactService getLegalFactService;
     @MockitoBean
     private TimelineUtils timelineUtils;
-    @Test
-    void getNotificationLegalFactsSuccess() {
+    @BeforeEach
+    void configureAuthHeaders() {
+        webTestClient = webTestClient.mutate()
+                .defaultHeader("x-pagopa-pn-uid", "audit-user")
+                .defaultHeader("x-pagopa-pn-cx-id", "audit-cx")
+                .defaultHeader("x-pagopa-pn-cx-type", "PF")
+                .build();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"PF", "PG", "PA", "RADD", "BO", "BS", "SD"})
+    void getNotificationLegalFactsSuccess(String cxType) {
         List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
                 .iun(IUN)
                 .taxId("taxId")
@@ -57,15 +70,15 @@ class PnPrivateLegalFactsControllerTest {
                                 .path("/delivery-push-private/" + IUN + "/legal-facts")
                                 .queryParam("mandateId", "mandateId")
                                 .queryParam("recipientInternalId", "testRecipientInternalId")
-                                .queryParam("x-pagopa-pn-cx-type", "PF")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
+                .header("x-pagopa-pn-cx-type", cxType)
                 .exchange()
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(getLegalFactService).getLegalFacts(anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFacts(anyString(), anyString(), anyString(), Mockito.eq(CxTypeAuthFleet.fromValue(cxType)), any());
     }
 
     @Test
@@ -79,7 +92,6 @@ class PnPrivateLegalFactsControllerTest {
                                 .path("/delivery-push-private/" + IUN + "/legal-facts")
                                 .queryParam("mandateId", "mandateId")
                                 .queryParam("recipientInternalId", "testRecipientInternalId")
-                                .queryParam("x-pagopa-pn-cx-type", "PF")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -92,6 +104,7 @@ class PnPrivateLegalFactsControllerTest {
 
     @Test
     void getNotificationLegalFactsCancelledPA() {
+        webTestClient = webTestClient.mutate().defaultHeader("x-pagopa-pn-cx-type", "PA").build();
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
         List<LegalFactListElementV20> legalFactsList = Collections.singletonList(LegalFactListElementV20.builder()
@@ -112,7 +125,6 @@ class PnPrivateLegalFactsControllerTest {
                     .path("/delivery-push-private/" + IUN + "/legal-facts")
                     .queryParam("mandateId", "mandateId")
                     .queryParam("recipientInternalId", "testRecipientInternalId")
-                    .queryParam("x-pagopa-pn-cx-type", "PA")
                     .build())
             .accept(MediaType.ALL)
             .header(HttpHeaders.ACCEPT, "application/json")
@@ -134,6 +146,7 @@ class PnPrivateLegalFactsControllerTest {
     }
 
     void getNotificationLegalFactsCancelled(String type) {
+        webTestClient = webTestClient.mutate().defaultHeader("x-pagopa-pn-cx-type", type).build();
         Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
         Mockito.when(getLegalFactService.getLegalFacts(anyString(), anyString(), anyString(), any(), any()))
@@ -145,7 +158,6 @@ class PnPrivateLegalFactsControllerTest {
                     .path("/delivery-push-private/" + IUN + "/legal-facts")
                     .queryParam("mandateId", "mandateId")
                     .queryParam("recipientInternalId", "testRecipientInternalId")
-                    .queryParam("x-pagopa-pn-cx-type", type)
                     .build())
             .accept(MediaType.ALL)
             .header(HttpHeaders.ACCEPT, "application/json")
@@ -156,15 +168,16 @@ class PnPrivateLegalFactsControllerTest {
                 elem -> {
                     Problem problem = elem.getResponseBody();
                     assert problem != null;
-                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().get(0).getCode());
+                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().getFirst().getCode());
                 }
             );
 
         Mockito.verify(getLegalFactService, Mockito.never()).getLegalFacts(anyString(), anyString(), anyString(), any(), any());
     }
 
-    @Test
-    void getLegalFactsOk() {
+    @ParameterizedTest
+    @ValueSource(strings = {"PF", "PG", "PA", "RADD", "BO", "BS", "SD"})
+    void getLegalFactsOk(String cxType) {
         LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataResponse =
                 new LegalFactDownloadMetadataWithContentTypeResponse()
                         .filename("filename.pdf")
@@ -182,15 +195,15 @@ class PnPrivateLegalFactsControllerTest {
                                 .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                                 .queryParam("mandateId", "mandateId")
                                 .queryParam("recipientInternalId", "testRecipientInternalId")
-                                .queryParam("x-pagopa-pn-cx-type", "PF")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
+                .header("x-pagopa-pn-cx-type", cxType)
                 .exchange()
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), anyString(), anyString(), anyString(), any(), any());
+        Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(anyString(), anyString(), anyString(), anyString(), Mockito.eq(CxTypeAuthFleet.fromValue(cxType)), any());
     }
 
     @Test
@@ -207,7 +220,6 @@ class PnPrivateLegalFactsControllerTest {
                                 .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                                 .queryParam("mandateId", "mandateId")
                                 .queryParam("recipientInternalId", "testRecipientInternalId")
-                                .queryParam("x-pagopa-pn-cx-type", "PF")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -240,7 +252,6 @@ class PnPrivateLegalFactsControllerTest {
                                 .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                 .queryParam("mandateId", "mandateId")
                                 .queryParam("recipientInternalId", "testRecipientInternalId")
-                                .queryParam("x-pagopa-pn-cx-type", "PF")
                                 .build())
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -270,6 +281,7 @@ class PnPrivateLegalFactsControllerTest {
 
 
     void getLegalFactsCancelledNotFound(String type) {
+        webTestClient = webTestClient.mutate().defaultHeader("x-pagopa-pn-cx-type", type).build();
 
         LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataWithContentTypeResponse =
             new LegalFactDownloadMetadataWithContentTypeResponse()
@@ -289,7 +301,6 @@ class PnPrivateLegalFactsControllerTest {
                     .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                     .queryParam("mandateId", "mandateId")
                     .queryParam("recipientInternalId", "testRecipientInternalId")
-                    .queryParam("x-pagopa-pn-cx-type", type)
                     .build())
             .accept(MediaType.ALL)
             .header(HttpHeaders.ACCEPT, "application/json")
@@ -299,7 +310,7 @@ class PnPrivateLegalFactsControllerTest {
                 elem -> {
                     Problem problem = elem.getResponseBody();
                     assert problem != null;
-                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().get(0).getCode());
+                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().getFirst().getCode());
                 }
             );
 
@@ -308,6 +319,7 @@ class PnPrivateLegalFactsControllerTest {
 
     @Test
     void getLegalFactsCancelledPATest(){
+        webTestClient = webTestClient.mutate().defaultHeader("x-pagopa-pn-cx-type", "PA").build();
         LegalFactDownloadMetadataWithContentTypeResponse legalFactDownloadMetadataWithContentTypeResponse =
             new LegalFactDownloadMetadataWithContentTypeResponse()
                 .filename("filename.pdf")
@@ -325,7 +337,6 @@ class PnPrivateLegalFactsControllerTest {
                     .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                     .queryParam("mandateId", "mandateId")
                     .queryParam("recipientInternalId", "testRecipientInternalId")
-                    .queryParam("x-pagopa-pn-cx-type", "PA")
                     .build())
             .accept(MediaType.ALL)
             .header(HttpHeaders.ACCEPT, "application/json")
@@ -349,7 +360,6 @@ class PnPrivateLegalFactsControllerTest {
                     .path("/delivery-push-private/" + IUN + "/download/legal-facts/" + legalFactsId)
                     .queryParam("mandateId", "mandateId")
                     .queryParam("recipientInternalId", "testRecipientInternalId")
-                    .queryParam("x-pagopa-pn-cx-type", "PF")
                     .build())
             .accept(MediaType.ALL)
             .header(HttpHeaders.ACCEPT, "application/json")
@@ -364,5 +374,53 @@ class PnPrivateLegalFactsControllerTest {
 
         Mockito.verify(getLegalFactService).getLegalFactMetadataWithContentType(
             anyString(), anyString(), anyString(), anyString(), any(), any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"x-pagopa-pn-uid", "x-pagopa-pn-cx-id", "x-pagopa-pn-cx-type", "all"})
+    void missingAuthHeaderIsOptional(String missingHeader) {
+        Mockito.when(getLegalFactService.getLegalFacts(anyString(), anyString(), any(), any(), any()))
+                .thenReturn(Collections.emptyList());
+        Mockito.when(getLegalFactService.getLegalFactMetadataWithContentType(anyString(), anyString(), anyString(), any(), any(), any()))
+                .thenReturn(Mono.just(new LegalFactDownloadMetadataWithContentTypeResponse()));
+        for (String path : List.of("/legal-facts", "/download/legal-facts/fact-id")) {
+            webTestClient.mutate().defaultHeaders(headers -> {
+                if ("all".equals(missingHeader)) {
+                    headers.remove("x-pagopa-pn-uid");
+                    headers.remove("x-pagopa-pn-cx-id");
+                    headers.remove("x-pagopa-pn-cx-type");
+                } else {
+                    headers.remove(missingHeader);
+                }
+            }).build().get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/delivery-push-private/" + IUN + path)
+                            .queryParam("recipientInternalId", "recipient")
+                            .queryParam("x-pagopa-pn-cx-type", "PA")
+                            .build())
+                    .exchange()
+                    .expectStatus().isOk();
+        }
+        CxTypeAuthFleet expectedType = "all".equals(missingHeader) || "x-pagopa-pn-cx-type".equals(missingHeader)
+                ? null : CxTypeAuthFleet.PF;
+        Mockito.verify(getLegalFactService).getLegalFacts(
+                Mockito.eq(IUN), Mockito.eq("recipient"), Mockito.isNull(), Mockito.eq(expectedType), Mockito.isNull());
+    }
+
+    @Test
+    void headerTypeTakesPrecedenceOverLegacyQuery() {
+        Mockito.when(getLegalFactService.getLegalFacts(anyString(), anyString(), any(), any(), any()))
+                .thenReturn(Collections.emptyList());
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/delivery-push-private/" + IUN + "/legal-facts")
+                        .queryParam("recipientInternalId", "recipient")
+                        .queryParam("x-pagopa-pn-cx-type", "PA")
+                        .build())
+                .header("x-pagopa-pn-cx-type", "RADD")
+                .exchange()
+                .expectStatus().isOk();
+        Mockito.verify(getLegalFactService).getLegalFacts(
+                Mockito.eq(IUN), Mockito.eq("recipient"), Mockito.isNull(), Mockito.eq(CxTypeAuthFleet.RADD), Mockito.isNull());
     }
 }

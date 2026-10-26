@@ -10,10 +10,12 @@ import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotifica
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -24,17 +26,40 @@ class PnNotificationViewControllerTest {
 
     private static final String FAKE_IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
 
-    @MockBean
+    @MockitoBean
     private NotificationService notificationService;
 
-    @MockBean
+    @MockitoBean
     private NotificationUtils notificationUtils;
 
-    @MockBean
+    @MockitoBean
     private NotificationViewedRequestHandler notificationViewedRequestHandler;
 
     @Autowired
     private WebTestClient webTestClient;
+
+    @ParameterizedTest
+    @ValueSource(strings = {"x-pagopa-pn-uid", "x-pagopa-pn-cx-id", "x-pagopa-pn-cx-type"})
+    void notifyNotificationRaddRetrievedAcceptsMissingAuthHeaders(String missingHeader) {
+        Mockito.when(notificationViewedRequestHandler.handleNotificationRaddRetrieved(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.empty());
+        webTestClient.post()
+                .uri("/delivery-push-private/" + FAKE_IUN + "/raddretrieved")
+                .header("x-pagopa-pn-uid", "audit-user")
+                .header("x-pagopa-pn-cx-id", "audit-cx")
+                .header("x-pagopa-pn-cx-type", "RADD")
+                .headers(headers -> headers.remove(missingHeader))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(RequestNotificationViewedDto.builder()
+                        .recipientInternalId("recipientInternalId")
+                        .recipientType(RecipientType.PF)
+                        .raddType("raddType")
+                        .raddBusinessTransactionId("raddTransactionId")
+                        .build())
+                .exchange()
+                .expectStatus().isOk();
+        Mockito.verify(notificationViewedRequestHandler).handleNotificationRaddRetrieved(Mockito.any(), Mockito.any());
+    }
 
     @Test
     void notifyNotificationViewedNoNotification() {
@@ -111,6 +136,9 @@ class PnNotificationViewControllerTest {
                 .uri("/delivery-push-private/" + FAKE_IUN + "/raddretrieved")
                 .accept(MediaType.ALL)
                 .header(HttpHeaders.ACCEPT, "application/json")
+                .header("x-pagopa-pn-uid", "audit-user")
+                .header("x-pagopa-pn-cx-id", "audit-cx")
+                .header("x-pagopa-pn-cx-type", "RADD")
                 .body(Mono.just(request), RequestNotificationViewedDto.class)
                 .exchange()
                 .expectStatus()
