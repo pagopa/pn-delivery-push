@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationSenderInt;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.ServiceLevelTypeInt;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV26;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
@@ -40,7 +40,7 @@ class NotificationServiceImplTest {
     void getNotificationByIun() {
         NotificationInt expected = buildNotificationInt();
 
-        SentNotificationV25 sentNotification = buildSentNotification();
+        SentNotificationV26 sentNotification = buildSentNotification();
         Mockito.when(pnDeliveryClient.getSentNotification("001")).thenReturn(sentNotification);
 
         NotificationInt actual = service.getNotificationByIun("001");
@@ -62,7 +62,7 @@ class NotificationServiceImplTest {
     @ExtendWith(SpringExtension.class)
     void getNotificationByIunReactive() {
         NotificationInt expected = buildNotificationInt();
-        SentNotificationV25 sentNotification = buildSentNotificationReactive();
+        SentNotificationV26 sentNotification = buildSentNotificationReactive();
         Mockito.when(pnDeliveryClientReactive.getSentNotification("001")).thenReturn(Mono.just(sentNotification));
 
         Mono<NotificationInt> actual = service.getNotificationByIunReactive("001");
@@ -81,23 +81,23 @@ class NotificationServiceImplTest {
         service.getNotificationByIunReactive("001")
                 .onErrorResume( error -> {
                     PnInternalException pnInternalException = (PnInternalException) error;
-                    Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().get(0).getCode());
+                    Assertions.assertEquals(expectErrorMsg, pnInternalException.getProblem().getErrors().getFirst().getCode());
                     return Mono.empty();
                 });
     }
 
-    private SentNotificationV25 buildSentNotification() {
-        SentNotificationV25 sentNotification = new SentNotificationV25();
+    private SentNotificationV26 buildSentNotification() {
+        SentNotificationV26 sentNotification = new SentNotificationV26();
         sentNotification.setIun("001");
-        sentNotification.setPhysicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setPhysicalCommunicationType(SentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
 
-    private SentNotificationV25 buildSentNotificationReactive() {
-        SentNotificationV25 sentNotification = new SentNotificationV25();
+    private SentNotificationV26 buildSentNotificationReactive() {
+        SentNotificationV26 sentNotification = new SentNotificationV26();
         sentNotification.setIun("001");
-        sentNotification.setPhysicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
+        sentNotification.setPhysicalCommunicationType(SentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890);
         sentNotification.setNotificationFeePolicy(it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.NotificationFeePolicy.DELIVERY_MODE);
         return sentNotification;
     }
