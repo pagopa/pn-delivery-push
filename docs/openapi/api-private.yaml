@@ -430,21 +430,21 @@ components:
       in: header
       required: false
       schema:
-        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/UidAuthFleet'
+        $ref: 'remote-refs.yaml#/components/schemas/UidAuthFleet'
 
     xPagoPaPnCxId:
       name: x-pagopa-pn-cx-id
       in: header
       required: false
       schema:
-        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/CxIdAuthFleet'
+        $ref: 'remote-refs.yaml#/components/schemas/CxIdAuthFleet'
 
     xPagoPaPnCxType:
       name: x-pagopa-pn-cx-type
       in: header
       required: false
       schema:
-        $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/e84d3140222de3b5dae0f067c55e841281ce5c2d/docs/openapi/authenticationParameters-v1.yaml#/components/schemas/CxTypeAuthFleet'
+        $ref: 'remote-refs.yaml#/components/schemas/CxTypeAuthFleet'
 
     xPagoPaPnCxGroups:
       name: x-pagopa-pn-cx-groups
