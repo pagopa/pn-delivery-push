@@ -5,6 +5,7 @@ import it.pagopa.pn.deliverypush.action.utils.NotificationUtils;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notificationviewed.NotificationViewedInt;
 import it.pagopa.pn.deliverypush.dto.radd.RaddInfo;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.api.EventComunicationApi;
+import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.RequestNotificationViewedDto;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.ResponseNotificationViewedDto;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -74,7 +75,7 @@ public class PnNotificationViewController implements EventComunicationApi {
     }
 
     @Override
-    public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationRaddRetrieved(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto,  final ServerWebExchange exchange) {
+    public Mono<ResponseEntity<ResponseNotificationViewedDto>> notifyNotificationRaddRetrieved(String iun, Mono<RequestNotificationViewedDto> requestNotificationViewedDto, String xPagopaPnUid, String xPagopaPnCxId, CxTypeAuthFleet xPagopaPnCxType, final ServerWebExchange exchange) {
         return requestNotificationViewedDto.flatMap(request -> {
             log.info("Start notifyNotificationRaddRetrieved - iun={} internalId={} raddTransactionId={} raddType={}", iun, request.getRecipientInternalId(), request.getRaddBusinessTransactionId(), request.getRaddType());
             return notificationViewedRequestHandler.handleNotificationRaddRetrieved(iun, request)

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -32,9 +32,9 @@ class PnDocumentsControllerTest {
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     private GetDocumentService getDocumentService;
-    @MockBean
+    @MockitoBean
     private TimelineUtils timelineUtils;
 
     @Test
@@ -100,8 +100,8 @@ class PnDocumentsControllerTest {
             .expectBody(Problem.class).consumeWith(
                 elem -> {
                     Problem response = elem.getResponseBody();
-                    assert response != null;
-                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().get(0).getCode());
+                    Assertions.assertNotNull(response);
+                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().getFirst().getCode());
                 }
             );
 
@@ -218,8 +218,8 @@ class PnDocumentsControllerTest {
             .expectBody(Problem.class).consumeWith(
                 elem -> {
                     Problem response = elem.getResponseBody();
-                    assert response != null;
-                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().get(0).getCode());
+                    Assertions.assertNotNull(response);
+                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().getFirst().getCode());
                 }
             );
 

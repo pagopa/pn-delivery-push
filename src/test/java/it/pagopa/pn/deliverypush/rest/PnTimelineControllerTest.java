@@ -133,7 +133,7 @@ class PnTimelineControllerTest {
                 .is5xxServerError()
                 .expectBody(Problem.class).consumeWith(elem -> {
                     Problem problem = elem.getResponseBody();
-                    assert problem != null;
+                    Assertions.assertNotNull(problem);
                     Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                 });
 
@@ -167,7 +167,7 @@ class PnTimelineControllerTest {
                 .is4xxClientError()
                 .expectBody(Problem.class).consumeWith(elem -> {
                     Problem problem = elem.getResponseBody();
-                    assert problem != null;
+                    Assertions.assertNotNull(problem);
                     Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
                     Assertions.assertNotNull(problem.getDetail());
                 });
@@ -197,7 +197,7 @@ class PnTimelineControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                         }
                 );
@@ -228,7 +228,7 @@ class PnTimelineControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                         }
