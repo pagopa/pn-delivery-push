@@ -93,7 +93,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(ReworkResponse.class).consumeWith(
                         elem -> {
                             ReworkResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getReworkId().startsWith("REWORK_0_"));
                             Assertions.assertNotNull(response.getCreationDate());
                         }
@@ -132,7 +132,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(ReworkResponse.class).consumeWith(
                         elem -> {
                             ReworkResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getReworkId().startsWith("REWORK_0_"));
                             Assertions.assertNotNull(response.getCreationDate());
                         }
@@ -173,7 +173,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(ReworkItemsResponse.class).consumeWith(
                         elem -> {
                             ReworkItemsResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getIun().equalsIgnoreCase("KWKU-JHXN-HJXM-202304-U-1"));
                             Assertions.assertEquals(1, response.getItems().size());
                         }
@@ -207,7 +207,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(ReworkItemsResponse.class).consumeWith(
                         elem -> {
                             ReworkItemsResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getIun().equalsIgnoreCase("KWKU-JHXN-HJXM-202304-U-1"));
                             Assertions.assertEquals(1, response.getItems().size());
                         }
@@ -282,7 +282,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(RestartAttemptResponse.class).consumeWith(
                         elem -> {
                             RestartAttemptResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getReworkId().startsWith("RESTART_"));
                             Assertions.assertNotNull(response.getCreationDate());
                         }
@@ -349,7 +349,7 @@ public class PnNotificationReworkControllerTest {
                 .expectBody(InvalidateTimelineElementsResponse.class).consumeWith(
                         elem -> {
                             InvalidateTimelineElementsResponse response = elem.getResponseBody();
-                            assert response != null;
+                            Assertions.assertNotNull(response);
                             Assertions.assertTrue(response.getReworkId().startsWith("INVALIDATE_"));
                             Assertions.assertNotNull(response.getCreationDate());
                         }
