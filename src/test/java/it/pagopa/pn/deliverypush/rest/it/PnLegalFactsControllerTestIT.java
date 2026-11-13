@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,7 +53,7 @@ class PnLegalFactsControllerTestIT {
     @Autowired
     private SafeStorageService safeStorageService;
 
-    @MockBean
+    @MockitoBean
     private TimelineUtils timelineUtils;
 
     @Test
@@ -193,10 +193,10 @@ class PnLegalFactsControllerTestIT {
             .expectBody(Problem.class).consumeWith(
                 elem -> {
                     Problem problem = elem.getResponseBody();
-                    assert problem != null;
+                    Assertions.assertNotNull(problem);
                     Assertions.assertNotNull(problem.getDetail());
                     Assertions.assertNotNull(problem.getTitle());
-                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().get(0).getCode());
+                    Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().getFirst().getCode());
                 }
             );
 

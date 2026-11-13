@@ -16,7 +16,7 @@ import java.util.List;
 public class NotificationMapper {
     private NotificationMapper(){}
 
-    public static NotificationInt externalToInternal(SentNotificationV25 sentNotification) {
+    public static NotificationInt externalToInternal(SentNotificationV26 sentNotification) {
 
         List<NotificationRecipientInt> listNotificationRecipientInt = mapNotificationRecipient(sentNotification.getRecipients());
         List<NotificationDocumentInt> listNotificationDocumentIntInt = mapNotificationDocument(sentNotification.getDocuments());
@@ -94,8 +94,8 @@ public class NotificationMapper {
     }
     
     //Utilizzata a livello di test
-    public static SentNotificationV25 internalToExternal(NotificationInt notification) {
-        SentNotificationV25 sentNotification = new SentNotificationV25();
+    public static SentNotificationV26 internalToExternal(NotificationInt notification) {
+        SentNotificationV26 sentNotification = new SentNotificationV26();
 
         sentNotification.setIun(notification.getIun());
         sentNotification.setPaProtocolNumber(notification.getPaProtocolNumber());
@@ -113,11 +113,11 @@ public class NotificationMapper {
         sentNotification.setPaymentExpirationDate(formattedString);
         
         if(notification.getPagoPaIntMode() != null){
-            sentNotification.setPagoPaIntMode(SentNotificationV25.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
+            sentNotification.setPagoPaIntMode(SentNotificationV26.PagoPaIntModeEnum.valueOf(notification.getPagoPaIntMode().getValue()));
         }
         if( notification.getPhysicalCommunicationType() != null ) {
             sentNotification.setPhysicalCommunicationType(
-                    SentNotificationV25.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
+                    SentNotificationV26.PhysicalCommunicationTypeEnum.valueOf( notification.getPhysicalCommunicationType().name() )
             );
         }
 
@@ -139,7 +139,7 @@ public class NotificationMapper {
         sentNotification.setDocuments(documents);
 
         if(notification.getPhysicalCommunicationType() != null){
-            sentNotification.setPhysicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
+            sentNotification.setPhysicalCommunicationType(SentNotificationV26.PhysicalCommunicationTypeEnum.valueOf(notification.getPhysicalCommunicationType().name()));
         }
         
         if(notification.getSender() != null){

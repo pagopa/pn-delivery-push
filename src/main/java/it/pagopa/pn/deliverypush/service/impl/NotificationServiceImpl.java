@@ -3,7 +3,7 @@ package it.pagopa.pn.deliverypush.service.impl;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.deliverypush.dto.ext.delivery.notification.NotificationInt;
 import it.pagopa.pn.deliverypush.exceptions.PnNotFoundException;
-import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV25;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.delivery.model.SentNotificationV26;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClient;
 import it.pagopa.pn.deliverypush.middleware.externalclient.pnclient.delivery.PnDeliveryClientReactive;
 import it.pagopa.pn.deliverypush.service.NotificationService;
@@ -28,7 +28,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationInt getNotificationByIun(String iun) {
-        SentNotificationV25 sentNotification = pnDeliveryClient.getSentNotification(iun);
+        SentNotificationV26 sentNotification = pnDeliveryClient.getSentNotification(iun);
         log.debug("Get notification OK for - iun {}", iun);
 
         if (sentNotification != null) {

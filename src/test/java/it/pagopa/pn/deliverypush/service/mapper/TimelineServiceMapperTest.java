@@ -11,6 +11,12 @@ import it.pagopa.pn.deliverypush.dto.timeline.details.TimelineElementDetailsInt;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.*;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.InformalNotificationViewedDetails;
 import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.NotificationHistoryResponse;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.PublicRegistryCallDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.SendCourtesyMessageDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.GetAddressInfoDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.PublicRegistryResponseDetails;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.DigitalAddress;
+import it.pagopa.pn.deliverypush.generated.openapi.msclient.timelineservice.model.DigitalAddressSource;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -196,7 +202,7 @@ class TimelineServiceMapperTest {
     void toInformalNotificationHistoryResponseDto_mapsAllFieldsCorrectly() {
         Instant now = Instant.now();
 
-        TimelineElementDetails details = new InformalNotificationViewedDetails()
+        InformalNotificationViewedDetails details = new InformalNotificationViewedDetails()
                 .categoryType("INFORMAL_NOTIFICATION_VIEWED");
 
         TimelineElement timelineElement = new TimelineElement()
@@ -245,6 +251,130 @@ class TimelineServiceMapperTest {
         assertNotNull(timelineElem.getNotificationSentAt());
         assertNotNull(timelineElem.getIngestionTimestamp());
         assertNotNull(timelineElem.getEventTimestamp());
+    }
+
+    @Test
+    void toInformalNotificationHistoryResponseDto_mapsNewAllowedInformalCategoriesWithConcreteDetails() {
+        Instant now = Instant.now();
+
+        TimelineElement publicRegistryTimelineElement = new TimelineElement()
+                .elementId("INF_PUBLIC_REGISTRY_CALL")
+                .timestamp(now)
+                .category(TimelineCategory.PUBLIC_REGISTRY_CALL)
+                .details(new PublicRegistryCallDetails()
+                        .categoryType("PUBLIC_REGISTRY_CALL")
+                        .recIndex(0))
+                .notificationSentAt(now)
+                .ingestionTimestamp(now)
+                .eventTimestamp(now);
+
+        TimelineElement sendCourtesyMessageTimelineElement = new TimelineElement()
+                .elementId("INF_SEND_COURTESY_MESSAGE")
+                .timestamp(now)
+                .category(TimelineCategory.SEND_COURTESY_MESSAGE)
+                .details(new SendCourtesyMessageDetails()
+                        .categoryType("SEND_COURTESY_MESSAGE")
+                        .recIndex(0)
+                        .digitalAddress(new DigitalAddressCourtesy().address("address")))
+                .notificationSentAt(now)
+                .ingestionTimestamp(now)
+                .eventTimestamp(now);
+
+        TimelineElement getAddressTimelineElement = new TimelineElement()
+                .elementId("INF_GET_ADDRESS")
+                .timestamp(now)
+                .category(TimelineCategory.GET_ADDRESS)
+                .details(new GetAddressInfoDetails()
+                        .categoryType("GET_ADDRESS")
+                        .recIndex(0)
+                        .digitalAddressSource(DigitalAddressSource.GENERAL)
+                        .isAvailable(true)
+                        .attemptDate(now)
+                        .isTosAccepted(true)
+                        .digitalAddress(new DigitalAddress().type("PEC").address("get-address@pec.it"))
+                        .channel("PEC"))
+                .notificationSentAt(now)
+                .ingestionTimestamp(now)
+                .eventTimestamp(now);
+
+        TimelineElement publicRegistryResponseTimelineElement = new TimelineElement()
+                .elementId("INF_PUBLIC_REGISTRY_RESPONSE")
+                .timestamp(now)
+                .category(TimelineCategory.PUBLIC_REGISTRY_RESPONSE)
+                .details(new PublicRegistryResponseDetails()
+                        .categoryType("PUBLIC_REGISTRY_RESPONSE")
+                        .recIndex(0)
+                        .digitalAddress(new DigitalAddress().type("PEC").address("public-registry-response@pec.it")))
+                .notificationSentAt(now)
+                .ingestionTimestamp(now)
+                .eventTimestamp(now);
+
+        NotificationHistoryResponse source = new NotificationHistoryResponse()
+                .notificationStatus(NotificationStatus.IN_VALIDATION)
+                .notificationStatusHistory(List.of())
+                .timeline(List.of(
+                        publicRegistryTimelineElement,
+                        sendCourtesyMessageTimelineElement,
+                        getAddressTimelineElement,
+                        publicRegistryResponseTimelineElement
+                ));
+
+        InformalNotificationHistoryResponse result = timelineServiceMapper.toInformalNotificationHistoryResponseDto(source);
+
+        assertNotNull(result);
+        assertNotNull(result.getTimeline());
+        assertEquals(4, result.getTimeline().size());
+
+        InformalTimelineElementV1 publicRegistryElem = result.getTimeline().stream()
+                .filter(item -> "INF_PUBLIC_REGISTRY_CALL".equals(item.getElementId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(InformalTimelineElementCategoryV1.PUBLIC_REGISTRY_CALL, publicRegistryElem.getCategory());
+        assertInstanceOf(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails.class, publicRegistryElem.getDetails());
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails publicRegistryDetails =
+                (it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryCallDetails) publicRegistryElem.getDetails();
+        assertEquals(0, publicRegistryDetails.getRecIndex());
+
+        InformalTimelineElementV1 sendCourtesyElem = result.getTimeline().stream()
+                .filter(item -> "INF_SEND_COURTESY_MESSAGE".equals(item.getElementId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(InformalTimelineElementCategoryV1.SEND_COURTESY_MESSAGE, sendCourtesyElem.getCategory());
+        assertInstanceOf(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails.class, sendCourtesyElem.getDetails());
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails sendCourtesyDetails =
+                (it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.SendCourtesyMessageDetails) sendCourtesyElem.getDetails();
+        assertEquals("address", sendCourtesyDetails.getDigitalAddress().getAddress());
+        assertEquals(0, sendCourtesyDetails.getRecIndex());
+
+        InformalTimelineElementV1 getAddressElem = result.getTimeline().stream()
+                .filter(item -> "INF_GET_ADDRESS".equals(item.getElementId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(InformalTimelineElementCategoryV1.GET_ADDRESS, getAddressElem.getCategory());
+        assertInstanceOf(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalGetAddressInfoDetails.class, getAddressElem.getDetails());
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalGetAddressInfoDetails getAddressDetails =
+                (it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.InformalGetAddressInfoDetails) getAddressElem.getDetails();
+        assertEquals(0, getAddressDetails.getRecIndex());
+        assertEquals(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.DigitalAddressSource.GENERAL, getAddressDetails.getDigitalAddressSource());
+        assertEquals(true, getAddressDetails.getIsAvailable());
+        assertNotNull(getAddressDetails.getAttemptDate());
+        assertEquals(true, getAddressDetails.getIsTosAccepted());
+        assertEquals("PEC", getAddressDetails.getChannel());
+        assertNotNull(getAddressDetails.getDigitalAddress());
+        assertEquals("get-address@pec.it", getAddressDetails.getDigitalAddress().getAddress());
+        assertEquals("PEC", getAddressDetails.getDigitalAddress().getType());
+
+        InformalTimelineElementV1 publicRegistryResponseElem = result.getTimeline().stream()
+                .filter(item -> "INF_PUBLIC_REGISTRY_RESPONSE".equals(item.getElementId()))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(InformalTimelineElementCategoryV1.PUBLIC_REGISTRY_RESPONSE, publicRegistryResponseElem.getCategory());
+        assertInstanceOf(it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryResponseDetails.class, publicRegistryResponseElem.getDetails());
+        it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryResponseDetails publicRegistryResponseDetails =
+                (it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.PublicRegistryResponseDetails) publicRegistryResponseElem.getDetails();
+        assertEquals(0, publicRegistryResponseDetails.getRecIndex());
+        assertNotNull(publicRegistryResponseDetails.getDigitalAddress());
+        assertEquals("public-registry-response@pec.it", publicRegistryResponseDetails.getDigitalAddress().getAddress());
     }
 
     @Test

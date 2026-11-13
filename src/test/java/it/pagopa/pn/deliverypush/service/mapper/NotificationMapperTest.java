@@ -34,7 +34,7 @@ class NotificationMapperTest {
                 .vat(22)
                 .build();
         
-        SentNotificationV25 sent = NotificationMapper.internalToExternal( expected );
+        SentNotificationV26 sent = NotificationMapper.internalToExternal( expected );
         NotificationInt actual = NotificationMapper.externalToInternal( sent );
         
         Assertions.assertEquals(expected, actual );
@@ -43,21 +43,21 @@ class NotificationMapperTest {
 
     @Test
     void externalToInternal() {
-        SentNotificationV25 expected = getExternalNotification();
+        SentNotificationV26 expected = getExternalNotification();
 
         NotificationInt internal = NotificationMapper.externalToInternal( expected );
-        SentNotificationV25 actual = NotificationMapper.internalToExternal( internal );
+        SentNotificationV26 actual = NotificationMapper.internalToExternal( internal );
         
         Assertions.assertEquals( expected, actual );
     }
 
-    private SentNotificationV25 getExternalNotification() {
-        return new SentNotificationV25()
+    private SentNotificationV26 getExternalNotification() {
+        return new SentNotificationV26()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .senderPaId( "pa_02" )
-                .physicalCommunicationType(SentNotificationV25.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(SentNotificationV26.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .amount(18)
                 .paymentExpirationDate("2022-10-22")
                 .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
