@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -25,18 +25,19 @@ import static it.pagopa.pn.deliverypush.exceptions.PnDeliveryPushExceptionCodes.
 @WebFluxTest(PnNotificationProcessCostController.class)
 class PnNotificationProcessCostControllerTest {
 
+    private static final String IUN = "EMNZ-AMNX-TEWL-202606-Y-1";
+
     @Autowired
     WebTestClient webTestClient;
 
-    @MockBean
+    @MockitoBean
     NotificationProcessCostService service;
 
-    @MockBean
+    @MockitoBean
     TimelineUtils timelineUtils;
 
     @Test
     void notificationProcessCost() {
-        String iun = "testIun";
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
         Boolean applyCost = true;
@@ -54,15 +55,15 @@ class PnNotificationProcessCostControllerTest {
                 .sendFee(100)
                 .build();
 
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(false);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(false);
 
-        Mockito.when(service.notificationProcessCost(iun, recIndex, notificationFeePolicy, applyCost, paFee, vat))
+        Mockito.when(service.notificationProcessCost(IUN, recIndex, notificationFeePolicy, applyCost, paFee, vat))
                 .thenReturn(Mono.just(notificationCost));
         
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
+                                .path("/delivery-push-private/"+ IUN +"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .queryParam("applyCost", applyCost)
                                 .queryParam("paFee", paFee)
@@ -76,7 +77,7 @@ class PnNotificationProcessCostControllerTest {
                 .expectBody(NotificationProcessCostResponse.class).consumeWith(
                 elem -> {
                     NotificationProcessCostResponse response = elem.getResponseBody();
-                    assert response != null;
+                    Assertions.assertNotNull(response);
                     Assertions.assertEquals(notificationCost.getPartialCost(),response.getPartialCost());
                     Assertions.assertEquals(notificationCost.getTotalCost(),response.getTotalCost());
                     Assertions.assertEquals(notificationCost.getAnalogCost(),response.getAnalogCost());
@@ -91,16 +92,15 @@ class PnNotificationProcessCostControllerTest {
 
     @Test
     void notificationProcessCostCancelled404() {
-        String iun = "testIun";
         int recIndex = 0;
         NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.DELIVERY_MODE;
 
-        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(iun)).thenReturn(true);
+        Mockito.when(timelineUtils.checkIsNotificationCancellationRequested(IUN)).thenReturn(true);
 
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery-push-private/"+iun+"/notification-process-cost/"+recIndex )
+                                .path("/delivery-push-private/"+ IUN +"/notification-process-cost/"+recIndex )
                                 .queryParam("notificationFeePolicy", notificationFeePolicy.getValue())
                                 .queryParam("applyCost", true)
                                 .build())
@@ -112,8 +112,8 @@ class PnNotificationProcessCostControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem response = elem.getResponseBody();
-                            assert response != null;
-                            Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().get(0).getCode());
+                            Assertions.assertNotNull(response);
+                            Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,response.getErrors().getFirst().getCode());
                         }
                 );
     }

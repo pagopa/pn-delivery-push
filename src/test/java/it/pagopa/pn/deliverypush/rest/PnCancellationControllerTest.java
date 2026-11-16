@@ -61,7 +61,7 @@ class PnCancellationControllerTest {
                 .expectBody(RequestStatus.class).consumeWith(
                         elem -> {
                             RequestStatus requestStatus = elem.getResponseBody();
-                            assert requestStatus != null;
+                            Assertions.assertNotNull(requestStatus);
                             Assertions.assertEquals("OK", requestStatus.getStatus());
                         }
                 );
@@ -98,7 +98,7 @@ class PnCancellationControllerTest {
                 .expectBody(RequestStatus.class).consumeWith(
                         elem -> {
                             RequestStatus requestStatus = elem.getResponseBody();
-                            assert requestStatus != null;
+                            Assertions.assertNotNull(requestStatus);
                             Assertions.assertEquals("OK", requestStatus.getStatus());
                         }
                 );

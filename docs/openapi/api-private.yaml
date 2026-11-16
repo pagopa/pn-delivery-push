@@ -81,6 +81,41 @@ paths:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
+  /delivery-push-private/{iun}/informal/history:
+    get:
+      summary: Storico eventi notifica bonaria
+      description: >-
+        Legge e restituisce la timeline di una notifica bonaria, il suo stato e la storia dei 
+        suoi cambiamenti di stato.
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - TimelineAndStatus
+      operationId: getInformalNotificationHistory
+      parameters:
+        - $ref: '#/components/parameters/pathInformalIun'
+        - $ref: '#/components/parameters/pathNumberOfRecipients'
+        - $ref: '#/components/parameters/pathCreatedAt'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InformalNotificationHistoryResponse"
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
   '/delivery-push-private/{iun}/viewed':
     post:
       deprecated: true
@@ -139,6 +174,9 @@ paths:
       operationId: notifyNotificationRaddRetrieved
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
+        - $ref: '#/components/parameters/xPagoPaPnCxType'
       requestBody:
         content:
           application/json:
@@ -231,6 +269,8 @@ paths:
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: '#/components/parameters/xPagoPaPnCxType'
         - $ref: '#/components/parameters/xPagoPaPnCxGroups'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
       responses:
         '200':
           description: OK
@@ -274,6 +314,8 @@ paths:
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
         - $ref: '#/components/parameters/xPagoPaPnCxType'
         - $ref: '#/components/parameters/xPagoPaPnCxGroups'
+        - $ref: '#/components/parameters/xPagoPaPnUid'
+        - $ref: '#/components/parameters/xPagoPaPnCxId'
       responses:
         '200':
           description: OK
@@ -383,12 +425,26 @@ paths:
 components:
   parameters:
 
+    xPagoPaPnUid:
+      name: x-pagopa-pn-uid
+      in: header
+      required: false
+      schema:
+        $ref: 'remote-refs.yaml#/components/schemas/UidAuthFleet'
+
+    xPagoPaPnCxId:
+      name: x-pagopa-pn-cx-id
+      in: header
+      required: false
+      schema:
+        $ref: 'remote-refs.yaml#/components/schemas/CxIdAuthFleet'
+
     xPagoPaPnCxType:
       name: x-pagopa-pn-cx-type
-      in: query
-      description: cx-type (PF, PG, PA)
+      in: header
+      required: false
       schema:
-        $ref: '#/components/schemas/cxTypeAuthFleet'
+        $ref: 'remote-refs.yaml#/components/schemas/CxTypeAuthFleet'
 
     xPagoPaPnCxGroups:
       name: x-pagopa-pn-cx-groups
@@ -402,13 +458,10 @@ components:
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
     ############################################################################################
     pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
+      $ref: 'remote-refs.yaml#/components/parameters/pathIun'
+
+    pathInformalIun:
+      $ref: 'remote-refs.yaml#/components/parameters/pathInformalIun'
 
     pathNumberOfRecipients:
       description: >-
@@ -553,13 +606,6 @@ components:
 
   schemas:
 
-    cxTypeAuthFleet:
-      type: string
-      enum:
-        - PG
-        - PF
-        - PA
-
     ############################################################################################
     ###           COMUNICAZIONE DELLA NOTIFICHE DI DESTINATARI NON RAGGIUNGIBILI            ###
     ############################################################################################
@@ -604,6 +650,24 @@ components:
           type: array
           items:
             $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/TimelineElementV28'
+
+    ############################################################################################
+    ###                        INFORMAZIONI STORICHE DI UNA NOTIFICA BONARIA                 ###
+    ############################################################################################
+
+    InformalNotificationHistoryResponse:
+      type: object
+      properties:
+        informalNotificationStatus:
+          $ref: './schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusV1'
+        informalNotificationStatusHistory:
+          $ref: './schemas-pn-status.yaml#/components/schemas/InformalNotificationStatusHistoryV1'
+        timeline:
+          description: >-
+            elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica bonaria
+          type: array
+          items:
+            $ref: './schemas-pn-timeline-internal.yaml#/components/schemas/InformalTimelineElementV1'
 
 
     ############################################################################################

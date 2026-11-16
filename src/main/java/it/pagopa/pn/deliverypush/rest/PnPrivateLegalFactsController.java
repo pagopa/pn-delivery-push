@@ -43,7 +43,9 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
             String legalFactId,
             String mandateId,
             CxTypeAuthFleet xPagopaPnCxType,
-            List<String> xPagopaPnCxGroups, 
+            List<String> xPagopaPnCxGroups,
+            String xPagopaPnUid,
+            String xPagopaPnCxId,
             final ServerWebExchange exchange
     ) {
         if (! CxTypeAuthFleet.PA.equals(xPagopaPnCxType) && timelineUtils.checkIsNotificationCancellationRequested(iun)){
@@ -64,6 +66,8 @@ public class PnPrivateLegalFactsController implements LegalFactsPrivateApi {
             String mandateId,
             CxTypeAuthFleet cxType,
             List<String> cxGroups,
+            String xPagopaPnUid,
+            String xPagopaPnCxId,
             ServerWebExchange exchange) {
         log.info("Starting getNotificationLegalFacts (private) Process");
 

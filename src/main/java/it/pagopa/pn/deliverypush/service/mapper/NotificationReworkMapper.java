@@ -4,7 +4,8 @@ import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationReworkReques
 import it.pagopa.pn.deliverypush.dto.notificationrework.NotificationUpdateReworkRequestInternal;
 import it.pagopa.pn.deliverypush.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksEntity;
-import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.RequestType;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.NotificationReworksErrorEntity;
+import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.ReworkRequestType;
 import it.pagopa.pn.deliverypush.middleware.dao.notificationreworkdao.dynamo.entity.StatusCodeEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,7 +28,8 @@ public class NotificationReworkMapper {
         internalRequest.setTask(externalRequest.getTask());
         internalRequest.setExpectedStatusCode(externalRequest.getExpectedStatusCode());
         internalRequest.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
-        internalRequest.setRequestType(RequestType.REWORK);
+        internalRequest.setRequestType(ReworkRequestType.REWORK);
+        internalRequest.setCanInvalidateViewed(Boolean.TRUE.equals(externalRequest.getCanInvalidateViewed()));
         return internalRequest;
     }
 
@@ -38,7 +40,17 @@ public class NotificationReworkMapper {
         internalRequest.setRecIndex(resolveRecIndex(externalRequest.getRecIndex()));
         internalRequest.setReason(externalRequest.getReason());
         internalRequest.setTask(externalRequest.getTask());
-        internalRequest.setRequestType(RequestType.RESTART);
+        internalRequest.setRequestType(ReworkRequestType.RESTART);
+        internalRequest.setCanInvalidateViewed(Boolean.TRUE.equals(externalRequest.getCanInvalidateViewed()));
+        return internalRequest;
+    }
+
+    public static NotificationReworkRequestInternal externalToInternal(InvalidateTimelineElementsRequest invalidateTimelineElementsRequest, String iun) {
+        NotificationReworkRequestInternal internalRequest = new NotificationReworkRequestInternal();
+        internalRequest.setIun(iun);
+        internalRequest.setRecIndex(resolveRecIndex(invalidateTimelineElementsRequest.getRecIndex()));
+        internalRequest.setElementsToInvalidate(invalidateTimelineElementsRequest.getTimelineElementIds());
+        internalRequest.setRequestType(ReworkRequestType.INVALIDATE_ELEMENTS);
         return internalRequest;
     }
 
@@ -57,6 +69,8 @@ public class NotificationReworkMapper {
                     reworkItem.setReason(notificationReworksEntity.getReason());
                     reworkItem.setPcRetry(notificationReworksEntity.getPcRetry());
                     reworkItem.setRecIndex(notificationReworksEntity.getRecIndex());
+                    reworkItem.setCanInvalidateViewed(notificationReworksEntity.isCanInvalidateViewed());
+                    reworkItem.setErrors(mapToErrorItems(notificationReworksEntity.getErrors()));
 
                     if(Objects.nonNull(notificationReworksEntity.getCreatedAt())) {
                         reworkItem.setCreatedAt(notificationReworksEntity.getCreatedAt().toString());
@@ -76,6 +90,20 @@ public class NotificationReworkMapper {
                     reworkItem.setRequestType(ReworkItem.RequestTypeEnum.valueOf(notificationReworksEntity.getRequestType().name()));
                     return reworkItem;
                 }).toList();
+    }
+
+    private static List<ReworkError> mapToErrorItems(List<NotificationReworksErrorEntity> errorEntities) {
+        if (CollectionUtils.isEmpty(errorEntities)) {
+            return Collections.emptyList();
+        }
+        return errorEntities.stream()
+                .map(errorEntity -> {
+                    ReworkError errorItem = new ReworkError();
+                    errorItem.setCause(ReworkError.CauseEnum.valueOf(errorEntity.getCause().name()));
+                    errorItem.setDescription(errorEntity.getDescription());
+                    return errorItem;
+                })
+                .toList();
     }
 
     private static List<StatusCodeItem> mapToStatusCodeItems(List<StatusCodeEntity> receivedStatusCodes) {
@@ -102,5 +130,4 @@ public class NotificationReworkMapper {
         internal.setExpectedDeliveryFailureCause(externalRequest.getExpectedDeliveryFailureCause());
         return internal;
     }
-
 }

@@ -169,6 +169,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  '/delivery-push-private/v1/notifications/{iun}/invalidate-timeline-elements':
+    put:
+      summary: Permette di eseguire la correzione puntuale di una notifica
+      description: >-
+        Questo endpoint permette di correggere la timeline delle notifiche invalidando puntualmente gli elementi di timeline ricevuti in input
+      tags:
+        - NotificationRework
+      operationId: invalidateTimelineElements
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvalidateTimelineElementsRequest'
+        required: true
+      responses:
+        '202':
+          description: Accepted - Richiesta di invalidazione elementi di timeline presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidateTimelineElementsResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '404':
+          description: Notification not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
 components:
   parameters:
     pathIun:
@@ -206,6 +248,8 @@ components:
     ReworkRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:
@@ -241,6 +285,7 @@ components:
         creationDate:
           type: string
           format: date-time
+
     ReworkItemsResponse:
       type: object
       properties:
@@ -253,6 +298,8 @@ components:
     ReworkItem:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         reworkId:
           type: string
           description: identificativo univoco della richiesta di rework
@@ -321,20 +368,39 @@ components:
           enum:
             - REWORK
             - RESTART
-          description: Tipo della richiesta di rework (RESTART, REWORK)
+            - INVALIDATE_ELEMENTS
+          description: Tipo della richiesta di rework (RESTART, REWORK, INVALIDATE_ELEMENTS)
     ReworkError:
       type: object
       properties:
         cause:
           type: string
           enum:
-            - EXPIRED_ATTACHMENT,
-            - INVALID_ATTACHMENT,
-            - INVALID_NOTIFICATION_STATUS,
-            - INVALID_TIMELINE_ELEMENT,
-            - EXPIRED_ANALOG_ADDRESS,
-            - INVALID_ANALOG_ADDRESS,
+            - NOTIFICATION_CANCELLED
+            - ERROR_INSER_ACTION
+            - INVALID_RECINDEX
+            - INVALID_NOTIFICATION_STATUS
+            - EXPIRED_ATTACHMENT
+            - INVALID_ATTACHMENT
             - INVALID_EXPECTED_STATUS_CODE
+            - INVALID_ATTEMPT_ID
+            - INVALID_TIMELINE_ELEMENT
+            - INVALID_ANALOG_ADDRESS
+            - EXPIRED_ANALOG_ADDRESS
+            - DUPLICATED_ACTION_ERROR
+            - REWORK_REQUESTED_PHASE_ERROR
+            - INVALID_ELEMENT_CATEGORY
+            - INVALID_CATEGORY_TO_INVALIDATE
+            - INVALID_REC_INDEX
+            - INVALID_ATTEMPT1_ELEMENT
+            - INVALID_ATTEMPT0_ELEMENT
+            - INVALID_PROGRESS_ELEMENT
+            - INVALID_ATTEMPT1_ELEMENTS
+            - INVALID_VIEWED_ELEMENT
+            - INVALID_ELEMENT_TO_INVALIDATE
+            - INVALID_ELEMENTS_TO_INVALIDATE
+            - INVALID_VIEWED_ELEMENTS
+            - ATTACHMENTS_EXIST_ONVIEWED
         description:
           type: string
     StatusCodeItem:
@@ -353,6 +419,8 @@ components:
     RestartAttemptRequest:
       type: object
       properties:
+        canInvalidateViewed:
+          type: boolean
         attemptId:
           type: string
           enum:
@@ -372,5 +440,25 @@ components:
         - reason
 
     RestartAttemptResponse:
+      allOf:
+        - $ref: "#/components/schemas/ReworkResponse"
+
+    InvalidateTimelineElementsRequest:
+      type: object
+      properties:
+        recIndex:
+          type: string
+          pattern: '^RECINDEX_([1-9][0-9]?|0)$'
+          example: 'RECINDEX_0'
+        timelineElementIds:
+          type: array
+          minItems: 1
+          items:
+            type: string
+      required:
+        - recIndex
+        - timelineElementIds
+
+    InvalidateTimelineElementsResponse:
       allOf:
         - $ref: "#/components/schemas/ReworkResponse"

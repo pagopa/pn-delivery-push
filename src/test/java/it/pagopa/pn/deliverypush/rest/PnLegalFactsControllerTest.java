@@ -164,7 +164,7 @@ class PnLegalFactsControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                             Assertions.assertNotNull(problem.getTitle());
@@ -202,7 +202,7 @@ class PnLegalFactsControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                         }
                 );
@@ -272,7 +272,7 @@ class PnLegalFactsControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), problem.getStatus());
                             Assertions.assertNotNull(problem.getDetail());
                             Assertions.assertNotNull(problem.getTitle());
@@ -310,7 +310,7 @@ class PnLegalFactsControllerTest {
                 .expectBody(Problem.class).consumeWith(
                         elem -> {
                             Problem problem = elem.getResponseBody();
-                            assert problem != null;
+                            Assertions.assertNotNull(problem);
                             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), problem.getStatus());
                         }
                 );
@@ -356,7 +356,7 @@ class PnLegalFactsControllerTest {
             .expectBody(Problem.class).consumeWith(
                 elem -> {
                     Problem problem = elem.getResponseBody();
-                    assert problem != null;
+                    Assertions.assertNotNull(problem);
                     Assertions.assertNotNull(problem.getDetail());
                     Assertions.assertNotNull(problem.getTitle());
                     Assertions.assertEquals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED,problem.getErrors().getFirst().getCode());
