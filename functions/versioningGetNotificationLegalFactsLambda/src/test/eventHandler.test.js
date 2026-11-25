@@ -168,9 +168,9 @@ describe("eventHandler tests", function () {
     expect(response.statusCode).to.equal(200);
   });
 
-  describe("axios-retry configurato una sola volta", function () {
+  describe("axios-retry configured only once", function () {
     const iunValue = "12345";
-    const EXPECTED_CALLS_ON_FAILURE = 1 + Number(process.env.NUM_RETRY); // tentativo iniziale + retry
+    const EXPECTED_CALLS_ON_FAILURE = 1 + Number(process.env.NUM_RETRY); // initial attempt + retry
 
     const buildEvent = () => ({
       pathParameters: { iun: iunValue },
