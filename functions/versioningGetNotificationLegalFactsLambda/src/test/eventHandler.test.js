@@ -1,3 +1,6 @@
+process.env.NUM_RETRY = "2";
+process.env.ATTEMPT_TIMEOUT_SEC = "1";
+
 const { versioning } = require("../app/eventHandler.js");
 const { expect } = require("chai");
 const fs = require("fs");
@@ -163,6 +166,61 @@ describe("eventHandler tests", function () {
     const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
+  });
+
+  describe("axios-retry configured only once", function () {
+    const iunValue = "12345";
+    const EXPECTED_CALLS_ON_FAILURE = 1 + Number(process.env.NUM_RETRY); // initial attempt + retry
+
+    const buildEvent = () => ({
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: `/delivery-push/${iunValue}/legal-facts`,
+      path: "/delivery-push/MOCK_IUN/legal-facts",
+      httpMethod: "GET",
+    });
+
+    let url;
+
+    beforeEach(() => {
+      process.env = Object.assign(process.env, {
+        PN_DELIVERYPUSH_URL: "https://api.dev.notifichedigitali.it/delivery-push",
+      });
+      url = `${process.env.PN_DELIVERYPUSH_URL}/${iunValue}/legal-facts`;
+      mock.reset();
+    });
+
+    after(() => {
+      mock.reset();
+    });
+
+    it("constant number of attempts across successive invocations", async () => {
+      mock.onGet(url).reply(500, { error: "ERROR" });
+
+      for (let i = 0; i < 3; i++) {
+        mock.resetHistory();
+        const response = await versioning(buildEvent(), {});
+        expect(response.statusCode).to.equal(500);
+        expect(mock.history.get.length).to.equal(EXPECTED_CALLS_ON_FAILURE);
+      }
+    });
+
+    it("axios interceptors do not increase with each invocation", async () => {
+      mock.onGet(url).reply(200, {});
+
+      await versioning(buildEvent(), {});
+      const requestHandlers = axios.interceptors.request.handlers.length;
+      const responseHandlers = axios.interceptors.response.handlers.length;
+
+      await versioning(buildEvent(), {});
+      await versioning(buildEvent(), {});
+
+      expect(axios.interceptors.request.handlers.length).to.equal(requestHandlers);
+      expect(axios.interceptors.response.handlers.length).to.equal(responseHandlers);
+    });
   });
 
 });

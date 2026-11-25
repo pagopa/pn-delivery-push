@@ -4,6 +4,21 @@ const { transformFromV20ToV1 } = require('./mapper/mapperV20ToV1.js');
 const axios = require("axios");
 const axiosRetry = require("axios-retry").default;
 
+const attemptTimeout = Number(process.env.ATTEMPT_TIMEOUT_SEC) * 1000;
+const numRetry = Number(process.env.NUM_RETRY);
+
+console.log(`attemptTimeout ${attemptTimeout} millis  ${numRetry} retry`);
+
+axiosRetry(axios, {
+  retries: numRetry,
+  shouldResetTimeout: true,
+  retryCondition: (error) => {
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+  },
+  onRetry: retryCallback,
+  onMaxRetryTimesExceeded: retryTimesExceededCallback
+});
+
 exports.versioning = async (event, context) => {
   console.log("event: ", JSON.stringify(event));
 
@@ -17,22 +32,6 @@ exports.versioning = async (event, context) => {
   console.log("pn-versioningGetNotificationLegalFactsLambda function started");
 
   const url = `${process.env.PN_DELIVERYPUSH_URL}${path}`;
-
-  const attemptTimeout = `${process.env.ATTEMPT_TIMEOUT_SEC}` * 1000;
-
-  const numRetry = `${process.env.NUM_RETRY}`;
-
-  console.log(`attemptTimeout ${attemptTimeout} millis  ${numRetry} retry`);
-
-  axiosRetry(axios, {
-    retries: numRetry,
-    shouldResetTimeout: true,
-    retryCondition: (error) => {
-      return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
-    },
-    onRetry: retryCallback,
-    onMaxRetryTimesExceeded: retryTimesExceededCallback
-  });
 
   // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
   let version = getVersion(event);
@@ -75,6 +74,7 @@ exports.versioning = async (event, context) => {
       }
     }
   }
+};
 
   function retryCallback(retryCount, error, requestConfig) {
     console.warn(`Retry num ${retryCount} - error:${error.message}`);
@@ -83,7 +83,6 @@ exports.versioning = async (event, context) => {
   function retryTimesExceededCallback(error, retryCount) {
     console.warn(`Retries exceeded: ${retryCount} - error:${error.message}`);
   }
-};
 
 function validateEndpoint(event, path) {
   if (
